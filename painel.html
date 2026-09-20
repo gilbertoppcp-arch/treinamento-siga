@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel da Manutenção</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  :root{
+    --bg:#EEF2F3; --surface:#FFFFFF; --surface-2:#F3F6F6; --surface-3:#E4EBEC;
+    --ink:#132226; --ink-2:#3F5257; --muted:#7C9296; --border:#DCE6E7;
+    --navy:#16333A; --navy-soft:#1F4750; --navy-deep:#0E252B;
+    --gold:#0097A7; --gold-bright:#17B4C4; --gold-soft:#CBEAEE;
+    --good:#2E9E6D; --good-bright:#35B47D;
+    --progress:#1F7AC4; --pending:#B87A0E; --pending-bright:#D99A2E;
+    --attention:#C1512A; --attention-bright:#E8804F;
+    --cat-predial:#1F7AC4; --cat-eletrica:#B87A0E; --cat-geral:#2E9E6D;
+    --heading:#16333A; --num-accent:#0097A7;
+    --bar-grad-1:#1F4750; --bar-grad-2:#16333A;
+    --shadow-sm:0 1px 2px rgba(20,20,16,.05);
+    --shadow-md:0 10px 30px -14px rgba(20,20,16,.22);
+    --radius-lg:20px; --radius-md:14px; --radius-sm:9px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0A1A1E; --surface:#0F262B; --surface-2:#153037; --surface-3:#1C3A42;
+      --ink:#E9F3F4; --ink-2:#B6CBCE; --muted:#7FA0A5; --border:#20444C;
+      --navy:#1F4750; --navy-soft:#2C5C67; --navy-deep:#08161A;
+      --gold:#4FC3D0; --gold-bright:#17B4C4; --gold-soft:#0E3D44;
+      --good:#2AAE72; --good-bright:#3EC486;
+      --progress:#3A85C9; --pending:#C2820F; --pending-bright:#E0A430;
+      --attention:#E0855A; --attention-bright:#F0A378;
+      --cat-predial:#3A85C9; --cat-eletrica:#C2820F; --cat-geral:#2AAE72;
+      --heading:#FFFFFF; --num-accent:#4FC3D0;
+      --bar-grad-1:#4FC3D0; --bar-grad-2:#17B4C4;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.3);
+      --shadow-md:0 14px 34px -16px rgba(0,0,0,.55);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0A1A1E; --surface:#0F262B; --surface-2:#153037; --surface-3:#1C3A42;
+    --ink:#E9F3F4; --ink-2:#B6CBCE; --muted:#7FA0A5; --border:#20444C;
+    --navy:#1F4750; --navy-soft:#2C5C67; --navy-deep:#08161A;
+    --gold:#4FC3D0; --gold-bright:#17B4C4; --gold-soft:#0E3D44;
+    --good:#2AAE72; --good-bright:#3EC486;
+    --progress:#3A85C9; --pending:#C2820F; --pending-bright:#E0A430;
+    --attention:#E0855A; --attention-bright:#F0A378;
+    --cat-predial:#3A85C9; --cat-eletrica:#C2820F; --cat-geral:#2AAE72;
+    --heading:#FFFFFF; --num-accent:#4FC3D0;
+    --bar-grad-1:#4FC3D0; --bar-grad-2:#17B4C4;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.3);
+    --shadow-md:0 14px 34px -16px rgba(0,0,0,.55);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-variant-numeric:tabular-nums;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{ font-family:"Fraunces","Iowan Old Style",Georgia,serif; text-wrap:balance; }
+  a{color:inherit;}
+  .wrap{ max-width:1180px; margin:0 auto; padding:0 28px; }
+
+  /* ---------- TOP NAV ---------- */
+  .topnav{
+    position:sticky; top:0; z-index:50; background:var(--navy-deep); color:#fff;
+    border-bottom:1px solid rgba(255,255,255,.1);
+  }
+  .topnav-inner{ display:flex; align-items:center; justify-content:space-between; gap:16px; height:42px; }
+  .topnav-brand{ font-size:12px; font-weight:700; letter-spacing:.04em; color:#BFE1E5; }
+  .topnav-tabs{ display:flex; gap:4px; height:100%; }
+  .topnav-tab{
+    font-family:"Inter",sans-serif; font-size:12.5px; font-weight:700; color:#BFE1E5;
+    background:none; border:none; cursor:pointer; padding:0 14px; height:100%;
+    border-bottom:2px solid transparent; transition:color .15s, border-color .15s;
+  }
+  .topnav-tab:hover{ color:#fff; }
+  .topnav-tab.active{ color:#fff; border-bottom-color:var(--gold-bright); }
+
+  /* ---------- HERO (compact, sticky) ---------- */
+  .hero{
+    background:
+      radial-gradient(1100px 480px at 88% -10%, var(--navy-soft) 0%, transparent 60%),
+      linear-gradient(160deg, var(--navy-deep), var(--navy) 62%, var(--navy-soft));
+    color:#fff; padding:14px 0 12px; position:sticky; top:42px; z-index:40; overflow:hidden;
+    box-shadow:0 8px 20px -12px rgba(0,0,0,.4);
+  }
+  .hero::before{
+    content:""; position:absolute; right:-120px; top:-160px; width:420px; height:420px;
+    border-radius:50%; background:radial-gradient(circle at 35% 35%, var(--gold-bright), transparent 70%);
+    opacity:.5;
+  }
+  .hero-top{ display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; position:relative; }
+  .hero-title-row{ margin-top:8px; position:relative; }
+  .eyebrow{
+    font-family:"Inter",sans-serif; font-weight:700; font-size:10.5px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--gold-bright); margin:0 0 3px;
+  }
+  .hero h1{ margin:0; font-size:clamp(20px,2.6vw,26px); font-weight:600; line-height:1.08; color:#fff; }
+  .hero-meta{ font-size:12px; color:#BFE1E5; text-align:left; line-height:1.5; }
+
+  .btn-upload-mini{
+    font-family:"Inter",sans-serif; font-weight:700; font-size:11.5px; letter-spacing:.02em;
+    color:var(--navy-deep); background:var(--gold-bright); border:none; cursor:pointer;
+    padding:6px 12px; border-radius:99px; display:inline-flex; align-items:center; gap:6px;
+    transition:filter .15s, transform .15s; flex:none;
+  }
+  .btn-upload-mini .ico{ font-size:12px; }
+  .btn-upload-mini:hover{ filter:brightness(1.08); transform:translateY(-1px); }
+  .btn-upload-mini:active{ transform:translateY(0); }
+  .upload-status{ display:block; font-size:11px; color:#BFE1E5; margin-top:4px; }
+  .upload-status[hidden]{ display:none; }
+  .upload-status.err{ color:#FFC7B0; }
+  .upload-status.ok{ color:#B9F0D2; }
+
+  .kpi-row{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:14px; position:relative;
+  }
+  .kpi{
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14);
+    border-radius:var(--radius-md); padding:12px 14px 10px; backdrop-filter:blur(2px);
+  }
+  .kpi .num{ font-family:"Fraunces",serif; font-weight:600; font-size:26px; line-height:1; color:#fff; }
+  .kpi .num sup{ font-size:13px; font-weight:600; margin-left:2px; }
+  .kpi .label{ margin-top:5px; font-size:11.5px; color:#BFE1E5; line-height:1.35; }
+  .kpi .tag{ display:inline-block; margin-top:7px; font-size:10px; font-weight:700; letter-spacing:.05em;
+    color:var(--navy-deep); background:var(--gold-bright); padding:2px 8px; border-radius:99px; }
+
+  /* ---------- SECTIONS ---------- */
+  main{ padding:40px 0 60px; }
+  section{ margin-bottom:44px; }
+  .section-head{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+  .section-head h2{ margin:0; font-size:22px; font-weight:600; color:var(--heading); }
+  .section-note{ font-size:13px; color:var(--muted); max-width:420px; text-align:right; }
+
+  .card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); }
+
+  /* ---------- WINS WALL ---------- */
+  .wins-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  .win-card{
+    padding:18px 18px 16px; display:flex; flex-direction:column; gap:10px; min-height:150px;
+    border-top:3px solid var(--good-bright);
+  }
+  .win-card .quote{ font-family:"Fraunces",serif; font-size:16px; line-height:1.4; color:var(--ink); flex:1; }
+  .win-card .meta{ display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:11.5px; }
+  .win-card .church-line{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; min-width:0; }
+  .win-card .church{ font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:var(--good); }
+  .win-card .when{ color:var(--muted); flex:none; }
+  .pill{ display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; letter-spacing:.04em;
+    text-transform:uppercase; padding:3px 8px; border-radius:99px; background:var(--surface-2); color:var(--ink-2); width:fit-content; }
+  .pill.same-day{ background:color-mix(in srgb, var(--good-bright) 16%, var(--surface-2)); color:var(--good); }
+
+  /* ---------- PROGRESS BY CATEGORY ---------- */
+  .progress-panel{ padding:26px 26px 22px; display:flex; flex-direction:column; gap:22px; }
+  .cat-row .cat-top{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:8px; }
+  .cat-row .cat-name{ font-weight:700; font-size:14.5px; display:flex; align-items:center; gap:8px; }
+  .dot{ width:9px; height:9px; border-radius:50%; display:inline-block; }
+  .cat-row .cat-stat{ font-size:13px; color:var(--ink-2); }
+  .cat-row .cat-stat b{ color:var(--ink); font-size:15px; }
+  .bar-track{ position:relative; height:12px; border-radius:99px; background:var(--surface-3); overflow:hidden; }
+  .bar-fill{ position:absolute; inset:0 auto 0 0; height:100%; border-radius:99px; }
+  .bar-track .ref-tick{ position:absolute; top:-3px; bottom:-3px; width:2px; background:var(--ink); opacity:.35; border-radius:2px; }
+  .cat-foot{ display:flex; justify-content:space-between; margin-top:6px; font-size:11.5px; color:var(--muted); }
+  .legend-inline{ display:flex; gap:18px; font-size:12px; color:var(--muted); margin-top:2px; }
+  .legend-inline span{ display:inline-flex; align-items:center; gap:6px; }
+  .legend-inline .sw{ width:12px; height:3px; border-radius:2px; display:inline-block; }
+  .legend-inline .sw.tick{ width:2px; height:11px; background:var(--ink); opacity:.35; border-radius:1px; }
+
+  /* ---------- MANAGEMENT INDICATORS ---------- */
+  .mgmt-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+  .mgmt-card{ padding:22px 24px 20px; }
+  .mgmt-title{ font-weight:700; font-size:14.5px; color:var(--heading); }
+  .mgmt-sub{ font-size:12px; color:var(--muted); margin-top:3px; margin-bottom:16px; }
+  .mgmt-foot{ font-size:12px; color:var(--muted); margin-top:12px; }
+
+  .seg-bar{ display:flex; height:16px; border-radius:99px; overflow:hidden; background:var(--surface-3); }
+  .seg-bar .seg{ height:100%; }
+  .seg-legend{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px 14px; margin-top:14px; }
+  .seg-legend .chip{ display:flex; align-items:center; gap:7px; font-size:12px; color:var(--ink-2); }
+  .seg-legend .sw{ width:10px; height:10px; border-radius:3px; flex:none; }
+  .seg-legend b{ color:var(--ink); }
+
+  .aging-big{ display:flex; align-items:baseline; gap:10px; }
+  .aging-big #ind-aging-num{ font-family:"Fraunces",serif; font-weight:600; font-size:40px; color:var(--num-accent); }
+  .aging-big .aging-unit{ font-size:12.5px; color:var(--ink-2); max-width:180px; line-height:1.4; }
+
+  .year-trend{ display:flex; align-items:flex-end; gap:16px; height:90px; }
+  .year-trend .ybar-col{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; cursor:pointer; border-radius:8px; padding:4px 2px 0; transition:background .15s; }
+  .year-trend .ybar-col:hover{ background:var(--surface-2); }
+  .year-trend .ybar-col:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+  .year-trend .ybar-val{ font-size:12px; font-weight:700; color:var(--heading); margin-bottom:4px; }
+  .year-trend .ybar{ width:56%; background:linear-gradient(180deg, var(--bar-grad-1), var(--bar-grad-2)); border-radius:6px 6px 3px 3px; opacity:.45; transition:opacity .15s; }
+  .year-trend .ybar-col:hover .ybar{ opacity:.7; }
+  .year-trend .ybar-col.active .ybar{ opacity:1; }
+  .year-trend .ybar-col.active .ybar-val{ color:var(--gold); }
+  .year-trend .ybar-col.active .ybar-label{ color:var(--ink); font-weight:700; }
+  .year-trend .ybar-label{ margin-top:8px; font-size:11.5px; color:var(--muted); }
+
+  .cat-time-list{ display:flex; flex-direction:column; gap:14px; }
+  .cat-time-row .ct-top{ display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px; }
+  .cat-time-row .ct-top b{ color:var(--ink); }
+  .cat-time-row .ct-track{ height:8px; border-radius:99px; background:var(--surface-3); overflow:hidden; }
+  .cat-time-row .ct-fill{ height:100%; border-radius:99px; }
+
+  /* ---------- OPEN NON-REFORMA BY CHURCH TABLE ---------- */
+  #reforma-plan-section{ scroll-margin-top:292px; }
+
+  .cross-note{
+    display:flex; align-items:baseline; flex-wrap:wrap; gap:6px 10px; margin-bottom:16px;
+    padding:12px 16px; border-radius:var(--radius-sm); background:color-mix(in srgb, var(--pending) 12%, var(--surface));
+    border:1px solid color-mix(in srgb, var(--pending) 30%, var(--border)); font-size:12.5px; color:var(--ink-2);
+  }
+  .cross-note .cn-num{ font-family:"Fraunces",serif; font-weight:600; font-size:19px; color:var(--pending); }
+  .cross-note .cn-link{ color:var(--gold); font-weight:700; text-decoration:none; white-space:nowrap; }
+  .cross-note .cn-link:hover{ text-decoration:underline; }
+
+  .table-card{ padding:22px 26px 18px; }
+  .table-scroll{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .breakdown-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  .breakdown-table th{ text-align:left; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); font-weight:700; padding:0 0 10px; border-bottom:1px solid var(--border); }
+  .breakdown-table th.num, .breakdown-table td.num{ text-align:right; }
+  .breakdown-table td{ padding:11px 0; border-bottom:1px solid var(--border); }
+  .breakdown-table tr:last-child td{ border-bottom:none; }
+  .breakdown-table tr.total-row td{ border-top:2px solid var(--border); border-bottom:none; padding-top:13px; font-weight:700; color:var(--heading); }
+  .breakdown-table .bt-bar{ display:inline-block; height:7px; border-radius:99px; background:var(--progress); vertical-align:middle; margin-right:10px; }
+  .breakdown-table .bt-name{ display:flex; align-items:center; }
+  .detail-head{ font-weight:700; font-size:14.5px; color:var(--heading); margin-bottom:14px; }
+  .detail-table{ min-width:560px; }
+  .detail-table td, .detail-table th{ padding:9px 10px 9px 0; }
+  .detail-table tr.church-group td{ padding-top:16px; padding-bottom:4px; border-bottom:none; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); font-weight:700; }
+  .detail-table tr.church-group:first-child td{ padding-top:0; }
+  .detail-table .cat-tag{ display:inline-block; font-size:11px; padding:2px 8px; border-radius:99px; background:var(--surface-2); color:var(--ink-2); }
+  .detail-table .age-tag{ color:var(--ink-2); }
+  .detail-table .age-tag.old{ color:var(--attention); font-weight:700; }
+
+  /* ---------- POST-REFORMA PLAN ---------- */
+  .plan-kpi-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:16px; }
+  .plan-kpi{ padding:18px 20px; }
+  .plan-kpi .pk-num{ font-family:"Fraunces",serif; font-weight:600; font-size:28px; color:var(--num-accent); }
+  .plan-kpi .pk-label{ font-size:12.5px; color:var(--ink-2); margin-top:4px; }
+  .cost-bar .bt-bar{ background:var(--gold); }
+  .waiting-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .waiting-item{ background:var(--surface-2); border-radius:var(--radius-sm); padding:11px 13px; font-size:12.5px; }
+  .waiting-item .w{ font-weight:700; color:var(--ink); display:block; margin-bottom:3px; }
+  .waiting-item .c{ color:var(--muted); font-size:11.5px; display:flex; justify-content:space-between; gap:6px; }
+  @media (max-width:920px){
+    .plan-kpi-row{ grid-template-columns:1fr; }
+    .waiting-grid{ grid-template-columns:1fr; }
+  }
+
+  /* plan checklist */
+  .plan-check-cell{ text-align:center; width:34px; }
+  .plan-check{
+    appearance:none; -webkit-appearance:none; width:19px; height:19px; border-radius:6px;
+    border:2px solid var(--border); background:var(--surface); cursor:pointer; display:inline-block;
+    position:relative; vertical-align:middle; transition:background .15s, border-color .15s;
+  }
+  .plan-check:hover{ border-color:var(--good); }
+  .plan-check:checked{ background:var(--good); border-color:var(--good); }
+  .plan-check:checked::after{
+    content:""; position:absolute; left:5px; top:1px; width:5px; height:9px;
+    border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
+  }
+  .plan-detail-tbody tr.done td{ color:var(--muted); }
+  .plan-detail-tbody tr.done td:not(.plan-check-cell){ text-decoration:line-through; text-decoration-color:var(--muted); }
+  .plan-detail-tbody tr.done .cat-tag{ text-decoration:none; opacity:.6; }
+  .plan-progress-note{ font-size:12.5px; color:var(--muted); margin-top:10px; }
+
+  /* ---------- TWO COL ---------- */
+  .two-col{ display:grid; grid-template-columns:1.15fr .85fr; gap:20px; align-items:stretch; }
+
+  /* ---------- MONTHLY CHART ---------- */
+  .chart-card{ padding:24px 24px 18px; }
+  .chart-card .chart-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px; }
+  .chart-card .chart-title{ font-weight:700; font-size:14.5px; }
+  .chart-card .chart-sub{ font-size:12px; color:var(--muted); margin-bottom:18px; }
+  .bars-wrap{ position:relative; }
+  .bars{ display:flex; align-items:flex-end; gap:10px; height:150px; border-bottom:1px solid var(--border); padding-bottom:2px; }
+  .bar-col{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; position:relative; cursor:pointer; }
+  .bar-col .val{ font-size:12px; font-weight:700; color:var(--heading); margin-bottom:4px; opacity:0; transition:opacity .15s; }
+  .bar-col:hover .val{ opacity:1; }
+  .bar-col .stick{ width:60%; max-width:34px; background:linear-gradient(180deg, var(--bar-grad-1), var(--bar-grad-2)); border-radius:6px 6px 3px 3px; transition:filter .15s; }
+  .bar-col:hover .stick{ filter:brightness(1.12); }
+  .bar-col .m-label{ margin-top:8px; font-size:11px; color:var(--muted); }
+  .streak-note{ margin-top:16px; display:flex; align-items:center; gap:10px; font-size:13px; color:var(--ink-2); background:var(--surface-2); padding:10px 14px; border-radius:var(--radius-sm); }
+  .streak-note .flame{ font-size:16px; }
+
+  /* ---------- CHURCHES ---------- */
+  .church-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
+  .church-card{ padding:16px 14px; text-align:center; }
+  .church-card .c-name{ font-size:12.5px; font-weight:700; color:var(--ink-2); min-height:32px; display:flex; align-items:center; justify-content:center; }
+  .church-card .c-num{ font-family:"Fraunces",serif; font-size:30px; font-weight:600; color:var(--num-accent); margin-top:4px; }
+  .church-card .c-sub{ font-size:11px; color:var(--muted); margin-top:2px; }
+
+  /* ---------- ATTENTION (quiet) ---------- */
+  .attention{ border:1px dashed var(--border); border-radius:var(--radius-lg); padding:18px 22px; background:var(--surface); }
+  .attention-head{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .attention-head .ico{ width:26px; height:26px; border-radius:50%; background:color-mix(in srgb, var(--pending-bright) 22%, var(--surface-2)); color:var(--pending); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; flex:none; }
+  .attention-head h3{ margin:0; font-size:15px; font-weight:700; color:var(--ink); }
+  .attention-head .sub{ font-size:12.5px; color:var(--muted); }
+  .attn-list{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .attn-item{ background:var(--surface-2); border-radius:var(--radius-sm); padding:11px 13px; font-size:12.5px; }
+  .attn-item .w{ font-weight:700; color:var(--ink); display:block; margin-bottom:3px; }
+  .attn-item .c{ color:var(--muted); font-size:11.5px; }
+  .attn-foot{ margin-top:14px; font-size:12px; color:var(--muted); border-top:1px solid var(--border); padding-top:12px; }
+
+  footer{ padding:24px 0 40px; border-top:1px solid var(--border); font-size:12px; color:var(--muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+
+  /* ---------- FECHAMENTO ---------- */
+  .fechamento-wrap{ padding-top:4px; }
+  .fechamento-controls{ display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .fechamento-controls label{ font-size:12.5px; font-weight:700; color:var(--ink-2); }
+  .fechamento-controls select{
+    font-family:"Inter",sans-serif; font-size:13px; padding:7px 12px; border-radius:var(--radius-sm);
+    border:1px solid var(--border); background:var(--surface); color:var(--ink); cursor:pointer;
+  }
+  .fechamento-table{ min-width:640px; }
+  .fechamento-table th, .fechamento-table td{ padding:10px 16px 10px 0; white-space:nowrap; }
+  .fechamento-table th{ white-space:nowrap; }
+  .fechamento-table td{ vertical-align:middle; }
+  .status-pill{ display:inline-block; font-size:11px; font-weight:700; padding:3px 10px; border-radius:99px; letter-spacing:.02em; white-space:nowrap; }
+  .status-pill.aberto{ background:color-mix(in srgb, var(--pending) 18%, var(--surface-2)); color:var(--pending); }
+  .status-pill.encerrado{ background:color-mix(in srgb, var(--good) 18%, var(--surface-2)); color:var(--good); }
+  .anexo-pill{ display:inline-block; font-size:11px; font-weight:600; padding:3px 10px; border-radius:99px; white-space:nowrap; }
+  .anexo-pill.sim{ background:color-mix(in srgb, var(--good) 18%, var(--surface-2)); color:var(--good); }
+  .anexo-pill.nao{ background:color-mix(in srgb, var(--attention) 16%, var(--surface-2)); color:var(--attention); }
+  .anexo-pill.na{ background:var(--surface-3); color:var(--muted); }
+  .fechamento-legend{ margin-top:16px; font-size:12.5px; color:var(--ink-2); line-height:1.6; padding:14px 18px; background:var(--surface-2); border-radius:var(--radius-sm); }
+
+  @media (max-width:920px){
+    .kpi-row{ grid-template-columns:repeat(2,1fr); }
+    .wins-grid{ grid-template-columns:repeat(2,1fr); }
+    .two-col{ grid-template-columns:1fr; }
+    .church-grid{ grid-template-columns:repeat(3,1fr); }
+    .attn-list{ grid-template-columns:repeat(2,1fr); }
+    .mgmt-grid{ grid-template-columns:1fr; }
+  }
+
+  /* ---------- PHONE ---------- */
+  @media (max-width:600px){
+    .wrap{ padding:0 16px; }
+    .hero{ padding:10px 0 10px; }
+    #reforma-plan-section{ scroll-margin-top:400px; }
+    .topnav-inner{ height:38px; }
+    .topnav-brand{ display:none; }
+    .hero{ top:38px; }
+    .fechamento-controls{ flex-wrap:wrap; }
+    .hero-meta{ text-align:left; font-size:10.5px; }
+    .hero h1{ font-size:19px; }
+    .kpi-row{ grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+    .kpi{ padding:10px 10px 9px; }
+    .kpi .num{ font-size:21px; }
+    .kpi .label{ font-size:10.5px; }
+
+    main{ padding:28px 0 40px; }
+    section{ margin-bottom:32px; }
+    .section-head{ flex-direction:column; align-items:flex-start; gap:4px; }
+    .section-note{ text-align:left; max-width:none; }
+    .section-head h2{ font-size:19px; }
+
+    .wins-grid{ grid-template-columns:1fr; }
+    .progress-panel{ padding:18px 18px 16px; }
+    .table-card{ padding:16px 16px 14px; }
+    .plan-kpi-row{ grid-template-columns:1fr; }
+    .waiting-grid{ grid-template-columns:1fr; }
+    .church-grid{ grid-template-columns:repeat(2,1fr); }
+    .attn-list{ grid-template-columns:1fr; }
+    .year-trend{ gap:8px; }
+    .chart-card{ padding:16px 16px 14px; }
+    footer{ flex-direction:column; gap:4px; }
+  }
+</style>
+</head>
+<body>
+<nav class="topnav" id="topnav">
+  <div class="wrap topnav-inner">
+    <span class="topnav-brand">CCB Vinhedo/SP</span>
+    <div class="topnav-tabs">
+      <button type="button" class="topnav-tab active" data-view="painel">Painel</button>
+      <button type="button" class="topnav-tab" data-view="fechamento">Fechamento</button>
+    </div>
+  </div>
+</nav>
+
+<div id="view-painel">
+<div class="hero" id="hero">
+  <div class="wrap">
+    <div class="hero-top">
+      <div class="hero-meta" id="hero-meta">Atualizado em 25/08/2026<br>Fonte: SIGA · MNT00303</div>
+      <button id="uploadBtn" class="btn-upload-mini" type="button" title="Atualizar com novo PDF">
+        <span class="ico">📄</span><span class="mini-label">Atualizar PDF</span>
+      </button>
+    </div>
+    <input type="file" id="pdfInput" accept="application/pdf" hidden>
+    <span class="upload-status" id="uploadStatus" hidden></span>
+
+    <div class="hero-title-row">
+      <p class="eyebrow">Equipe de Manutenção · CCB Vinhedo/SP</p>
+      <h1>Painel da Manutenção</h1>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="num" id="kpi-1-num">151</div>
+        <div class="label" id="kpi-1-label">avarias resolvidas desde 2024, de 172 registradas</div>
+        <div class="tag" id="kpi-1-tag">87,8% do histórico</div>
+      </div>
+      <div class="kpi">
+        <div class="num" id="kpi-2-num">23<sup>/38</sup></div>
+        <div class="label" id="kpi-2-label">já concluídas no ciclo 2026 — 4 casas de oração acompanhadas</div>
+        <div class="tag" id="kpi-2-tag">60,5% do ciclo</div>
+      </div>
+      <div class="kpi">
+        <div class="num" id="kpi-3-num">23</div>
+        <div class="label" id="kpi-3-label">avarias resolvidas no mesmo dia em que foram registradas</div>
+        <div class="tag">resposta imediata</div>
+      </div>
+      <div class="kpi">
+        <div class="num" id="kpi-4-num">27</div>
+        <div class="label" id="kpi-4-label">dias, em mediana, entre o registro e a resolução</div>
+        <div class="tag">tempo de resposta</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <section>
+    <div class="section-head">
+      <h2>Progresso por categoria</h2>
+      <div class="section-note" id="cat-note">Barra cheia = já finalizado no ciclo. Traço = onde a categoria já esteve no histórico completo.</div>
+    </div>
+    <div class="card progress-panel" id="progress-panel"></div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Indicadores de gestão</h2>
+      <div class="section-note">Visão adicional para acompanhamento da coordenação</div>
+    </div>
+    <div class="mgmt-grid">
+
+      <div class="card mgmt-card">
+        <div class="mgmt-title">Tempo de resposta</div>
+        <div class="mgmt-sub" id="ind-resp-sub">151 avarias finalizadas desde 2024</div>
+        <div class="seg-bar" id="seg-bar"></div>
+        <div class="seg-legend" id="seg-legend"></div>
+      </div>
+
+      <div class="card mgmt-card">
+        <div class="mgmt-title">Itens em acompanhamento</div>
+        <div class="mgmt-sub" id="ind-aging-sub">21 itens ainda em aberto</div>
+        <div class="aging-big"><span id="ind-aging-num">178</span><span class="aging-unit">dias, em mediana, em acompanhamento</span></div>
+        <div class="mgmt-foot" id="ind-aging-foot"></div>
+      </div>
+
+      <div class="card mgmt-card">
+        <div class="mgmt-title">Cobertura de inspeção por ano</div>
+        <div class="mgmt-sub">Total de itens registrados por ano, desde 2024</div>
+        <div class="year-trend" id="year-trend"></div>
+        <div class="mgmt-foot" id="ind-year-foot"></div>
+      </div>
+
+      <div class="card mgmt-card">
+        <div class="mgmt-title">Tempo médio de resolução</div>
+        <div class="mgmt-sub">Mediana de dias entre registro e conclusão, por categoria</div>
+        <div class="cat-time-list" id="cat-time-list"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Abertas sem depender da reforma, por igreja</h2>
+      <div class="section-note" id="breakdown-note">Itens ainda em aberto que a equipe local pode encaminhar sem esperar a obra da Central</div>
+    </div>
+
+    <div class="cross-note" id="plan-cross-note">
+      <span class="cn-num" id="plan-cross-count">31</span>
+      <span class="cn-text">pendências do plano pós-reforma (5W2H) ainda não registradas no SIGA — todas dependem da conclusão da reforma da Central.</span>
+      <a class="cn-link" href="#reforma-plan-section">Ver plano completo ↓</a>
+    </div>
+
+    <div class="card table-card">
+      <div class="detail-head" id="waiting-head">6 pendências aguardando a conclusão da reforma agora</div>
+      <div class="waiting-grid" id="waiting-grid"></div>
+    </div>
+
+    <div class="card table-card" style="margin-top:14px;">
+      <div class="table-scroll">
+      <table class="breakdown-table">
+        <thead>
+          <tr><th>Casa de oração</th><th class="num">Quantidade</th><th class="num">% do total</th></tr>
+        </thead>
+        <tbody id="breakdown-tbody"></tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="card table-card" style="margin-top:14px;">
+      <div class="detail-head">Detalhamento das avarias</div>
+      <div class="table-scroll">
+      <table class="breakdown-table detail-table">
+        <thead>
+          <tr><th>Casa de oração</th><th>Avaria</th><th>Categoria</th><th class="num">Dias em aberto</th></tr>
+        </thead>
+        <tbody id="breakdown-detail-tbody"></tbody>
+      </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="reforma-plan-section">
+    <div class="section-head">
+      <h2>Plano pós-reforma da Central</h2>
+      <div class="section-note">Levantamento GUT / 5W2H da equipe — o que está previsto assim que a obra terminar</div>
+    </div>
+
+    <div class="plan-kpi-row">
+      <div class="card plan-kpi"><div class="pk-num" id="plan-total-cost">R$ 576.900</div><div class="pk-label">estimado no plano (5W2H)</div></div>
+      <div class="card plan-kpi"><div class="pk-num" id="plan-total-items">31</div><div class="pk-label">itens planejados</div></div>
+      <div class="card plan-kpi"><div class="pk-num" id="plan-total-local">6</div><div class="pk-label">locais mapeados</div></div>
+    </div>
+
+    <div class="card table-card">
+      <div class="detail-head">Custo estimado por local</div>
+      <div class="table-scroll">
+      <table class="breakdown-table cost-bar">
+        <thead>
+          <tr><th>Local</th><th class="num">Estimado</th></tr>
+        </thead>
+        <tbody id="plan-cost-tbody"></tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="card table-card" style="margin-top:14px;">
+      <div class="detail-head">Detalhamento do plano (5W2H)</div>
+      <div class="plan-progress-note" id="plan-progress-note">Marque os itens já concluídos pela equipe.</div>
+      <div class="table-scroll">
+      <table class="breakdown-table detail-table">
+        <thead>
+          <tr><th class="plan-check-cell">✓</th><th>Local</th><th>O que</th><th>Por que</th><th>Como</th><th class="num">Custo</th></tr>
+        </thead>
+        <tbody id="plan-detail-tbody"></tbody>
+      </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="two-col">
+      <div class="card chart-card">
+        <div class="chart-head">
+          <span class="chart-title">Avarias concluídas por mês</span>
+        </div>
+        <div class="chart-sub" id="month-chart-sub">Inclui itens abertos em ciclos anteriores e finalizados durante o ano.</div>
+        <div class="bars-wrap">
+          <div class="bars" id="monthBars"></div>
+        </div>
+        <div class="streak-note" id="streak-note"><span class="flame">🔥</span> <span id="streak-note-text"></span></div>
+      </div>
+
+      <div class="card chart-card">
+        <div class="chart-head"><span class="chart-title">Pontos de risco</span></div>
+        <div class="chart-sub">Itens marcados como risco no SIGA, desde 2024.</div>
+        <div style="display:flex; align-items:center; gap:20px; margin-top:6px;">
+          <svg width="112" height="112" viewBox="0 0 112 112" style="flex:none">
+            <circle cx="56" cy="56" r="46" fill="none" stroke="var(--surface-3)" stroke-width="14"/>
+            <circle id="risk-donut-circle" cx="56" cy="56" r="46" fill="none" stroke="var(--good-bright)" stroke-width="14"
+              stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="78"
+              transform="rotate(-90 56 56)"/>
+            <text id="risk-pct-text" x="56" y="52" text-anchor="middle" font-family="Fraunces, serif" font-weight="600" font-size="26" fill="var(--ink)">73%</text>
+            <text x="56" y="70" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" fill="var(--muted)">resolvidos</text>
+          </svg>
+          <div style="font-size:13px; color:var(--ink-2); line-height:1.7;">
+            <div id="risk-summary"><b style="color:var(--ink); font-size:15px;">11 de 15</b> pontos de risco já resolvidos</div>
+            <div id="risk-note" style="margin-top:6px; color:var(--muted);">4 seguem em acompanhamento — já com compra, orçamento ou análise em andamento.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Casas de oração acompanhadas</h2>
+      <div class="section-note">Total de itens registrados por casa — mais registros indicam acompanhamento mais próximo</div>
+    </div>
+    <div class="church-grid" id="church-grid"></div>
+  </section>
+
+  <section style="margin-bottom:8px;" id="attention-section">
+    <div class="attention">
+      <div class="attention-head">
+        <span class="ico">!</span>
+        <div>
+          <h3 id="attn-title">4 pontos de atenção em acompanhamento</h3>
+          <div class="sub" id="attn-sub">Todos já têm encaminhamento — nenhum está parado.</div>
+        </div>
+      </div>
+      <div class="attn-list" id="attn-list"></div>
+      <div class="attn-foot" id="attn-foot"></div>
+    </div>
+  </section>
+
+</main>
+
+<div class="wrap">
+  <footer>
+    <span>Congregação Cristã no Brasil · Vinhedo/SP · Equipe de Manutenção</span>
+    <span id="footer-source">Dados: Relatório de Avarias (SIGA MNT00303), emitido 25/08/2026 · período jan/2024 – ago/2026</span>
+  </footer>
+</div>
+</div>
+
+<div id="view-fechamento" hidden>
+  <div class="wrap fechamento-wrap">
+    <div class="section-head" style="margin-top:22px;">
+      <h2>Fechamento mensal</h2>
+      <div class="section-note">Verificações, atas e anexos por casa de oração, por competência</div>
+    </div>
+
+    <div class="fechamento-controls">
+      <label for="fechamento-competencia">Competência</label>
+      <select id="fechamento-competencia"></select>
+    </div>
+
+    <div class="plan-kpi-row" id="fechamento-kpi-row">
+      <div class="card plan-kpi"><div class="pk-num" id="fech-kpi-encerrado">0</div><div class="pk-label">encerradas na competência</div></div>
+      <div class="card plan-kpi"><div class="pk-num" id="fech-kpi-aberto">0</div><div class="pk-label">em aberto na competência</div></div>
+      <div class="card plan-kpi"><div class="pk-num" id="fech-kpi-verif">0/0</div><div class="pk-label">verificações realizadas / previstas</div></div>
+    </div>
+
+    <div class="card table-card">
+      <div class="table-scroll">
+      <table class="breakdown-table fechamento-table">
+        <thead>
+          <tr>
+            <th>Competência</th>
+            <th>Localidade</th>
+            <th class="num">Verificações<br>Encerradas</th>
+            <th>Status</th>
+            <th>Anexo Ata</th>
+            <th>Anexo Relatório</th>
+          </tr>
+        </thead>
+        <tbody id="fechamento-tbody"></tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="fechamento-legend">
+      <b>Regras de fechamento:</b> a Ata é exigida trimestralmente; a inspeção predial e elétrica é anual, com prazo até novembro; o Status fica <b>Encerrado</b> quando as verificações realizadas atingem 100% do previsto na competência — caso contrário, fica <b>Aberto</b>.
+    </div>
+  </div>
+
+  <div class="wrap">
+    <footer>
+      <span>Congregação Cristã no Brasil · Vinhedo/SP · Equipe de Manutenção</span>
+      <span>Dados: planilha de Fechamento · SIGA MNT00401</span>
+    </footer>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+// ---------- Normalization tables (ported from analyze.py) ----------
+const CHURCH_MAP = {
+  "BR 22-1536 - JARDIM BELA VISTA": "Jardim Bela Vista",
+  "BR 22-2182 - VILA PLANALTO": "Vila Planalto",
+  "BR 22-2637 - PARQUE IOLANDA": "Parque Iolanda",
+  "BR 22-1535 - NOVA VINHEDO": "Nova Vinhedo",
+  "BR 22-4343 - RESIDENCIAL VIDA NOVA I": "Residencial Vida Nova I",
+};
+
+function normItem(s) {
+  s = (s || "").trim();
+  if (s.startsWith("Instalações Hidráulicas")) return "Instalações Hidráulicas";
+  if (s.includes("Climatizador") && s.includes("Ventiladores")) return "Ventiladores/Exaustores/Climatizadores";
+  if (s === "Bancos/Cadeiras/Tribuna...") return "Bancos/Cadeiras/Tribuna";
+  return s;
+}
+
+const CATEGORY = {
+  "Calçada/Revestimento/Alvenaria": "Predial",
+  "Impermeabilização": "Predial",
+  "Placas de sinalização": "Predial",
+  "Janelas e Vitrôs": "Predial",
+  "Portas": "Predial",
+  "Calhas/Rufos/Condutores": "Predial",
+  "Pintura": "Predial",
+  "Portões/Grades/Corrimãos": "Predial",
+  "Garagem (estacionamento)": "Predial",
+  "Sistema de Alarme": "Elétrica",
+  "Sistema de Iluminação de Emergência": "Elétrica",
+  "Instalações Elétricas": "Elétrica",
+  "Sistema de Som": "Elétrica",
+  "Equipamentos, Máquinas e Ferramentas": "Instalações Gerais",
+  "Instalações Hidráulicas": "Instalações Gerais",
+  "Equip. de Ar-Condicionado": "Instalações Gerais",
+  "Ar-Condicionado/Climatizadores": "Instalações Gerais",
+  "Ventiladores/Exaustores/Climatizadores": "Instalações Gerais",
+  "Sistema de Esgoto": "Instalações Gerais",
+  "Extintores de Incêndio": "Instalações Gerais",
+  "EPIs e EPCs (Armazenamento)": "Instalações Gerais",
+  "Jardins/Vasos/Floreiras": "Instalações Gerais",
+  "Bancos/Cadeiras/Tribuna": "Instalações Gerais",
+};
+
+const MONTH_ABBR = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+
+function parseBRDate(s) {
+  if (!s) return null;
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s.trim());
+  if (!m) return null;
+  const d = new Date(Date.UTC(+m[3], +m[2]-1, +m[1]));
+  if (isNaN(d.getTime())) return null;
+  return d;
+}
+function daysBetween(a, b) { return Math.round((b - a) / 86400000); }
+function capFirst(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+function truncate(s, n) { s = s || ""; return s.length > n ? s.slice(0, n-1).trim() + "…" : s; }
+function fmtDateBR(d) {
+  const p = n => String(n).padStart(2,"0");
+  return `${p(d.getUTCDate())}/${p(d.getUTCMonth()+1)}/${d.getUTCFullYear()}`;
+}
+function median(arr) {
+  if (!arr.length) return null;
+  const s = [...arr].sort((a,b)=>a-b);
+  const mid = Math.floor(s.length/2);
+  return s.length % 2 ? s[mid] : (s[mid-1]+s[mid])/2;
+}
+
+// Normalize a raw parsed record (from PDF parsing) into an item.
+function normalizeRecord(raw) {
+  const itemNorm = normItem(raw.item_inspecao);
+  const cat = CATEGORY[itemNorm] || "Instalações Gerais";
+  return {
+    num: raw.num,
+    church: CHURCH_MAP[(raw.church||"").trim()] || (raw.church||"").trim(),
+    freq: (raw.freq||"").replace("Inspeção ", "").trim(),
+    data: raw.data,
+    data_dt: parseBRDate(raw.data),
+    data_correcao: raw.data_correcao,
+    item_inspecao: itemNorm,
+    categoria: cat,
+    avaria: raw.avaria,
+    status: raw.status,
+    risco: raw.risco === "Sim" || raw.risco === true,
+    reforma_mentioned: !!raw.reforma_mentioned,
+  };
+}
+
+// Convert the slim embedded dataset ({n,c,f,d,dc,i,cat,a,s,r,rf}) into full items.
+function itemsFromSlim(slim) {
+  return slim.map(it => ({
+    num: it.n,
+    church: it.c,
+    freq: it.f,
+    data: it.d,
+    data_dt: parseBRDate(it.d),
+    data_correcao: it.dc,
+    item_inspecao: it.i,
+    categoria: it.cat,
+    avaria: it.a,
+    status: it.s,
+    risco: !!it.r,
+    reforma_mentioned: !!it.rf,
+  }));
+}
+
+const CATEGORIES_ORDER = ["Elétrica", "Instalações Gerais", "Predial"];
+
+function computeDataset(items, refDate, forcedCicloYear) {
+  refDate = refDate || new Date();
+  const total = items.length;
+  const finalizados = items.filter(i => i.status === "Finalizado");
+  const emAndamento = items.filter(i => i.status === "Em Andamento");
+  const pendentes = items.filter(i => i.status === "Pendente");
+  const pctHistorico = total ? (finalizados.length/total*100) : 0;
+
+  // ciclo = most recent year present in the data, unless the caller picked a specific year
+  const years = items.map(i => i.data_dt ? i.data_dt.getUTCFullYear() : null).filter(Boolean);
+  const availableYears = [...new Set(years)].sort((a, b) => a - b);
+  const cicloYear = forcedCicloYear || (years.length ? Math.max(...years) : refDate.getUTCFullYear());
+  const cicloItems = items.filter(i => i.data_dt && i.data_dt.getUTCFullYear() === cicloYear);
+  const cicloFinalizados = cicloItems.filter(i => i.status === "Finalizado");
+  const cicloPct = cicloItems.length ? (cicloFinalizados.length/cicloItems.length*100) : 0;
+  const cicloChurches = new Set(cicloItems.map(i => i.church));
+
+  // resolution durations (full history, finalizados only)
+  function resolutionDurations(subset) {
+    const durs = [];
+    for (const it of subset) {
+      if (it.status !== "Finalizado" || !it.data_dt) continue;
+      const dc = parseBRDate(it.data_correcao);
+      if (!dc) continue;
+      const d = daysBetween(it.data_dt, dc);
+      if (d < 0) continue;
+      durs.push(d);
+    }
+    return durs;
+  }
+  const fullDurs = resolutionDurations(items);
+  const sameDayFull = fullDurs.filter(d => d === 0).length;
+  const within7Full = fullDurs.filter(d => d <= 7).length;
+  const within30Full = fullDurs.filter(d => d <= 30).length;
+  const medianFull = median(fullDurs);
+
+  const cicloDurs = resolutionDurations(cicloItems);
+  const sameDayCiclo = cicloDurs.filter(d => d === 0).length;
+  const medianCiclo = median(cicloDurs);
+
+  // response time segments (full history)
+  const seg = {
+    mesmoDia: sameDayFull,
+    d2a7: within7Full - sameDayFull,
+    d8a30: within30Full - within7Full,
+    mais30: fullDurs.length - within30Full,
+    total: fullDurs.length,
+  };
+
+  // category progress: ciclo vs historic
+  const categorias = CATEGORIES_ORDER.map(cat => {
+    const hist = items.filter(i => i.categoria === cat);
+    const histFin = hist.filter(i => i.status === "Finalizado");
+    const ciclo = cicloItems.filter(i => i.categoria === cat);
+    const cicloFin = ciclo.filter(i => i.status === "Finalizado");
+    return {
+      categoria: cat,
+      cicloTotal: ciclo.length,
+      cicloFinalizado: cicloFin.length,
+      cicloPct: ciclo.length ? Math.round(cicloFin.length/ciclo.length*100) : 0,
+      histTotal: hist.length,
+      histFinalizado: histFin.length,
+      histPct: hist.length ? Math.round(histFin.length/hist.length*100) : 0,
+    };
+  });
+
+  // monthly completions within cicloYear, by data_correcao month
+  const monthly = new Array(12).fill(0);
+  for (const it of items) {
+    if (it.status !== "Finalizado") continue;
+    const dc = parseBRDate(it.data_correcao);
+    if (!dc || dc.getUTCFullYear() !== cicloYear) continue;
+    monthly[dc.getUTCMonth()]++;
+  }
+  const maxMonthWithData = items.reduce((mx, it) => {
+    if (it.data_dt && it.data_dt.getUTCFullYear() === cicloYear) mx = Math.max(mx, it.data_dt.getUTCMonth());
+    const dc = parseBRDate(it.data_correcao);
+    if (dc && dc.getUTCFullYear() === cicloYear) mx = Math.max(mx, dc.getUTCMonth());
+    return mx;
+  }, 0);
+  const monthlyTrimmed = monthly.slice(0, maxMonthWithData+1);
+  const monthlySum = monthlyTrimmed.reduce((a,b)=>a+b,0);
+  const monthsWithAtLeastOne = monthlyTrimmed.filter(v=>v>0).length;
+
+  // risk
+  const riscoItems = items.filter(i => i.risco);
+  const riscoResolvidos = riscoItems.filter(i => i.status === "Finalizado").length;
+  const riscoPct = riscoItems.length ? Math.round(riscoResolvidos/riscoItems.length*100) : 0;
+
+  // churches
+  const churchNames = [...new Set(items.map(i => i.church))];
+  const churches = churchNames.map(name => {
+    const all = items.filter(i => i.church === name);
+    const ciclo = cicloItems.filter(i => i.church === name);
+    return { name, total: all.length, ciclo: ciclo.length };
+  }).sort((a,b) => b.total - a.total);
+
+  // reforma dependency
+  const reformaAbertoFull = items.filter(i => i.reforma_mentioned && i.status !== "Finalizado").length;
+  const reformaAbertoCiclo = cicloItems.filter(i => i.reforma_mentioned && i.status !== "Finalizado").length;
+
+  // open items that do NOT depend on the reforma, broken down by church
+  const openNaoReforma = items.filter(i => i.status !== "Finalizado" && !i.reforma_mentioned);
+  const openNaoReformaTotal = openNaoReforma.length;
+  const openNaoReformaByChurchMap = {};
+  for (const it of openNaoReforma) openNaoReformaByChurchMap[it.church] = (openNaoReformaByChurchMap[it.church] || 0) + 1;
+  const openNaoReformaByChurch = churchNames.map(name => {
+    const n = openNaoReformaByChurchMap[name] || 0;
+    return { name, count: n, pct: openNaoReformaTotal ? (n / openNaoReformaTotal * 100) : 0 };
+  }).sort((a,b) => b.count - a.count);
+
+  // itemized list of those same open/não-reforma items, grouped by church (for detail view)
+  const churchOrder = openNaoReformaByChurch.map(c => c.name);
+  const openNaoReformaItems = [...openNaoReforma]
+    .map(it => ({
+      church: it.church,
+      avaria: capFirst(truncate((it.avaria || it.item_inspecao || "").trim(), 140)),
+      categoria: it.categoria,
+      status: it.status,
+      ageDays: it.data_dt ? daysBetween(it.data_dt, refDate) : null,
+    }))
+    .sort((a, b) => churchOrder.indexOf(a.church) - churchOrder.indexOf(b.church) || (b.ageDays||0) - (a.ageDays||0));
+
+  // conquistas: most recently finalized items (by data_correcao desc), deduped by text
+  const finalizadosComData = finalizados
+    .map(it => ({ it, dc: parseBRDate(it.data_correcao) }))
+    .filter(x => x.dc)
+    .sort((a,b) => b.dc - a.dc);
+  const maxDate = finalizadosComData.length ? finalizadosComData[0].dc : refDate;
+  const seenQuotes = new Set();
+  const conquistasPicked = [];
+  for (const x of finalizadosComData) {
+    const key = (x.it.avaria || x.it.item_inspecao || "").trim().toLowerCase();
+    if (key && seenQuotes.has(key)) continue;
+    if (key) seenQuotes.add(key);
+    conquistasPicked.push(x);
+    if (conquistasPicked.length >= 8) break;
+  }
+  const conquistas = conquistasPicked.map(({it, dc}) => {
+    const sameDay = it.data_dt && daysBetween(it.data_dt, dc) === 0;
+    const corYear = dc.getUTCFullYear();
+    const openYear = it.data_dt ? it.data_dt.getUTCFullYear() : corYear;
+    let when;
+    if (corYear === cicloYear && daysBetween(dc, maxDate) <= 60) {
+      when = `${MONTH_ABBR[dc.getUTCMonth()]}/${corYear}`;
+    } else if (openYear !== corYear) {
+      when = `${openYear}–${String(corYear).slice(2)}`;
+    } else {
+      when = String(corYear);
+    }
+    let quote = capFirst(truncate((it.avaria || it.item_inspecao || "").trim(), 110));
+    if (quote && !/[.!?…]$/.test(quote)) quote += ".";
+    return { quote, church: it.church, when, sameDay };
+  });
+
+  // attention: open items, prefer non-reforma-linked, sorted by risco desc then age desc
+  const openItems = items.filter(i => i.status !== "Finalizado");
+  const ages = openItems.map(it => ({ it, age: it.data_dt ? daysBetween(it.data_dt, refDate) : null }));
+  const nonReforma = ages.filter(x => !x.it.reforma_mentioned);
+  const pool = nonReforma.length ? nonReforma : ages;
+  pool.sort((a,b) => (b.it.risco - a.it.risco) || ((b.age||0) - (a.age||0)));
+  const statusHint = { "Em Andamento": "em andamento", "Pendente": "aguardando início" };
+  const attention = pool.slice(0, 4).map(({it}) => ({
+    title: capFirst(truncate((it.avaria || it.item_inspecao || "").trim(), 60)),
+    church: it.church,
+    hint: statusHint[it.status] || it.status,
+  }));
+
+  // aging of open items
+  const validAges = ages.filter(x => x.age !== null).map(x => x.age);
+  const agingMedian = median(validAges);
+
+  // yearly trend
+  const byYear = {};
+  for (const it of items) {
+    if (!it.data_dt) continue;
+    const y = it.data_dt.getUTCFullYear();
+    byYear[y] = (byYear[y]||0) + 1;
+  }
+  const yearlyTrend = Object.keys(byYear).sort().map(y => ({ year: +y, count: byYear[y] }));
+
+  // resolution time by category (median days, full history, finalizados)
+  const categoryTime = CATEGORIES_ORDER.map(cat => {
+    const durs = resolutionDurations(items.filter(i => i.categoria === cat));
+    return { categoria: cat, median: median(durs), n: durs.length };
+  });
+
+  // date range
+  const allDates = items.map(i => i.data_dt).filter(Boolean);
+  const minDate = allDates.length ? new Date(Math.min(...allDates)) : null;
+  const maxDateAll = allDates.length ? new Date(Math.max(...allDates)) : null;
+
+  return {
+    total, finalizadosCount: finalizados.length, emAndamentoCount: emAndamento.length,
+    pendentesCount: pendentes.length, pctHistorico,
+    cicloYear, availableYears, cicloTotal: cicloItems.length, cicloFinalizado: cicloFinalizados.length,
+    cicloPct, cicloChurchCount: cicloChurches.size,
+    sameDayFull, medianFull, sameDayCiclo, medianCiclo,
+    seg, categorias, monthly: monthlyTrimmed, monthlySum, monthsWithAtLeastOne,
+    riscoTotal: riscoItems.length, riscoResolvidos, riscoPct,
+    churches, reformaAbertoFull, reformaAbertoCiclo,
+    openNaoReformaTotal, openNaoReformaByChurch, openNaoReformaItems,
+    conquistas, attention, openCount: openItems.length, agingMedian,
+    yearlyTrend, categoryTime,
+    minDate, maxDate: maxDateAll,
+  };
+}
+</script>
+<script>
+// Client-side PDF parsing for the CCB SIGA "Relatório de Avarias" export (MNT00303).
+// Ported from the Python word-position parser (parse.py / parse2.py).
+// Requires pdfjsLib to be loaded and configured (GlobalWorkerOptions.workerSrc) before use.
+
+const PDF_COLS = [
+  ["num", 0, 30], ["church", 30, 144], ["freq", 144, 285],
+  ["data", 285, 342], ["data_correcao", 342, 401],
+  ["item_inspecao", 401, 523], ["avaria", 523, 643],
+  ["status", 643, 717], ["resp_adm", 717, 759],
+  ["risco", 759, 793], ["altura", 793, 900],
+];
+function colOf(x0) {
+  for (const [name, lo, hi] of PDF_COLS) if (x0 >= lo && x0 < hi) return name;
+  return null;
+}
+
+function isPageHeader(lineText) {
+  return lineText.includes("Núme") || lineText.includes("úme") || lineText.includes("CONGREGAÇÃO") || lineText.includes("Relatório de Avarias")
+    || lineText.includes("Tipo de") || lineText.includes("CCB SIGA") || lineText.includes("RUA FLORIANO")
+    || lineText.trim() === "ro" || lineText.includes("Localidade") || lineText.includes("Assinatura")
+    || lineText.includes("Nome Nome") || lineText.includes("Ministério")
+    || (lineText.includes("Casa de Oração") && lineText.includes("Item Verificação"));
+}
+function isSubheader(words) {
+  const texts = words.map(w => w.text);
+  return texts.includes("Hora") && texts.includes("Descrição") && texts.includes("Usuário");
+}
+function isRecordStart(words) {
+  const hasNum = words.some(w => w.x0 < 30 && /^\d+$/.test(w.text));
+  const hasBR = words.some(w => w.text === "BR" && w.x0 >= 30 && w.x0 < 60);
+  return hasNum && hasBR;
+}
+
+// Split a pdf.js text item into word-level tokens with interpolated x positions.
+function splitItemIntoWords(item) {
+  const str = item.str;
+  const x0 = item.transform[4];
+  const width = item.width || 0;
+  const trimmed = str.trim();
+  if (!trimmed) return [];
+  if (!/\s/.test(trimmed)) return [{ text: trimmed, x0 }];
+  const total = str.length;
+  const words = [];
+  let cursor = 0;
+  for (const raw of str.split(/\s+/).filter(Boolean)) {
+    const idx = str.indexOf(raw, cursor);
+    const frac = total ? idx / total : 0;
+    words.push({ text: raw, x0: x0 + width * frac });
+    cursor = idx + raw.length;
+  }
+  return words;
+}
+
+async function extractPdfRecords(pdfjsLib, arrayBuffer, onProgress) {
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const records = []; // { lines: [lineText,...], cols: {name: [[seq,x0,text],...]} }
+  const issues = [];
+  let globalSeq = 0;
+
+  for (let pageno = 1; pageno <= pdf.numPages; pageno++) {
+    if (onProgress) onProgress(pageno, pdf.numPages);
+    const page = await pdf.getPage(pageno);
+    const content = await page.getTextContent({ disableCombineTextItems: true });
+
+    const words = [];
+    for (const item of content.items) {
+      const y = item.transform[5];
+      for (const w of splitItemIntoWords(item)) words.push({ ...w, y });
+    }
+    words.sort((a, b) => b.y - a.y || a.x0 - b.x0);
+
+    const lines = [];
+    for (const w of words) {
+      let line = lines.find(l => Math.abs(l.y - w.y) <= 2.2);
+      if (!line) { line = { y: w.y, words: [] }; lines.push(line); }
+      line.words.push(w);
+    }
+    lines.sort((a, b) => b.y - a.y);
+
+    let current = null;
+    let inHistory = false;
+    for (const line of lines) {
+      const ws = line.words;
+      const lineText = ws.map(w => w.text).join(" ");
+      if (isPageHeader(lineText)) continue;
+      globalSeq++;
+      if (isRecordStart(ws)) {
+        if (current) records.push(current);
+        current = { lines: [], cols: {} };
+        for (const [name] of PDF_COLS) current.cols[name] = [];
+        inHistory = false;
+        current.lines.push(lineText);
+        for (const w of ws) {
+          const c = colOf(w.x0);
+          if (c) current.cols[c].push([globalSeq, w.x0, w.text]);
+        }
+        continue;
+      }
+      if (isSubheader(ws)) { inHistory = true; if (current) current.lines.push(lineText); continue; }
+      if (current) {
+        current.lines.push(lineText);
+        if (!inHistory) {
+          for (const w of ws) {
+            const c = colOf(w.x0);
+            if (c) current.cols[c].push([globalSeq, w.x0, w.text]);
+          }
+        }
+      } else {
+        issues.push({ pageno, lineText });
+      }
+    }
+    if (current) { records.push(current); current = null; }
+  }
+
+  function assemble(rec, col, join = " ") {
+    const items = [...rec.cols[col]].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+    return items.map(t => t[2]).join(join).trim();
+  }
+
+  const raw = records.map(rec => ({
+    num: assemble(rec, "num", ""),
+    church: assemble(rec, "church"),
+    freq: assemble(rec, "freq"),
+    data: assemble(rec, "data"),
+    data_correcao: assemble(rec, "data_correcao"),
+    item_inspecao: assemble(rec, "item_inspecao"),
+    avaria: assemble(rec, "avaria"),
+    status: assemble(rec, "status"),
+    resp_adm: assemble(rec, "resp_adm"),
+    risco: assemble(rec, "risco"),
+    altura: assemble(rec, "altura"),
+    reforma_mentioned: /reforma/i.test(rec.lines.join(" ")),
+  }));
+
+  return { raw, issues };
+}
+
+if (typeof module !== "undefined") {
+  module.exports = { extractPdfRecords, colOf, isPageHeader, isRecordStart, isSubheader, splitItemIntoWords };
+}
+</script>
+<script>
+var INITIAL_ITEMS = [{"n":"10014","c":"Jardim Bela Vista","f":"Semanal","d":"03/02/2024","dc":"19/02/2024","i":"Sistema de Iluminação de Emergência","cat":"Elétrica","a":"Iluminação banheiro.","s":"Finalizado","r":false,"rf":false},{"n":"10015","c":"Jardim Bela Vista","f":"Semanal","d":"03/02/2024","dc":"19/02/2024","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Registro geral","s":"Finalizado","r":false,"rf":false},{"n":"10016","c":"Jardim Bela Vista","f":"Semanal","d":"03/02/2024","dc":"07/03/2024","i":"Sistema de Iluminação de Emergência","cat":"Elétrica","a":"Iluminação banheiro.","s":"Finalizado","r":false,"rf":false},{"n":"10017","c":"Jardim Bela Vista","f":"Semanal","d":"03/02/2024","dc":"19/02/2024","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Registro geral","s":"Finalizado","r":false,"rf":false},{"n":"10018","c":"Jardim Bela Vista","f":"Semanal","d":"03/02/2024","dc":"19/02/2024","i":"Sistema de Iluminação de Emergência","cat":"Elétrica","a":"Iluminação banheiro.","s":"Finalizado","r":false,"rf":false},{"n":"10019","c":"Jardim Bela Vista","f":"Semanal","d":"03/02/2024","dc":"10/02/2024","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Registro geral","s":"Finalizado","r":false,"rf":false},{"n":"20017","c":"Jardim Bela Vista","f":"Semanal","d":"16/02/2024","dc":"19/02/2024","i":"Sistema de Iluminação de Emergência","cat":"Elétrica","a":"Iluminação banheiro.","s":"Finalizado","r":false,"rf":false},{"n":"20018","c":"Jardim Bela Vista","f":"Semanal","d":"16/02/2024","dc":"07/03/2024","i":"Sistema de Iluminação de Emergência","cat":"Elétrica","a":"Iluminação banheiro.","s":"Finalizado","r":false,"rf":false},{"n":"30019","c":"Jardim Bela Vista","f":"Semanal","d":"24/02/2024","dc":"07/03/2024","i":"Sistema de Iluminação de Emergência","cat":"Elétrica","a":"Sistema de Iluminação de Emergência","s":"Finalizado","r":false,"rf":false},{"n":"30023","c":"Jardim Bela Vista","f":"Semanal","d":"24/02/2024","dc":"07/03/2024","i":"Sistema de Iluminação de Emergência","cat":"Elétrica","a":"Sistema de Iluminação de Emergência","s":"Finalizado","r":false,"rf":false},{"n":"30024","c":"Jardim Bela Vista","f":"Semanal","d":"16/03/2024","dc":"16/03/2024","i":"Sistema de Iluminação de Emergência","cat":"Elétrica","a":"Sistema de iluminação de emergência.","s":"Finalizado","r":true,"rf":false},{"n":"10004","c":"Jardim Bela Vista","f":"Mensal","d":"03/02/2024","dc":"24/02/2024","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Vazamento","s":"Finalizado","r":false,"rf":false},{"n":"10009","c":"Jardim Bela Vista","f":"Mensal","d":"03/02/2024","dc":"16/03/2024","i":"Calçada/Revestimento/Alvenaria","cat":"Predial","a":"Revestimento","s":"Finalizado","r":false,"rf":false},{"n":"10011","c":"Jardim Bela Vista","f":"Mensal","d":"03/02/2024","dc":"","i":"Pintura","cat":"Predial","a":"Pinturas descascando","s":"Em Andamento","r":false,"rf":true},{"n":"10012","c":"Jardim Bela Vista","f":"Mensal","d":"03/02/2024","dc":"24/02/2024","i":"Portas","cat":"Predial","a":"Vidro trincado","s":"Finalizado","r":false,"rf":false},{"n":"10013","c":"Jardim Bela Vista","f":"Mensal","d":"03/02/2024","dc":"16/03/2024","i":"Placas de sinalização","cat":"Predial","a":"Sem sinalização","s":"Finalizado","r":false,"rf":false},{"n":"30020","c":"Jardim Bela Vista","f":"Mensal","d":"24/02/2024","dc":"16/03/2024","i":"Placas de sinalização","cat":"Predial","a":"Sinalização de emergência","s":"Finalizado","r":false,"rf":false},{"n":"30021","c":"Jardim Bela Vista","f":"Mensal","d":"24/02/2024","dc":"16/03/2024","i":"Calçada/Revestimento/Alvenaria","cat":"Predial","a":"Revestimento","s":"Finalizado","r":false,"rf":false},{"n":"30022","c":"Jardim Bela Vista","f":"Mensal","d":"24/02/2024","dc":"04/02/2025","i":"Pintura","cat":"Predial","a":"Pintura descascando","s":"Finalizado","r":false,"rf":true},{"n":"30025","c":"Jardim Bela Vista","f":"Mensal","d":"16/03/2024","dc":"27/04/2024","i":"Extintores de Incêndio","cat":"Instalações Gerais","a":"EXTINTOR COM PERCA DE PRESSÃO","s":"Finalizado","r":true,"rf":false},{"n":"30026","c":"Jardim Bela Vista","f":"Mensal","d":"16/03/2024","dc":"27/04/2024","i":"Calçada/Revestimento/Alvenaria","cat":"Predial","a":"REVESTIMENTOS SOLTO","s":"Finalizado","r":false,"rf":false},{"n":"30027","c":"Jardim Bela Vista","f":"Mensal","d":"16/03/2024","dc":"04/02/2025","i":"Pintura","cat":"Predial","a":"PINTURA DESCASCANDO","s":"Finalizado","r":false,"rf":true},{"n":"50026","c":"Jardim Bela Vista","f":"Mensal","d":"27/04/2024","dc":"04/02/2025","i":"Pintura","cat":"Predial","a":"PINTURA DESCASCANDO","s":"Finalizado","r":false,"rf":true},{"n":"10002","c":"Residencial Vida Nova I","f":"Semanal","d":"03/02/2024","dc":"28/09/2024","i":"Sistema de Iluminação de Emergência","cat":"Elétrica","a":"Nobreak do sistema de iluminação não está funcionando","s":"Finalizado","r":false,"rf":false},{"n":"10003","c":"Residencial Vida Nova I","f":"Semanal","d":"03/02/2024","dc":"03/02/2024","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Vazamento de água pelo ladrão das caixas d'água","s":"Finalizado","r":false,"rf":false},{"n":"60028","c":"Residencial Vida Nova I","f":"Semanal","d":"13/04/2024","dc":"13/04/2024","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Vazamento na bomba do sistema da água de reuso","s":"Finalizado","r":false,"rf":false},{"n":"10005","c":"Residencial Vida Nova I","f":"Mensal","d":"03/02/2024","dc":"28/09/2025","i":"Instalações Elétricas","cat":"Elétrica","a":"Refletor do estacionamento queimado","s":"Finalizado","r":false,"rf":true},{"n":"10006","c":"Residencial Vida Nova I","f":"Mensal","d":"03/02/2024","dc":"","i":"Pintura","cat":"Predial","a":"Pintura da igreja deteriorada","s":"Em Andamento","r":false,"rf":true},{"n":"10007","c":"Residencial Vida Nova I","f":"Mensal","d":"03/02/2024","dc":"01/02/2026","i":"Janelas e Vitrôs","cat":"Predial","a":"Trava das janelas do espaço infantil quebradas","s":"Finalizado","r":false,"rf":true},{"n":"10008","c":"Residencial Vida Nova I","f":"Mensal","d":"03/02/2024","dc":"13/02/2024","i":"Portões/Grades/Corrimãos","cat":"Predial","a":"Suporte do corrimão da rampa de entrada da igreja danificado","s":"Finalizado","r":false,"rf":false},{"n":"10010","c":"Residencial Vida Nova I","f":"Mensal","d":"03/02/2024","dc":"13/04/2024","i":"Instalações Elétricas","cat":"Elétrica","a":"Globo de lâmpada de iluminação externa da igreja quebrado","s":"Finalizado","r":false,"rf":false},{"n":"20019","c":"Residencial Vida Nova I","f":"Mensal","d":"19/02/2024","dc":"01/05/2024","i":"Instalações Elétricas","cat":"Elétrica","a":"Iluminação sobre o pulpito apagando","s":"Finalizado","r":false,"rf":false},{"n":"20020","c":"Residencial Vida Nova I","f":"Mensal","d":"19/02/2024","dc":"01/05/2024","i":"Calçada/Revestimento/Alvenaria","cat":"Predial","a":"Fitas antiderrapantes da escada do espaço infantil gastas","s":"Finalizado","r":true,"rf":false},{"n":"20021","c":"Residencial Vida Nova I","f":"Mensal","d":"19/02/2024","dc":"19/02/2024","i":"Jardins/Vasos/Floreiras","cat":"Instalações Gerais","a":"Grama alta no barranco atrás da igreja","s":"Finalizado","r":false,"rf":false},{"n":"20022","c":"Residencial Vida Nova I","f":"Mensal","d":"19/02/2024","dc":"19/02/2024","i":"Jardins/Vasos/Floreiras","cat":"Instalações Gerais","a":"Mato alto no terreno ao lado da igreja","s":"Finalizado","r":false,"rf":false},{"n":"60026","c":"Residencial Vida Nova I","f":"Mensal","d":"13/04/2024","dc":"13/04/2024","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Vazamento bomba do sistema de água de reuso","s":"Finalizado","r":false,"rf":false},{"n":"60027","c":"Residencial Vida Nova I","f":"Mensal","d":"13/04/2024","dc":"13/04/2024","i":"Jardins/Vasos/Floreiras","cat":"Instalações Gerais","a":"Grama do barranco necessitando ser roçada","s":"Finalizado","r":false,"rf":false},{"n":"50025","c":"Residencial Vida Nova I","f":"Trimestral","d":"24/03/2024","dc":"24/10/2024","i":"Sistema de Iluminação de Emergência","cat":"Elétrica","a":"Nobreak danificado","s":"Finalizado","r":true,"rf":false},{"n":"1","c":"Vila Planalto","f":"Semanal","d":"31/01/2024","dc":"30/10/2024","i":"Sistema de Iluminação de Emergência","cat":"Elétrica","a":"Luz de emergencia nao acende em sua totalidade","s":"Finalizado","r":false,"rf":false},{"n":"2","c":"Vila Planalto","f":"Mensal","d":"31/01/2024","dc":"24/04/2024","i":"Ventiladores/Exaustores/Climatizadores","cat":"Instalações Gerais","a":"ar condicionado","s":"Finalizado","r":false,"rf":false},{"n":"3","c":"Vila Planalto","f":"Mensal","d":"31/01/2024","dc":"","i":"Pintura","cat":"Predial","a":"Pintura em todo o predio","s":"Em Andamento","r":false,"rf":true},{"n":"40025","c":"Vila Planalto","f":"Trimestral","d":"03/03/2024","dc":"14/02/2026","i":"Ar-Condicionado/Climatizadores","cat":"Instalações Gerais","a":"Falta de funcionamento","s":"Finalizado","r":false,"rf":false},{"n":"60031","c":"Jardim Bela Vista","f":"Semanal","d":"31/05/2024","dc":"22/06/2024","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Vazamento na descarga","s":"Finalizado","r":false,"rf":false},{"n":"60032","c":"Jardim Bela Vista","f":"Mensal","d":"31/05/2024","dc":"04/02/2025","i":"Pintura","cat":"Predial","a":"Pintura descascando","s":"Finalizado","r":false,"rf":true},{"n":"60029","c":"Residencial Vida Nova I","f":"Mensal","d":"01/05/2024","dc":"27/05/2024","i":"Portas","cat":"Predial","a":"Porta lado irmãos maçaneta girando em falso","s":"Finalizado","r":false,"rf":false},{"n":"60030","c":"Residencial Vida Nova I","f":"Mensal","d":"01/05/2024","dc":"01/05/2024","i":"Jardins/Vasos/Floreiras","cat":"Instalações Gerais","a":"Grama do barranco necessitando roçar","s":"Finalizado","r":false,"rf":false},{"n":"60033","c":"Jardim Bela Vista","f":"Semanal","d":"02/06/2024","dc":"22/06/2024","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Vazamento na descarga","s":"Finalizado","r":false,"rf":false},{"n":"70033","c":"Jardim Bela Vista","f":"Semanal","d":"22/06/2024","dc":"30/08/2024","i":"Sistema de Alarme","cat":"Elétrica","a":"Dois sensores de alarme quebrados e Conector da bateria quebrado","s":"Finalizado","r":false,"rf":false},{"n":"70034","c":"Jardim Bela Vista","f":"Semanal","d":"22/06/2024","dc":"30/08/2024","i":"Sistema de Alarme","cat":"Elétrica","a":"Dois sensores de alarme quebrados, Conector da bateria quebrado","s":"Finalizado","r":false,"rf":false},{"n":"70035","c":"Jardim Bela Vista","f":"Semanal","d":"01/07/2024","dc":"30/08/2024","i":"Sistema de Alarme","cat":"Elétrica","a":"Dois sensores de alarme quebrados, conector da bateria quebrado","s":"Finalizado","r":false,"rf":false},{"n":"70036","c":"Jardim Bela Vista","f":"Semanal","d":"01/07/2024","dc":"30/08/2024","i":"Sistema de Alarme","cat":"Elétrica","a":"Dois sensores de alarme quebrados, conector da bateria quebrado","s":"Finalizado","r":false,"rf":false},{"n":"70037","c":"Jardim Bela Vista","f":"Mensal","d":"01/07/2024","dc":"04/02/2025","i":"Pintura","cat":"Predial","a":"Pintura descascando","s":"Finalizado","r":false,"rf":true},{"n":"70041","c":"Jardim Bela Vista","f":"Semanal","d":"13/07/2024","dc":"30/08/2024","i":"Sistema de Alarme","cat":"Elétrica","a":"Dois sensores de alarme quebrados, conector da bateria quebrado","s":"Finalizado","r":false,"rf":false},{"n":"70042","c":"Jardim Bela Vista","f":"Semanal","d":"13/07/2024","dc":"30/08/2024","i":"Sistema de Alarme","cat":"Elétrica","a":"Dois sensores de alarme quebrados, conector da bateria quebrado","s":"Finalizado","r":false,"rf":false},{"n":"70043","c":"Jardim Bela Vista","f":"Semanal","d":"03/08/2024","dc":"30/08/2024","i":"Sistema de Alarme","cat":"Elétrica","a":"Dois sensores de alarme quebrados, conector da bateria quebrado","s":"Finalizado","r":false,"rf":false},{"n":"70044","c":"Jardim Bela Vista","f":"Semanal","d":"03/08/2024","dc":"30/08/2024","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Torneiras e registro","s":"Finalizado","r":false,"rf":false},{"n":"70045","c":"Jardim Bela Vista","f":"Semanal","d":"03/08/2024","dc":"30/08/2024","i":"Sistema de Alarme","cat":"Elétrica","a":"Dois sensores de alarme quebrados, conector da bateria quebrado","s":"Finalizado","r":false,"rf":false},{"n":"70046","c":"Jardim Bela Vista","f":"Semanal","d":"03/08/2024","dc":"30/08/2024","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Torneiras e registro","s":"Finalizado","r":false,"rf":false},{"n":"70038","c":"Jardim Bela Vista","f":"Mensal","d":"13/07/2024","dc":"04/02/2025","i":"Pintura","cat":"Predial","a":"Pintura descascando","s":"Finalizado","r":false,"rf":true},{"n":"70039","c":"Jardim Bela Vista","f":"Mensal","d":"13/07/2024","dc":"03/08/2024","i":"Portas","cat":"Predial","a":"Estrutura de alumínio solto","s":"Finalizado","r":false,"rf":false},{"n":"70040","c":"Jardim Bela Vista","f":"Mensal","d":"13/07/2024","dc":"03/08/2024","i":"EPIs e EPCs (Armazenamento)","cat":"Instalações Gerais","a":"Suporte de papel","s":"Finalizado","r":false,"rf":false},{"n":"70047","c":"Jardim Bela Vista","f":"Semanal","d":"03/08/2024","dc":"30/08/2024","i":"Sistema de Alarme","cat":"Elétrica","a":"Dois sensores de alarme quebrados, conector da bateria quebrado","s":"Finalizado","r":false,"rf":false},{"n":"70048","c":"Jardim Bela Vista","f":"Semanal","d":"03/08/2024","dc":"30/08/2024","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Torneiras e registro","s":"Finalizado","r":false,"rf":false},{"n":"70049","c":"Jardim Bela Vista","f":"Mensal","d":"03/08/2024","dc":"30/08/2024","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Registro caixa d'água","s":"Finalizado","r":false,"rf":false},{"n":"70050","c":"Jardim Bela Vista","f":"Mensal","d":"03/08/2024","dc":"04/02/2025","i":"Pintura","cat":"Predial","a":"Pintura descascando","s":"Finalizado","r":false,"rf":true},{"n":"70051","c":"Jardim Bela Vista","f":"Mensal","d":"03/08/2024","dc":"28/09/2024","i":"Instalações Elétricas","cat":"Elétrica","a":"Disjuntor bipolar com defeito","s":"Finalizado","r":false,"rf":false},{"n":"70052","c":"Jardim Bela Vista","f":"Mensal","d":"28/09/2024","dc":"04/02/2025","i":"Pintura","cat":"Predial","a":"Pintura descascando","s":"Finalizado","r":false,"rf":true},{"n":"80057","c":"Jardim Bela Vista","f":"Semanal","d":"21/10/2024","dc":"02/11/2024","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"válvula de descarga","s":"Finalizado","r":false,"rf":false},{"n":"80058","c":"Jardim Bela Vista","f":"Semanal","d":"21/10/2024","dc":"02/11/2024","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"válvula de descarga","s":"Finalizado","r":false,"rf":false},{"n":"80059","c":"Jardim Bela Vista","f":"Semanal","d":"21/10/2024","dc":"02/11/2024","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"válvula de descarga","s":"Finalizado","r":false,"rf":false},{"n":"90053","c":"Residencial Vida Nova I","f":"Semanal","d":"19/10/2024","dc":"20/10/2024","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Válvula hydra do banheiro dos irmãos com defeito","s":"Finalizado","r":false,"rf":false},{"n":"70053","c":"Jardim Bela Vista","f":"Mensal","d":"05/10/2024","dc":"02/11/2024","i":"Portões/Grades/Corrimãos","cat":"Predial","a":"Trava do portão social","s":"Finalizado","r":false,"rf":false},{"n":"80053","c":"Jardim Bela Vista","f":"Mensal","d":"21/10/2024","dc":"02/11/2024","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"válvula de descarga","s":"Finalizado","r":false,"rf":false},{"n":"80054","c":"Jardim Bela Vista","f":"Mensal","d":"21/10/2024","dc":"04/02/2025","i":"Pintura","cat":"Predial","a":"Pintura descascando","s":"Finalizado","r":false,"rf":true},{"n":"80055","c":"Jardim Bela Vista","f":"Mensal","d":"21/10/2024","dc":"25/11/2024","i":"Portas","cat":"Predial","a":"Trava da porta lado dos irmãos","s":"Finalizado","r":false,"rf":false},{"n":"100053","c":"Jardim Bela Vista","f":"Mensal","d":"25/11/2024","dc":"04/02/2025","i":"Pintura","cat":"Predial","a":"Pintura descascando","s":"Finalizado","r":false,"rf":true},{"n":"110053","c":"Jardim Bela Vista","f":"Semanal","d":"28/12/2024","dc":"21/01/2025","i":"Sistema de Som","cat":"Elétrica","a":"Microfone sem fio e microfone da tribuna","s":"Finalizado","r":false,"rf":false},{"n":"110058","c":"Residencial Vida Nova I","f":"Semanal","d":"07/12/2024","dc":"11/12/2024","i":"Sistema de Som","cat":"Elétrica","a":"Nobreak do sistema de som danificado","s":"Finalizado","r":true,"rf":false},{"n":"110054","c":"Jardim Bela Vista","f":"Semanal","d":"28/12/2024","dc":"21/01/2025","i":"Sistema de Som","cat":"Elétrica","a":"Microfone sem fio e microfone da tribuna","s":"Finalizado","r":false,"rf":false},{"n":"110055","c":"Jardim Bela Vista","f":"Semanal","d":"28/12/2024","dc":"21/01/2025","i":"Sistema de Som","cat":"Elétrica","a":"Microfone sem fio e microfone da tribuna","s":"Finalizado","r":false,"rf":false},{"n":"110056","c":"Jardim Bela Vista","f":"Semanal","d":"28/12/2024","dc":"21/01/2025","i":"Sistema de Som","cat":"Elétrica","a":"Microfone sem fio e microfone da tribuna","s":"Finalizado","r":false,"rf":false},{"n":"110057","c":"Jardim Bela Vista","f":"Mensal","d":"28/12/2024","dc":"04/02/2025","i":"Pintura","cat":"Predial","a":"Pintura descascando","s":"Finalizado","r":false,"rf":false},{"n":"110059","c":"Jardim Bela Vista","f":"Semanal","d":"10/01/2025","dc":"15/02/2025","i":"Sistema de Alarme","cat":"Elétrica","a":"Sensores não funcionam","s":"Finalizado","r":false,"rf":false},{"n":"120059","c":"Jardim Bela Vista","f":"Semanal","d":"21/01/2025","dc":"04/02/2025","i":"Sistema de Alarme","cat":"Elétrica","a":"Sensores não funcionam","s":"Finalizado","r":false,"rf":false},{"n":"120060","c":"Jardim Bela Vista","f":"Semanal","d":"21/01/2025","dc":"04/02/2025","i":"Sistema de Alarme","cat":"Elétrica","a":"Sensores não funcionam","s":"Finalizado","r":false,"rf":false},{"n":"130059","c":"Jardim Bela Vista","f":"Semanal","d":"29/01/2025","dc":"04/02/2025","i":"Sistema de Alarme","cat":"Elétrica","a":"Sensores não funcionam","s":"Finalizado","r":false,"rf":false},{"n":"130060","c":"Jardim Bela Vista","f":"Mensal","d":"29/01/2025","dc":"04/02/2025","i":"Pintura","cat":"Predial","a":"Pintura descascando","s":"Finalizado","r":false,"rf":false},{"n":"130061","c":"Jardim Bela Vista","f":"Semanal","d":"01/02/2025","dc":"04/02/2025","i":"Sistema de Alarme","cat":"Elétrica","a":"Sensores não funcionam","s":"Finalizado","r":false,"rf":false},{"n":"150062","c":"Jardim Bela Vista","f":"Semanal","d":"01/03/2025","dc":"17/05/2025","i":"Sistema de Alarme","cat":"Elétrica","a":"Configuração e instalação","s":"Finalizado","r":false,"rf":false},{"n":"130062","c":"Jardim Bela Vista","f":"Mensal","d":"01/02/2025","dc":"31/03/2025","i":"Extintores de Incêndio","cat":"Instalações Gerais","a":"Prazo de validade extintor","s":"Finalizado","r":true,"rf":false},{"n":"130063","c":"Jardim Bela Vista","f":"Mensal","d":"01/02/2025","dc":"01/02/2025","i":"Ventiladores/Exaustores/Climatizadores","cat":"Instalações Gerais","a":"ventiladores não oscila","s":"Finalizado","r":false,"rf":false},{"n":"130064","c":"Jardim Bela Vista","f":"Mensal","d":"01/02/2025","dc":"04/02/2025","i":"Pintura","cat":"Predial","a":"Pintura descascando","s":"Finalizado","r":false,"rf":false},{"n":"140062","c":"Jardim Bela Vista","f":"Mensal","d":"01/02/2025","dc":"15/02/2025","i":"Calçada/Revestimento/Alvenaria","cat":"Predial","a":"Pisos calçada quebrados","s":"Finalizado","r":false,"rf":false},{"n":"140063","c":"Jardim Bela Vista","f":"Mensal","d":"01/02/2025","dc":"15/02/2025","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Descarga banheiro PCD (lado dos irmãos).","s":"Finalizado","r":false,"rf":false},{"n":"140064","c":"Jardim Bela Vista","f":"Mensal","d":"01/02/2025","dc":"15/02/2025","i":"Instalações Elétricas","cat":"Elétrica","a":"Disjuntor quebrado","s":"Finalizado","r":false,"rf":false},{"n":"150063","c":"Residencial Vida Nova I","f":"Mensal","d":"01/02/2025","dc":"10/03/2025","i":"Jardins/Vasos/Floreiras","cat":"Instalações Gerais","a":"Gramado do barranco está alto","s":"Finalizado","r":false,"rf":false},{"n":"150064","c":"Residencial Vida Nova I","f":"Mensal","d":"01/02/2025","dc":"08/06/2025","i":"Garagem (estacionamento)","cat":"Predial","a":"Terreno estacionamento ao lado da igreja com mato alto","s":"Finalizado","r":false,"rf":false},{"n":"150065","c":"Residencial Vida Nova I","f":"Trimestral","d":"01/02/2025","dc":"24/05/2025","i":"Sistema de Iluminação de Emergência","cat":"Elétrica","a":"Tempo de autonomia","s":"Finalizado","r":false,"rf":false},{"n":"150066","c":"Jardim Bela Vista","f":"Semanal","d":"17/03/2025","dc":"31/03/2025","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Vazamento no registro","s":"Finalizado","r":false,"rf":false},{"n":"150069","c":"Jardim Bela Vista","f":"Semanal","d":"22/03/2025","dc":"31/03/2025","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Tampa assento sanitário","s":"Finalizado","r":false,"rf":false},{"n":"150071","c":"Jardim Bela Vista","f":"Semanal","d":"31/03/2025","dc":"31/03/2025","i":"Sistema de Som","cat":"Elétrica","a":"Cabo de conexão do púlpito","s":"Finalizado","r":false,"rf":false},{"n":"150067","c":"Jardim Bela Vista","f":"Mensal","d":"17/03/2025","dc":"31/03/2025","i":"Portas","cat":"Predial","a":"Trava das portas","s":"Finalizado","r":false,"rf":false},{"n":"150068","c":"Jardim Bela Vista","f":"Mensal","d":"17/03/2025","dc":"17/03/2025","i":"Calçada/Revestimento/Alvenaria","cat":"Predial","a":"Fechamento de fendas dos pisos","s":"Finalizado","r":false,"rf":false},{"n":"150070","c":"Jardim Bela Vista","f":"Semestral","d":"22/03/2025","dc":"31/03/2025","i":"Bancos/Cadeiras/Tribuna","cat":"Instalações Gerais","a":"Assento banco rachado","s":"Finalizado","r":false,"rf":false},{"n":"150072","c":"Residencial Vida Nova I","f":"Semestral","d":"01/03/2025","dc":"19/04/2025","i":"Equip. de Ar-Condicionado","cat":"Instalações Gerais","a":"Ar condicionado espaço infantil não está funcionando","s":"Finalizado","r":false,"rf":false},{"n":"150073","c":"Residencial Vida Nova I","f":"Semanal","d":"05/04/2025","dc":"24/05/2025","i":"Sistema de Iluminação de Emergência","cat":"Elétrica","a":"Autonomia de 30 minutos no sistema de iluminação de emergência","s":"Finalizado","r":false,"rf":false},{"n":"150076","c":"Residencial Vida Nova I","f":"Semanal","d":"26/04/2025","dc":"20/12/2025","i":"Sistema de Alarme","cat":"Elétrica","a":"Sensor da frente da igreja com proteção quebrada","s":"Finalizado","r":false,"rf":false},{"n":"150074","c":"Jardim Bela Vista","f":"Mensal","d":"26/04/2025","dc":"17/05/2025","i":"Instalações Elétricas","cat":"Elétrica","a":"CURTO NO SISTEMA DE ILUMINAÇÃO ESTACIONAMENTO","s":"Finalizado","r":false,"rf":false},{"n":"150075","c":"Jardim Bela Vista","f":"Semanal","d":"03/05/2025","dc":"03/05/2025","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"VAZAMENTO DA CAIXA ACOPLADA BANHEIRO PCD","s":"Finalizado","r":false,"rf":false},{"n":"150079","c":"Residencial Vida Nova I","f":"Semanal","d":"10/05/2025","dc":"28/06/2025","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Tampa vaso sanitário danificada","s":"Finalizado","r":false,"rf":false},{"n":"150080","c":"Jardim Bela Vista","f":"Mensal","d":"31/05/2025","dc":"28/06/2025","i":"Instalações Elétricas","cat":"Elétrica","a":"Interruptor quebrado","s":"Finalizado","r":false,"rf":false},{"n":"150078","c":"Residencial Vida Nova I","f":"Mensal","d":"01/05/2025","dc":"28/09/2025","i":"Portões/Grades/Corrimãos","cat":"Predial","a":"Roldana dos portões danificadas","s":"Finalizado","r":false,"rf":false},{"n":"150077","c":"Residencial Vida Nova I","f":"Trimestral","d":"01/05/2025","dc":"28/09/2025","i":"Equip. de Ar-Condicionado","cat":"Instalações Gerais","a":"Ar condicionado lado irmãos com barulho","s":"Finalizado","r":false,"rf":true},{"n":"150081","c":"Jardim Bela Vista","f":"Semanal","d":"28/06/2025","dc":"19/07/2025","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Válvula de descarga","s":"Finalizado","r":false,"rf":false},{"n":"150082","c":"Jardim Bela Vista","f":"Mensal","d":"28/06/2025","dc":"19/07/2025","i":"Instalações Elétricas","cat":"Elétrica","a":"Giroflex","s":"Finalizado","r":false,"rf":false},{"n":"150083","c":"Jardim Bela Vista","f":"Mensal","d":"28/06/2025","dc":"09/07/2025","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Válvula de descarga","s":"Finalizado","r":false,"rf":false},{"n":"150084","c":"Jardim Bela Vista","f":"Mensal","d":"28/06/2025","dc":"19/07/2025","i":"Calçada/Revestimento/Alvenaria","cat":"Predial","a":"Revestimentos calçada","s":"Finalizado","r":false,"rf":false},{"n":"150085","c":"Jardim Bela Vista","f":"Mensal","d":"28/06/2025","dc":"","i":"Janelas e Vitrôs","cat":"Predial","a":"Vidro vitrô quebrado","s":"Em Andamento","r":false,"rf":false},{"n":"150087","c":"Jardim Bela Vista","f":"Mensal","d":"14/09/2025","dc":"31/10/2025","i":"Instalações Elétricas","cat":"Elétrica","a":"Proteção/Globo da lâmpada do estacionamento","s":"Finalizado","r":false,"rf":false},{"n":"150088","c":"Jardim Bela Vista","f":"Mensal","d":"14/09/2025","dc":"22/03/2026","i":"Instalações Elétricas","cat":"Elétrica","a":"Lâmpada queimada entrada do estacionamento","s":"Finalizado","r":false,"rf":false},{"n":"150086","c":"Jardim Bela Vista","f":"Semestral","d":"01/09/2025","dc":"","i":"Bancos/Cadeiras/Tribuna","cat":"Instalações Gerais","a":"Banco com rachadura","s":"Em Andamento","r":false,"rf":true},{"n":"150090","c":"Residencial Vida Nova I","f":"Semestral","d":"06/09/2025","dc":"28/09/2025","i":"Equip. de Ar-Condicionado","cat":"Instalações Gerais","a":"Ar condicionado fazendo barulho","s":"Finalizado","r":false,"rf":false},{"n":"150089","c":"Jardim Bela Vista","f":"Semanal","d":"11/10/2025","dc":"22/11/2025","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Válvula descarga sem funcionamento","s":"Finalizado","r":false,"rf":false},{"n":"150091","c":"Jardim Bela Vista","f":"Semanal","d":"31/10/2025","dc":"31/10/2025","i":"Sistema de Som","cat":"Elétrica","a":"Microfone lapela","s":"Finalizado","r":false,"rf":false},{"n":"150092","c":"Jardim Bela Vista","f":"Semanal","d":"31/10/2025","dc":"31/10/2025","i":"Sistema de Som","cat":"Elétrica","a":"Microfone lapela","s":"Finalizado","r":false,"rf":false},{"n":"170093","c":"Residencial Vida Nova I","f":"Semanal","d":"01/11/2025","dc":"23/04/2026","i":"Sistema de Som","cat":"Elétrica","a":"Microfone falhando","s":"Finalizado","r":false,"rf":false},{"n":"160091","c":"Nova Vinhedo","f":"Mensal","d":"06/11/2025","dc":"08/11/2025","i":"Portas","cat":"Predial","a":"PORTA DE ENTRADA DO LADO DOS IRMÃOS","s":"Finalizado","r":false,"rf":false},{"n":"170092","c":"Residencial Vida Nova I","f":"Mensal","d":"01/11/2025","dc":"01/12/2025","i":"Portões/Grades/Corrimãos","cat":"Predial","a":"Solda portão social","s":"Finalizado","r":false,"rf":false},{"n":"180094","c":"Jardim Bela Vista","f":"Semanal","d":"20/12/2025","dc":"03/02/2026","i":"Sistema de Alarme","cat":"Elétrica","a":"Sensor de alarme e Sirene","s":"Finalizado","r":false,"rf":false},{"n":"180095","c":"Jardim Bela Vista","f":"Semanal","d":"20/12/2025","dc":"06/03/2026","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Torneira estão com vazamentos","s":"Finalizado","r":false,"rf":false},{"n":"180092","c":"Jardim Bela Vista","f":"Mensal","d":"20/12/2025","dc":"","i":"Portões/Grades/Corrimãos","cat":"Predial","a":"Pintura","s":"Em Andamento","r":false,"rf":true},{"n":"180096","c":"Jardim Bela Vista","f":"Mensal","d":"20/12/2025","dc":"01/08/2026","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"Torneiras estão com vazamentos","s":"Finalizado","r":false,"rf":false},{"n":"180097","c":"Jardim Bela Vista","f":"Mensal","d":"02/12/2025","dc":"23/01/2026","i":"Instalações Elétricas","cat":"Elétrica","a":"Reator das lâmpadas com problema","s":"Finalizado","r":false,"rf":false},{"n":"180098","c":"Jardim Bela Vista","f":"Mensal","d":"02/12/2025","dc":"23/01/2026","i":"Instalações Elétricas","cat":"Elétrica","a":"Lâmpadas queimado na parte de dentro da casa de oração","s":"Finalizado","r":false,"rf":false},{"n":"180099","c":"Jardim Bela Vista","f":"Semanal","d":"31/01/2026","dc":"22/03/2026","i":"Sistema de Alarme","cat":"Elétrica","a":"sirene do alarme","s":"Finalizado","r":false,"rf":false},{"n":"180107","c":"Vila Planalto","f":"Semanal","d":"25/01/2026","dc":"05/03/2026","i":"Sistema de Iluminação de Emergência","cat":"Elétrica","a":"A luz de emergência permanece acionada e não desarma.","s":"Finalizado","r":true,"rf":false},{"n":"180100","c":"Jardim Bela Vista","f":"Mensal","d":"31/01/2026","dc":"31/01/2026","i":"Equipamentos, Máquinas e Ferramentas","cat":"Instalações Gerais","a":"Cadeira de roda","s":"Finalizado","r":false,"rf":false},{"n":"180101","c":"Jardim Bela Vista","f":"Mensal","d":"31/01/2026","dc":"31/01/2026","i":"Equipamentos, Máquinas e Ferramentas","cat":"Instalações Gerais","a":"suporte do microfone sem fio","s":"Finalizado","r":false,"rf":false},{"n":"180102","c":"Jardim Bela Vista","f":"Mensal","d":"31/01/2026","dc":"31/01/2026","i":"Equipamentos, Máquinas e Ferramentas","cat":"Instalações Gerais","a":"Protetor do microfone pupito","s":"Finalizado","r":false,"rf":false},{"n":"180103","c":"Jardim Bela Vista","f":"Mensal","d":"31/01/2026","dc":"31/01/2026","i":"Equipamentos, Máquinas e Ferramentas","cat":"Instalações Gerais","a":"Assento do vaso sanitario deficiente","s":"Finalizado","r":false,"rf":false},{"n":"180104","c":"Vila Planalto","f":"Mensal","d":"01/01/2026","dc":"","i":"Equipamentos, Máquinas e Ferramentas","cat":"Instalações Gerais","a":"Aspirador de pó não funciona","s":"Em Andamento","r":false,"rf":false},{"n":"180105","c":"Vila Planalto","f":"Mensal","d":"01/01/2026","dc":"04/07/2026","i":"Ventiladores/Exaustores/Climatizadores","cat":"Instalações Gerais","a":"Três ventiladores apresentam avarias.","s":"Finalizado","r":false,"rf":false},{"n":"180106","c":"Vila Planalto","f":"Mensal","d":"01/01/2026","dc":"","i":"Janelas e Vitrôs","cat":"Predial","a":"Vidro Quebrado","s":"Em Andamento","r":false,"rf":false},{"n":"180110","c":"Jardim Bela Vista","f":"Semanal","d":"28/02/2026","dc":"","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"registro da cx","s":"Em Andamento","r":false,"rf":false},{"n":"180111","c":"Jardim Bela Vista","f":"Mensal","d":"28/02/2026","dc":"30/06/2026","i":"Portas","cat":"Predial","a":"Proteção da porta","s":"Finalizado","r":false,"rf":false},{"n":"180112","c":"Jardim Bela Vista","f":"Mensal","d":"28/02/2026","dc":"","i":"Instalações Elétricas","cat":"Elétrica","a":"luz de emergencia","s":"Em Andamento","r":false,"rf":false},{"n":"180113","c":"Jardim Bela Vista","f":"Trimestral","d":"28/02/2026","dc":"24/04/2026","i":"Sistema de Iluminação de Emergência","cat":"Elétrica","a":"Luz de emergencia queimada","s":"Finalizado","r":false,"rf":false},{"n":"180108","c":"Vila Planalto","f":"Trimestral","d":"01/02/2026","dc":"24/04/2026","i":"Sistema de Iluminação de Emergência","cat":"Elétrica","a":"A luz de emergência permanece acionada e não desarma.","s":"Finalizado","r":true,"rf":false},{"n":"180120","c":"Parque Iolanda","f":"Trimestral","d":"01/02/2026","dc":"","i":"Equip. de Ar-Condicionado","cat":"Instalações Gerais","a":"Higienização","s":"Em Andamento","r":true,"rf":false},{"n":"180114","c":"Vila Planalto","f":"Mensal","d":"01/03/2026","dc":"02/05/2026","i":"Instalações Elétricas","cat":"Elétrica","a":"problema luz de emergência","s":"Finalizado","r":true,"rf":false},{"n":"180115","c":"Vila Planalto","f":"Mensal","d":"01/03/2026","dc":"","i":"Calçada/Revestimento/Alvenaria","cat":"Predial","a":"piso quebrado","s":"Em Andamento","r":true,"rf":true},{"n":"180118","c":"Jardim Bela Vista","f":"Semestral","d":"01/03/2026","dc":"25/04/2026","i":"Equip. de Ar-Condicionado","cat":"Instalações Gerais","a":"Não está climatizando o ambiente (EBI)","s":"Finalizado","r":false,"rf":false},{"n":"180116","c":"Vila Planalto","f":"Semestral","d":"01/03/2026","dc":"02/05/2026","i":"Sistema de Esgoto","cat":"Instalações Gerais","a":"retorno do esgoto","s":"Finalizado","r":true,"rf":false},{"n":"180117","c":"Vila Planalto","f":"Semestral","d":"01/03/2026","dc":"","i":"Impermeabilização","cat":"Predial","a":"vazamento no telhado","s":"Em Andamento","r":true,"rf":false},{"n":"180121","c":"Parque Iolanda","f":"Semestral","d":"01/03/2026","dc":"","i":"Impermeabilização","cat":"Predial","a":"Vazamento átrio lado dos irmão","s":"Em Andamento","r":false,"rf":false},{"n":"180119","c":"Vila Planalto","f":"Mensal","d":"01/04/2026","dc":"04/07/2026","i":"Placas de sinalização","cat":"Predial","a":"sinalizador entrada saida de veiculos nao esta funcionando","s":"Finalizado","r":false,"rf":false},{"n":"180122","c":"Jardim Bela Vista","f":"Semanal","d":"23/05/2026","dc":"","i":"Sistema de Alarme","cat":"Elétrica","a":"sirene do alarme","s":"Em Andamento","r":false,"rf":false},{"n":"180123","c":"Jardim Bela Vista","f":"Semanal","d":"23/05/2026","dc":"30/06/2026","i":"Sistema de Iluminação de Emergência","cat":"Elétrica","a":"Lampada do banheiro","s":"Finalizado","r":false,"rf":false},{"n":"180124","c":"Jardim Bela Vista","f":"Semanal","d":"23/05/2026","dc":"18/06/2026","i":"Sistema de Iluminação de Emergência","cat":"Elétrica","a":"Lampada do banheiro","s":"Finalizado","r":false,"rf":false},{"n":"180125","c":"Jardim Bela Vista","f":"Trimestral","d":"23/05/2026","dc":"30/06/2026","i":"Calhas/Rufos/Condutores","cat":"Predial","a":"Telha quebrada","s":"Finalizado","r":false,"rf":false},{"n":"180126","c":"Parque Iolanda","f":"Mensal","d":"01/07/2026","dc":"","i":"Calçada/Revestimento/Alvenaria","cat":"Predial","a":"pergolado","s":"Pendente","r":false,"rf":false},{"n":"180127","c":"Jardim Bela Vista","f":"Semanal","d":"28/07/2026","dc":"28/07/2026","i":"Sistema de Som","cat":"Elétrica","a":"Mau contato no cabo","s":"Finalizado","r":false,"rf":false},{"n":"180128","c":"Jardim Bela Vista","f":"Semanal","d":"28/07/2026","dc":"28/07/2026","i":"Sistema de Som","cat":"Elétrica","a":"Mau contato no cabo","s":"Finalizado","r":false,"rf":false},{"n":"180129","c":"Jardim Bela Vista","f":"Semanal","d":"28/07/2026","dc":"28/07/2026","i":"Sistema de Som","cat":"Elétrica","a":"Mau contato no cabo","s":"Finalizado","r":false,"rf":false},{"n":"180130","c":"Jardim Bela Vista","f":"Semanal","d":"28/07/2026","dc":"28/07/2026","i":"Sistema de Som","cat":"Elétrica","a":"Mau contato no cabo","s":"Finalizado","r":false,"rf":false},{"n":"180131","c":"Jardim Bela Vista","f":"Semanal","d":"28/07/2026","dc":"","i":"Sistema de Som","cat":"Elétrica","a":"Mau contato no cabo","s":"Em Andamento","r":false,"rf":false},{"n":"180137","c":"Jardim Bela Vista","f":"Mensal","d":"01/08/2026","dc":"10/08/2026","i":"Instalações Elétricas","cat":"Elétrica","a":"Instalar uma iluminação perto do banheiro das irmas","s":"Finalizado","r":true,"rf":false},{"n":"180134","c":"Vila Planalto","f":"Mensal","d":"01/08/2026","dc":"","i":"Placas de sinalização","cat":"Predial","a":"falta de sinalizacao nas portas","s":"Em Andamento","r":true,"rf":false},{"n":"180135","c":"Vila Planalto","f":"Mensal","d":"01/08/2026","dc":"","i":"Equipamentos, Máquinas e Ferramentas","cat":"Instalações Gerais","a":"lavadora de alta pressao","s":"Em Andamento","r":false,"rf":false},{"n":"180136","c":"Vila Planalto","f":"Mensal","d":"01/08/2026","dc":"","i":"Instalações Hidráulicas","cat":"Instalações Gerais","a":"torneira com vazamento","s":"Em Andamento","r":false,"rf":false},{"n":"180132","c":"Nova Vinhedo","f":"Mensal","d":"01/08/2026","dc":"","i":"Instalações Elétricas","cat":"Elétrica","a":"Lâmpadas queimadas","s":"Em Andamento","r":false,"rf":false},{"n":"180133","c":"Nova Vinhedo","f":"Mensal","d":"01/08/2026","dc":"01/08/2026","i":"Equipamentos, Máquinas e Ferramentas","cat":"Instalações Gerais","a":"Bomba hidráulica","s":"Finalizado","r":false,"rf":false}];
+</script>
+<script>
+// ---------- formatting helpers ----------
+function pct1(x) { return x.toFixed(1).replace(".", ",") + "%"; }
+function pct0(x) { return Math.round(x) + "%"; }
+const MONTH_NAMES_SHORT = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+function el(html) { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; }
+
+// ---------- global state (for the year selector) ----------
+let currentItems = null;
+let currentMeta = null;
+
+function selectYear(year) {
+  if (!currentItems) return;
+  const data = computeDataset(currentItems, new Date(), year);
+  render(data, currentMeta);
+}
+
+function render(data, meta) {
+  meta = meta || {};
+  const cy = data.cicloYear;
+
+  // hero meta + footer
+  document.getElementById("hero-meta").innerHTML = `Atualizado em ${meta.updatedAt || "—"}<br>Fonte: SIGA · MNT00303`;
+  const periodStart = data.minDate ? `${MONTH_NAMES_SHORT[data.minDate.getUTCMonth()].toLowerCase()}/${data.minDate.getUTCFullYear()}` : "—";
+  const periodEnd = data.maxDate ? `${MONTH_NAMES_SHORT[data.maxDate.getUTCMonth()].toLowerCase()}/${data.maxDate.getUTCFullYear()}` : "—";
+  document.getElementById("footer-source").textContent =
+    `Dados: Relatório de Avarias (SIGA MNT00303)${meta.sourceFileName ? " · arquivo: " + meta.sourceFileName : ""} · período ${periodStart} – ${periodEnd}`;
+
+  // KPIs
+  document.getElementById("kpi-1-num").textContent = data.finalizadosCount;
+  document.getElementById("kpi-1-label").textContent = `avarias resolvidas desde 2024, de ${data.total} registradas`;
+  document.getElementById("kpi-1-tag").textContent = `${pct1(data.pctHistorico)} do histórico`;
+
+  document.getElementById("kpi-2-num").innerHTML = `${data.cicloFinalizado}<sup>/${data.cicloTotal}</sup>`;
+  document.getElementById("kpi-2-label").textContent = `já concluídas no ciclo ${cy} — ${data.cicloChurchCount} casas de oração acompanhadas`;
+  document.getElementById("kpi-2-tag").textContent = `${pct1(data.cicloPct)} do ciclo`;
+
+  document.getElementById("kpi-3-num").textContent = data.sameDayFull;
+  document.getElementById("kpi-3-label").textContent = `avarias resolvidas no mesmo dia em que foram registradas`;
+
+  document.getElementById("kpi-4-num").textContent = data.medianFull != null ? data.medianFull : "—";
+  document.getElementById("kpi-4-label").textContent = `dias, em mediana, entre o registro e a resolução`;
+
+  // progress by category
+  const panel = document.getElementById("progress-panel");
+  panel.innerHTML = "";
+  const catVar = { "Elétrica": "--cat-eletrica", "Instalações Gerais": "--cat-geral", "Predial": "--cat-predial" };
+  for (const c of data.categorias) {
+    const v = catVar[c.categoria];
+    panel.appendChild(el(`
+      <div class="cat-row">
+        <div class="cat-top">
+          <span class="cat-name"><span class="dot" style="background:var(${v})"></span>${c.categoria}</span>
+          <span class="cat-stat"><b>${c.cicloPct}%</b> concluída no ciclo ${cy}</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${c.cicloPct}%; background:var(${v})"></div>
+          <div class="ref-tick" style="left:${c.histPct}%"></div>
+        </div>
+        <div class="cat-foot"><span>${c.cicloFinalizado} de ${c.cicloTotal} itens do ciclo já finalizados</span><span>histórico: ${c.histPct}% (${c.histFinalizado}/${c.histTotal})</span></div>
+      </div>`));
+  }
+  panel.appendChild(el(`
+    <div class="legend-inline">
+      <span><span class="sw" style="background:var(--muted)"></span>barra = ciclo ${cy} (ainda em curso)</span>
+      <span><span class="sw tick"></span>traço = onde a categoria chegou no histórico completo</span>
+    </div>`));
+
+  // management indicators — response time
+  document.getElementById("ind-resp-sub").textContent = `${data.seg.total} avarias finalizadas desde 2024`;
+  const segs = [
+    { key: "mesmoDia", label: "Mesmo dia", color: "var(--good-bright)" },
+    { key: "d2a7", label: "2–7 dias", color: "var(--progress)" },
+    { key: "d8a30", label: "8–30 dias", color: "var(--gold-bright)" },
+    { key: "mais30", label: "Mais de 30 dias", color: "var(--muted)" },
+  ];
+  const segBar = document.getElementById("seg-bar");
+  segBar.innerHTML = "";
+  const segLegend = document.getElementById("seg-legend");
+  segLegend.innerHTML = "";
+  for (const s of segs) {
+    const v = data.seg[s.key];
+    const pct = data.seg.total ? (v / data.seg.total * 100) : 0;
+    if (pct > 0) segBar.appendChild(el(`<div class="seg" style="width:${pct}%; background:${s.color}"></div>`));
+    segLegend.appendChild(el(`<div class="chip"><span class="sw" style="background:${s.color}"></span>${s.label}: <b>${v}</b></div>`));
+  }
+
+  // management indicators — aging
+  document.getElementById("ind-aging-sub").textContent = `${data.openCount} itens ainda em aberto`;
+  document.getElementById("ind-aging-num").textContent = data.agingMedian != null ? Math.round(data.agingMedian) : "—";
+  const reformaAges = data.reformaAbertoFull;
+  const verboAging = reformaAges === 1 ? "depende" : "dependem";
+  document.getElementById("ind-aging-foot").textContent = reformaAges > 0
+    ? `${reformaAges} dos itens em aberto ${verboAging} da reforma da Central (já sinalizado abaixo).`
+    : `Nenhum item em aberto depende de obras maiores no momento.`;
+
+  // management indicators — yearly trend (clickable year filter)
+  const yt = document.getElementById("year-trend");
+  yt.innerHTML = "";
+  const maxYear = data.yearlyTrend.length ? Math.max(...data.yearlyTrend.map(y => y.count)) : 1;
+  for (const y of data.yearlyTrend) {
+    const h = maxYear ? Math.max(8, y.count / maxYear * 100) : 8;
+    const activeCls = y.year === cy ? " active" : "";
+    yt.appendChild(el(`<div class="ybar-col${activeCls}" data-year="${y.year}" role="button" tabindex="0" aria-pressed="${y.year === cy}"><span class="ybar-val">${y.count}</span><div class="ybar" style="height:${h}%"></div><span class="ybar-label">${y.year}</span></div>`));
+  }
+  const lastYear = data.yearlyTrend[data.yearlyTrend.length-1];
+  document.getElementById("ind-year-foot").textContent = `Toque em um ano para ver os resultados daquele ciclo.`;
+
+  // management indicators — resolution time by category
+  const ctList = document.getElementById("cat-time-list");
+  ctList.innerHTML = "";
+  const maxCt = Math.max(1, ...data.categoryTime.map(c => c.median || 0));
+  for (const c of data.categoryTime) {
+    const v = catVar[c.categoria];
+    const w = c.median != null ? Math.max(6, c.median / maxCt * 100) : 0;
+    ctList.appendChild(el(`
+      <div class="cat-time-row">
+        <div class="ct-top"><span>${c.categoria}</span><b>${c.median != null ? c.median + " dias" : "—"}</b></div>
+        <div class="ct-track"><div class="ct-fill" style="width:${w}%; background:var(${v})"></div></div>
+      </div>`));
+  }
+
+  // open items NOT depending on reforma, by church
+  document.getElementById("breakdown-note").textContent =
+    `Dos ${data.openCount} itens ainda em aberto, ${data.openNaoReformaTotal} não dependem da reforma da Central`;
+  const btbody = document.getElementById("breakdown-tbody");
+  btbody.innerHTML = "";
+  const maxBt = Math.max(1, ...data.openNaoReformaByChurch.map(r => r.count));
+  for (const r of data.openNaoReformaByChurch) {
+    const barW = r.count ? Math.max(10, r.count / maxBt * 60) : 0;
+    btbody.appendChild(el(`
+      <tr>
+        <td><span class="bt-name"><span class="bt-bar" style="width:${barW}px"></span>${r.name}</span></td>
+        <td class="num">${r.count}</td>
+        <td class="num">${pct1(r.pct)}</td>
+      </tr>`));
+  }
+  btbody.appendChild(el(`
+    <tr class="total-row">
+      <td>Total</td>
+      <td class="num">${data.openNaoReformaTotal}</td>
+      <td class="num">100,0%</td>
+    </tr>`));
+
+  // itemized detail list, grouped by church
+  const dtbody = document.getElementById("breakdown-detail-tbody");
+  dtbody.innerHTML = "";
+  if (!data.openNaoReformaItems.length) {
+    dtbody.appendChild(el(`<tr><td colspan="4" style="color:var(--muted); padding:14px 0;">Nenhuma avaria em aberto fora da reforma no momento.</td></tr>`));
+  }
+  let lastChurch = null;
+  for (const it of data.openNaoReformaItems) {
+    if (it.church !== lastChurch) {
+      dtbody.appendChild(el(`<tr class="church-group"><td colspan="4">${it.church}</td></tr>`));
+      lastChurch = it.church;
+    }
+    const ageCls = it.ageDays != null && it.ageDays > 180 ? "age-tag old" : "age-tag";
+    dtbody.appendChild(el(`
+      <tr>
+        <td></td>
+        <td>${it.avaria}</td>
+        <td><span class="cat-tag">${it.categoria}</span></td>
+        <td class="num"><span class="${ageCls}">${it.ageDays != null ? it.ageDays + " dias" : "—"}</span></td>
+      </tr>`));
+  }
+
+  // monthly chart
+  document.getElementById("month-chart-sub").textContent =
+    `Inclui itens abertos em ciclos anteriores e finalizados durante o ano — ${data.monthlySum} conclusões ao longo de ${cy}.`;
+  const bars = document.getElementById("monthBars");
+  bars.innerHTML = "";
+  const maxM = Math.max(1, ...data.monthly);
+  data.monthly.forEach((v, i) => {
+    const h = v ? Math.max(6, v / maxM * 100) : 2;
+    bars.appendChild(el(`<div class="bar-col" data-v="${v}"><span class="val">${v}</span><div class="stick" style="height:${h}%"></div><span class="m-label">${MONTH_NAMES_SHORT[i]}</span></div>`));
+  });
+  const streakEl = document.getElementById("streak-note");
+  if (data.monthsWithAtLeastOne === data.monthly.length && data.monthly.length > 0) {
+    streakEl.hidden = false;
+    document.getElementById("streak-note-text").textContent =
+      `Todos os ${data.monthly.length} meses de ${cy}, sem exceção, tiveram pelo menos uma avaria concluída.`;
+  } else if (data.monthly.length > 0) {
+    streakEl.hidden = false;
+    document.getElementById("streak-note-text").textContent =
+      `${data.monthsWithAtLeastOne} de ${data.monthly.length} meses de ${cy} tiveram pelo menos uma avaria concluída.`;
+  } else {
+    streakEl.hidden = true;
+  }
+
+  // risk donut
+  const R = 46, C = 2 * Math.PI * R;
+  const donutPct = data.riscoTotal ? data.riscoResolvidos / data.riscoTotal : 0;
+  const circle = document.getElementById("risk-donut-circle");
+  circle.setAttribute("stroke-dasharray", C.toFixed(1));
+  circle.setAttribute("stroke-dashoffset", (C * (1 - donutPct)).toFixed(1));
+  document.getElementById("risk-pct-text").textContent = pct0(donutPct * 100);
+  document.getElementById("risk-summary").innerHTML = `<b style="color:var(--ink); font-size:15px;">${data.riscoResolvidos} de ${data.riscoTotal}</b> pontos de risco já resolvidos`;
+  const riscoAberto = data.riscoTotal - data.riscoResolvidos;
+  document.getElementById("risk-note").textContent = riscoAberto > 0
+    ? `${riscoAberto} seguem em acompanhamento — já com encaminhamento em andamento.`
+    : `Todos os pontos de risco já foram resolvidos.`;
+
+  // churches
+  const cg = document.getElementById("church-grid");
+  cg.innerHTML = "";
+  for (const ch of data.churches) {
+    const sub = ch.ciclo > 0 ? `${ch.ciclo} no ciclo ${cy}` : `ciclo ${cy} tranquilo`;
+    cg.appendChild(el(`<div class="card church-card"><div class="c-name">${ch.name}</div><div class="c-num">${ch.total}</div><div class="c-sub">${sub}</div></div>`));
+  }
+
+  // attention section
+  const attnSection = document.getElementById("attention-section");
+  if (data.attention.length === 0) {
+    attnSection.hidden = true;
+  } else {
+    attnSection.hidden = false;
+    document.getElementById("attn-title").textContent = `${data.attention.length} ponto${data.attention.length>1?"s":""} de atenção em acompanhamento`;
+    const verboAttn = data.reformaAbertoCiclo === 1 ? "depende" : "dependem";
+    document.getElementById("attn-sub").textContent =
+      `Todos já têm encaminhamento — nenhum está parado.` +
+      (data.reformaAbertoCiclo > 0 ? ` ${data.reformaAbertoCiclo} de ${data.cicloTotal} itens do ciclo ${verboAttn} da conclusão da reforma da Central.` : "");
+    const list = document.getElementById("attn-list");
+    list.innerHTML = "";
+    for (const a of data.attention) {
+      list.appendChild(el(`<div class="attn-item"><span class="w">${a.title}</span><span class="c">${a.church} · ${a.hint}</span></div>`));
+    }
+    document.getElementById("attn-foot").textContent = data.reformaAbertoFull > 0
+      ? `Histórico completo: apenas ${data.reformaAbertoFull} de ${data.total} itens já registrados (${pct1(data.reformaAbertoFull/data.total*100)}) ainda dependem da reforma da Central para fechar em definitivo.`
+      : `Histórico completo: nenhum item em aberto depende da reforma da Central no momento.`;
+  }
+}
+
+// ---------- persistence + boot ----------
+const STORAGE_KEY = "ccb_painel_manutencao_v1";
+
+function saveToStorage(slimItems, updatedAt, sourceFileName) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ items: slimItems, updatedAt, sourceFileName }));
+  } catch (e) { /* ignore quota/availability errors */ }
+}
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+
+function setStatus(msg, kind) {
+  const s = document.getElementById("uploadStatus");
+  s.textContent = msg;
+  s.className = "upload-status" + (kind ? " " + kind : "");
+  s.hidden = !msg;
+}
+
+const PDFJS_CDN_BASE = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+let workerReady = false;
+function ensureWorker() {
+  if (workerReady) return;
+  pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_CDN_BASE + "pdf.worker.min.js";
+  workerReady = true;
+}
+
+function fmtTodayBR() {
+  const d = new Date();
+  const p = n => String(n).padStart(2, "0");
+  return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()}`;
+}
+
+async function handlePdfUpload(file) {
+  const btn = document.getElementById("uploadBtn");
+  btn.disabled = true;
+  try {
+    if (typeof pdfjsLib === "undefined") {
+      setStatus("Este recurso precisa de internet (para carregar o leitor de PDF) — verifique sua conexão e tente novamente.", "err");
+      return;
+    }
+    setStatus("Lendo o PDF…");
+    ensureWorker();
+    const buf = await file.arrayBuffer();
+    const { raw, issues } = await extractPdfRecords(pdfjsLib, buf, (p, n) => setStatus(`Processando página ${p} de ${n}…`));
+    if (raw.length === 0) {
+      setStatus("Não foi possível reconhecer nenhum registro nesse PDF. Confirme que é o \"Relatório de Avarias\" (MNT00303) exportado do SIGA.", "err");
+      return;
+    }
+    const items = raw.map(normalizeRecord);
+    const data = computeDataset(items, new Date());
+    const updatedAt = fmtTodayBR();
+    currentItems = items;
+    currentMeta = { updatedAt, sourceFileName: file.name };
+    render(data, currentMeta);
+    const slim = raw.map((r, idx) => ({
+      n: r.num, c: items[idx].church, f: items[idx].freq, d: r.data, dc: r.data_correcao,
+      i: items[idx].item_inspecao, cat: items[idx].categoria, a: r.avaria, s: r.status,
+      r: items[idx].risco, rf: items[idx].reforma_mentioned,
+    }));
+    saveToStorage(slim, updatedAt, file.name);
+    let msg = `Painel atualizado com ${raw.length} registros de "${file.name}".`;
+    if (issues.length > 0) msg += ` (${issues.length} linha(s) do PDF não puderam ser associadas a um registro — vale conferir manualmente.)`;
+    setStatus(msg, "ok");
+  } catch (err) {
+    console.error(err);
+    setStatus("Não foi possível processar esse PDF. Confirme que é o \"Relatório de Avarias\" (MNT00303) exportado do SIGA.", "err");
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("uploadBtn").addEventListener("click", () => document.getElementById("pdfInput").click());
+  document.getElementById("pdfInput").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (file) handlePdfUpload(file);
+    e.target.value = "";
+  });
+
+  // delegated click/keyboard handler for the year-filter bars (attached once — render() rebuilds the bars each time)
+  document.getElementById("year-trend").addEventListener("click", (e) => {
+    const col = e.target.closest(".ybar-col");
+    if (col && col.dataset.year) selectYear(Number(col.dataset.year));
+  });
+  document.getElementById("year-trend").addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const col = e.target.closest(".ybar-col");
+    if (col && col.dataset.year) { e.preventDefault(); selectYear(Number(col.dataset.year)); }
+  });
+
+  const saved = loadFromStorage();
+  if (saved && saved.items && saved.items.length) {
+    const items = itemsFromSlim(saved.items);
+    const data = computeDataset(items, new Date());
+    currentItems = items;
+    currentMeta = { updatedAt: saved.updatedAt, sourceFileName: saved.sourceFileName };
+    render(data, currentMeta);
+    setStatus(`Painel carregado com os dados de "${saved.sourceFileName}", atualizados em ${saved.updatedAt}. Suba um novo PDF a qualquer momento para atualizar.`, "ok");
+  } else {
+    const items = itemsFromSlim(INITIAL_ITEMS);
+    const data = computeDataset(items, new Date());
+    currentItems = items;
+    currentMeta = { updatedAt: "25/08/2026", sourceFileName: null };
+    render(data, currentMeta);
+  }
+});
+</script>
+<script>
+var REFORMA_PLAN_DATA = {"items":[{"what":"Pintura externa e interna","why":"Pintura da igreja deteriorada","where":"Jd. Bela Vista","how":"Voluntariado","cost":16000.0},{"what":"Instalação de ar condicionado","why":"Não tem, precisa instalar","where":"Jd. Bela Vista","how":"Empresa contratada","cost":120000.0},{"what":"Troca de vitrôs e portas de ferro","why":"Deteriorada, ferrugem","where":"Jd. Bela Vista","how":"Blindex | Esquadrias Aluminio","cost":120000.0},{"what":"Instalação de cobertura lateral em policarbonato","why":"Refeição (Sol | Chuva)","where":"Jd. Bela Vista","how":"Empresa contratada","cost":9000.0},{"what":"Linha de Vida - Adequação","why":"Fora de conformidade","where":"Pq. Iolanda","how":"Empresa contratada","cost":3000.0},{"what":"Ferragem Pergolado","why":"Tratar patologia","where":"Pq. Iolanda","how":"Voluntariado","cost":1000.0},{"what":"Substituir placas dryall","why":"Avaria","where":"Pq. Iolanda","how":"Voluntariado","cost":200.0},{"what":"Manutenção mesa de som","why":"Avaria","where":"Pq. Iolanda","how":"Voluntariado","cost":800.0},{"what":"Higienização ar condicionado (PMOC)","why":"Contaminação","where":"Pq. Iolanda","how":"Empresa contratada","cost":1750.0},{"what":"Pintura externa e interna","why":"Pintura da igreja deteriorada","where":"Vida Nova I","how":"Voluntariado","cost":16000.0},{"what":"Instalação de linha de vida","why":"Não tem, precisa instalar","where":"Vida Nova I","how":"Empresa contratada","cost":12000.0},{"what":"Banheiro Espaço Infantil","why":"Não tem banheiro","where":"Vida Nova I","how":"Voluntariado","cost":15000.0},{"what":"Troca da iluminação do salão","why":"Adequação","where":"Vida Nova I","how":"Voluntariado","cost":13000.0},{"what":"Higienização ar condicionado (PMOC)","why":"Contaminação","where":"Vida Nova I","how":"Empresa contratada","cost":1750.0},{"what":"Sistemas de Câmeras","why":"Local Isolado","where":"Vida Nova I","how":"Voluntariado","cost":4500.0},{"what":"Reforma Beirais","why":"Danificado","where":"Vida Nova I","how":"Voluntariado","cost":15000.0},{"what":"Instalação motor portão","why":"Ergonomia","where":"Vida Nova I","how":"Voluntariado","cost":3000.0},{"what":"Instalação de cobertura em policarbonato","why":"Manutenção","where":"Vida Nova I","how":"Empresa contratada","cost":13000.0},{"what":"Trocar microfone sem fio","why":"Chiando","where":"Vida Nova I","how":"Comprar","cost":1000.0},{"what":"Pintura externa e interna","why":"Pintura da igreja deteriorada","where":"Vila Planalto","how":"Voluntariado","cost":16000.0},{"what":"Manutenção e reparo no ar condicionado","why":"Não funciona","where":"Vila Planalto","how":"Empresa contratada","cost":3000.0},{"what":"Instalação de linha de vida","why":"Não tem, precisa instalar","where":"Vila Planalto","how":"Empresa contratada","cost":12000.0},{"what":"Instalação de isolamento acústico no telhado","why":"Reclamação vizinho","where":"Vila Planalto","how":"Á definir","cost":130000.0},{"what":"Espaço Infantil","why":"Não tem","where":"Vila Planalto","how":"Voluntariado","cost":20000.0},{"what":"Higienização ar condicionado (PMOC)","why":"Contaminação","where":"Vila Planalto","how":"Empresa contratada","cost":1750.0},{"what":"Troca de calhas","why":"Vazamento","where":"Lírio Campos","how":"Voluntariado","cost":1000.0},{"what":"Máquina cortar grama, soprador e rastelos","why":"Não tem","where":"Lírio Campos","how":"Comprar","cost":5000.0},{"what":"Pintura externa","why":"Pintura da igreja deteriorada","where":"Lírio Campos","how":"Voluntariado","cost":16000.0},{"what":"Troca torneiras de giratória para clic","why":"Adequação","where":"Lírio Campos","how":"Comprar","cost":600.0},{"what":"Higienização ar condicionado (PMOC)","why":"Contaminação","where":"Lírio Campos","how":"Empresa contratada","cost":1750.0},{"what":"Vara de Manobra","why":"Não tem","where":"Vinhedo","how":"Comprar","cost":3800.0}],"waiting":[{"church":"Bela Vista","problema":"Pintura","custo":10640.0},{"church":"Planalto","problema":"Ar condicionado não funciona","custo":2000.0},{"church":"Planalto","problema":"Pintura","custo":9270.0},{"church":"Vida Nova","problema":"Refletor estacionamento queimado","custo":100.0},{"church":"Vida Nova","problema":"Pintura","custo":9270.0},{"church":"Vida Nova","problema":"Ar condicionado com barulho (irmão)","custo":null}]};
+</script>
+<script>
+// Static post-reforma action plan (GUT / 5W2H), curated by the maintenance team.
+// Not derived from the SIGA PDF — kept separate from the dynamic dataset.
+
+function fmtBRL(n) {
+  return "R$ " + Math.round(n).toLocaleString("pt-BR");
+}
+
+// ---------- 5W2H checklist persistence ----------
+const PLAN_DONE_KEY = "ccb_painel_plano_5w2h_done_v1";
+
+function loadDoneIds() {
+  try {
+    const raw = localStorage.getItem(PLAN_DONE_KEY);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch (e) { return new Set(); }
+}
+function saveDoneIds(doneSet) {
+  try { localStorage.setItem(PLAN_DONE_KEY, JSON.stringify([...doneSet])); } catch (e) { /* ignore */ }
+}
+function planItemId(it) {
+  return `${it.where}||${it.what}`;
+}
+
+function updatePlanProgressNote(total, doneCount) {
+  const note = document.getElementById("plan-progress-note");
+  if (!note) return;
+  note.textContent = doneCount > 0
+    ? `${doneCount} de ${total} itens já concluídos pela equipe.`
+    : `Marque os itens já concluídos pela equipe.`;
+}
+
+function renderReformaPlan(planData) {
+  const items = planData.items;
+  const waiting = planData.waiting;
+  const doneIds = loadDoneIds();
+
+  // KPIs
+  const totalCost = items.reduce((s, it) => s + (it.cost || 0), 0);
+  const locations = [...new Set(items.map(it => it.where))];
+  document.getElementById("plan-total-cost").textContent = fmtBRL(totalCost);
+  document.getElementById("plan-total-items").textContent = items.length;
+  document.getElementById("plan-total-local").textContent = locations.length;
+  const crossCount = document.getElementById("plan-cross-count");
+  if (crossCount) crossCount.textContent = items.length;
+
+  // cost by location
+  const byLocal = {};
+  for (const it of items) byLocal[it.where] = (byLocal[it.where] || 0) + (it.cost || 0);
+  const localRows = Object.entries(byLocal).map(([name, cost]) => ({ name, cost })).sort((a, b) => b.cost - a.cost);
+  const maxCost = Math.max(1, ...localRows.map(r => r.cost));
+  const costTbody = document.getElementById("plan-cost-tbody");
+  costTbody.innerHTML = "";
+  for (const r of localRows) {
+    const barW = r.cost ? Math.max(10, r.cost / maxCost * 60) : 0;
+    costTbody.appendChild(el(`
+      <tr>
+        <td><span class="bt-name"><span class="bt-bar" style="width:${barW}px"></span>${r.name}</span></td>
+        <td class="num">${fmtBRL(r.cost)}</td>
+      </tr>`));
+  }
+  costTbody.appendChild(el(`
+    <tr class="total-row">
+      <td>Total</td>
+      <td class="num">${fmtBRL(totalCost)}</td>
+    </tr>`));
+
+  // waiting-on-reforma list
+  document.getElementById("waiting-head").textContent =
+    `${waiting.length} pendência${waiting.length === 1 ? "" : "s"} aguardando a conclusão da reforma agora`;
+  const wg = document.getElementById("waiting-grid");
+  wg.innerHTML = "";
+  for (const w of waiting) {
+    wg.appendChild(el(`
+      <div class="waiting-item">
+        <span class="w">${w.problema}</span>
+        <span class="c"><span>${w.church}</span>${w.custo ? `<span>${fmtBRL(w.custo)}</span>` : ""}</span>
+      </div>`));
+  }
+
+  // detailed 5W2H list, grouped by location (ordered same as cost ranking)
+  const localOrder = localRows.map(r => r.name);
+  const sortedItems = [...items].sort((a, b) => localOrder.indexOf(a.where) - localOrder.indexOf(b.where));
+  const detailTbody = document.getElementById("plan-detail-tbody");
+  detailTbody.innerHTML = "";
+  let lastLocal = null;
+  let groupCost = 0;
+  let doneCount = 0;
+  const flushGroupTotal = () => {
+    if (lastLocal === null) return;
+    detailTbody.appendChild(el(`
+      <tr class="total-row">
+        <td></td><td></td>
+        <td colspan="3" style="text-align:right;">Total ${lastLocal}</td>
+        <td class="num">${fmtBRL(groupCost)}</td>
+      </tr>`));
+  };
+  for (const it of sortedItems) {
+    if (it.where !== lastLocal) {
+      flushGroupTotal();
+      detailTbody.appendChild(el(`<tr class="church-group"><td colspan="6">${it.where}</td></tr>`));
+      lastLocal = it.where;
+      groupCost = 0;
+    }
+    groupCost += it.cost || 0;
+    const id = planItemId(it);
+    const isDone = doneIds.has(id);
+    if (isDone) doneCount++;
+    const row = el(`
+      <tr class="${isDone ? "done" : ""}" data-plan-id="${id.replace(/"/g, "&quot;")}">
+        <td class="plan-check-cell"><input type="checkbox" class="plan-check" ${isDone ? "checked" : ""} aria-label="Marcar como concluído"></td>
+        <td></td>
+        <td>${it.what}</td>
+        <td>${it.why || "—"}</td>
+        <td><span class="cat-tag">${it.how || "A definir"}</span></td>
+        <td class="num">${it.cost ? fmtBRL(it.cost) : "—"}</td>
+      </tr>`);
+    detailTbody.appendChild(row);
+  }
+  flushGroupTotal();
+  updatePlanProgressNote(sortedItems.length, doneCount);
+
+  // wire checkbox toggling (delegated once per render, since the tbody is rebuilt each call)
+  detailTbody.addEventListener("change", (e) => {
+    if (!e.target.classList.contains("plan-check")) return;
+    const tr = e.target.closest("tr[data-plan-id]");
+    if (!tr) return;
+    const id = tr.dataset.planId;
+    const current = loadDoneIds();
+    if (e.target.checked) current.add(id); else current.delete(id);
+    saveDoneIds(current);
+    tr.classList.toggle("done", e.target.checked);
+    updatePlanProgressNote(sortedItems.length, current.size);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderReformaPlan(REFORMA_PLAN_DATA);
+});
+</script>
+<script>
+var FECHAMENTO_DATA = [{"igreja": "BR 22-1535 - NOVA VINHEDO", "previsto": 5, "realizado": 5, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Abril", "mesNum": 4, "ano": 2026}, {"igreja": "BR 22-1536 - JARDIM BELA VISTA", "previsto": 5, "realizado": 5, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Abril", "mesNum": 4, "ano": 2026}, {"igreja": "BR 22-2182 - VILA PLANALTO", "previsto": 5, "realizado": 5, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Abril", "mesNum": 4, "ano": 2026}, {"igreja": "BR 22-2637 - PARQUE IOLANDA", "previsto": 5, "realizado": 5, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Abril", "mesNum": 4, "ano": 2026}, {"igreja": "BR 22-4343 - RESIDENCIAL VIDA NOVA I", "previsto": 5, "realizado": 5, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Abril", "mesNum": 4, "ano": 2026}, {"igreja": "BR 22-4558 - CAIXA D'AGUA - LÍRIO DOS CAMPOS", "previsto": 5, "realizado": 4, "perc": 0.8, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Abril", "mesNum": 4, "ano": 2026}, {"igreja": "BR 22-1535 - NOVA VINHEDO", "previsto": 7, "realizado": 0, "perc": 0, "anexoInsp": "Não", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Agosto", "mesNum": 8, "ano": 2026}, {"igreja": "BR 22-1536 - JARDIM BELA VISTA", "previsto": 7, "realizado": 5, "perc": 0.7142857142857143, "anexoInsp": "Não", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Agosto", "mesNum": 8, "ano": 2026}, {"igreja": "BR 22-2182 - VILA PLANALTO", "previsto": 7, "realizado": 7, "perc": 1, "anexoInsp": "Não", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Agosto", "mesNum": 8, "ano": 2026}, {"igreja": "BR 22-2637 - PARQUE IOLANDA", "previsto": 7, "realizado": 0, "perc": 0, "anexoInsp": "Não", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Agosto", "mesNum": 8, "ano": 2026}, {"igreja": "BR 22-4343 - RESIDENCIAL VIDA NOVA I", "previsto": 7, "realizado": 0, "perc": 0, "anexoInsp": "Não", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Agosto", "mesNum": 8, "ano": 2026}, {"igreja": "BR 22-4558 - CAIXA D'AGUA - LÍRIO DOS CAMPOS", "previsto": 7, "realizado": 0, "perc": 0, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Agosto", "mesNum": 8, "ano": 2026}, {"igreja": "BR 22-1535 - NOVA VINHEDO", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Dezembro", "mesNum": 12, "ano": 2026}, {"igreja": "BR 22-1536 - JARDIM BELA VISTA", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Dezembro", "mesNum": 12, "ano": 2026}, {"igreja": "BR 22-2182 - VILA PLANALTO", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Dezembro", "mesNum": 12, "ano": 2026}, {"igreja": "BR 22-2637 - PARQUE IOLANDA", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Dezembro", "mesNum": 12, "ano": 2026}, {"igreja": "BR 22-4343 - RESIDENCIAL VIDA NOVA I", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Dezembro", "mesNum": 12, "ano": 2026}, {"igreja": "BR 22-4558 - CAIXA D'AGUA - LÍRIO DOS CAMPOS", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Dezembro", "mesNum": 12, "ano": 2026}, {"igreja": "BR 22-1535 - NOVA VINHEDO", "previsto": 7, "realizado": 7, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Fevereiro", "mesNum": 2, "ano": 2026}, {"igreja": "BR 22-1536 - JARDIM BELA VISTA", "previsto": 6, "realizado": 6, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Fevereiro", "mesNum": 2, "ano": 2026}, {"igreja": "BR 22-2182 - VILA PLANALTO", "previsto": 6, "realizado": 6, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Fevereiro", "mesNum": 2, "ano": 2026}, {"igreja": "BR 22-2637 - PARQUE IOLANDA", "previsto": 6, "realizado": 6, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Fevereiro", "mesNum": 2, "ano": 2026}, {"igreja": "BR 22-4343 - RESIDENCIAL VIDA NOVA I", "previsto": 6, "realizado": 6, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Fevereiro", "mesNum": 2, "ano": 2026}, {"igreja": "BR 22-4558 - CAIXA D'AGUA - LÍRIO DOS CAMPOS", "previsto": 6, "realizado": 5, "perc": 0.8333333333333334, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Fevereiro", "mesNum": 2, "ano": 2026}, {"igreja": "BR 22-1535 - NOVA VINHEDO", "previsto": 5, "realizado": 5, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Janeiro", "mesNum": 1, "ano": 2026}, {"igreja": "BR 22-1536 - JARDIM BELA VISTA", "previsto": 5, "realizado": 5, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Janeiro", "mesNum": 1, "ano": 2026}, {"igreja": "BR 22-2182 - VILA PLANALTO", "previsto": 5, "realizado": 5, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Janeiro", "mesNum": 1, "ano": 2026}, {"igreja": "BR 22-2637 - PARQUE IOLANDA", "previsto": 5, "realizado": 5, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Janeiro", "mesNum": 1, "ano": 2026}, {"igreja": "BR 22-4343 - RESIDENCIAL VIDA NOVA I", "previsto": 5, "realizado": 5, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Janeiro", "mesNum": 1, "ano": 2026}, {"igreja": "BR 22-4558 - CAIXA D'AGUA - LÍRIO DOS CAMPOS", "previsto": 5, "realizado": 4, "perc": 0.8, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Janeiro", "mesNum": 1, "ano": 2026}, {"igreja": "BR 22-1535 - NOVA VINHEDO", "previsto": 5, "realizado": 5, "perc": 1, "anexoInsp": "Não", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Julho", "mesNum": 7, "ano": 2026}, {"igreja": "BR 22-1536 - JARDIM BELA VISTA", "previsto": 5, "realizado": 5, "perc": 1, "anexoInsp": "Não", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Julho", "mesNum": 7, "ano": 2026}, {"igreja": "BR 22-2182 - VILA PLANALTO", "previsto": 5, "realizado": 5, "perc": 1, "anexoInsp": "Não", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Julho", "mesNum": 7, "ano": 2026}, {"igreja": "BR 22-2637 - PARQUE IOLANDA", "previsto": 5, "realizado": 5, "perc": 1, "anexoInsp": "Não", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Julho", "mesNum": 7, "ano": 2026}, {"igreja": "BR 22-4343 - RESIDENCIAL VIDA NOVA I", "previsto": 5, "realizado": 5, "perc": 1, "anexoInsp": "Não", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Julho", "mesNum": 7, "ano": 2026}, {"igreja": "BR 22-4558 - CAIXA D'AGUA - LÍRIO DOS CAMPOS", "previsto": 5, "realizado": 5, "perc": 1, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Julho", "mesNum": 7, "ano": 2026}, {"igreja": "BR 22-1535 - NOVA VINHEDO", "previsto": 6, "realizado": 6, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Sim", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Junho", "mesNum": 6, "ano": 2026}, {"igreja": "BR 22-1536 - JARDIM BELA VISTA", "previsto": 5, "realizado": 5, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Sim", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Junho", "mesNum": 6, "ano": 2026}, {"igreja": "BR 22-2182 - VILA PLANALTO", "previsto": 5, "realizado": 5, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Sim", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Junho", "mesNum": 6, "ano": 2026}, {"igreja": "BR 22-2637 - PARQUE IOLANDA", "previsto": 5, "realizado": 5, "perc": 1, "anexoInsp": "Não", "anexoAta": "Não", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Junho", "mesNum": 6, "ano": 2026}, {"igreja": "BR 22-4343 - RESIDENCIAL VIDA NOVA I", "previsto": 5, "realizado": 5, "perc": 1, "anexoInsp": "Não", "anexoAta": "Não", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Junho", "mesNum": 6, "ano": 2026}, {"igreja": "BR 22-4558 - CAIXA D'AGUA - LÍRIO DOS CAMPOS", "previsto": 5, "realizado": 4, "perc": 0.8, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Junho", "mesNum": 6, "ano": 2026}, {"igreja": "BR 22-1535 - NOVA VINHEDO", "previsto": 8, "realizado": 8, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Maio", "mesNum": 5, "ano": 2026}, {"igreja": "BR 22-1536 - JARDIM BELA VISTA", "previsto": 7, "realizado": 7, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Maio", "mesNum": 5, "ano": 2026}, {"igreja": "BR 22-2182 - VILA PLANALTO", "previsto": 7, "realizado": 7, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Maio", "mesNum": 5, "ano": 2026}, {"igreja": "BR 22-2637 - PARQUE IOLANDA", "previsto": 7, "realizado": 7, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Maio", "mesNum": 5, "ano": 2026}, {"igreja": "BR 22-4343 - RESIDENCIAL VIDA NOVA I", "previsto": 7, "realizado": 7, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Maio", "mesNum": 5, "ano": 2026}, {"igreja": "BR 22-4558 - CAIXA D'AGUA - LÍRIO DOS CAMPOS", "previsto": 7, "realizado": 6, "perc": 0.8571428571428571, "anexoInsp": "Sim", "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Maio", "mesNum": 5, "ano": 2026}, {"igreja": "BR 22-1535 - NOVA VINHEDO", "previsto": 7, "realizado": 7, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Sim", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Março", "mesNum": 3, "ano": 2026}, {"igreja": "BR 22-1536 - JARDIM BELA VISTA", "previsto": 7, "realizado": 7, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Sim", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Março", "mesNum": 3, "ano": 2026}, {"igreja": "BR 22-2182 - VILA PLANALTO", "previsto": 7, "realizado": 7, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Sim", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Março", "mesNum": 3, "ano": 2026}, {"igreja": "BR 22-2637 - PARQUE IOLANDA", "previsto": 7, "realizado": 7, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Sim", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Março", "mesNum": 3, "ano": 2026}, {"igreja": "BR 22-4343 - RESIDENCIAL VIDA NOVA I", "previsto": 7, "realizado": 7, "perc": 1, "anexoInsp": "Sim", "anexoAta": "Sim", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Março", "mesNum": 3, "ano": 2026}, {"igreja": "BR 22-4558 - CAIXA D'AGUA - LÍRIO DOS CAMPOS", "previsto": 7, "realizado": 5, "perc": 0.7142857142857143, "anexoInsp": "Sim", "anexoAta": "Sim", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Março", "mesNum": 3, "ano": 2026}, {"igreja": "BR 22-1535 - NOVA VINHEDO", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": null, "anexoEletrica": null, "mes": "Novembro", "mesNum": 11, "ano": 2026}, {"igreja": "BR 22-1536 - JARDIM BELA VISTA", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": null, "anexoEletrica": null, "mes": "Novembro", "mesNum": 11, "ano": 2026}, {"igreja": "BR 22-2182 - VILA PLANALTO", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": null, "anexoEletrica": null, "mes": "Novembro", "mesNum": 11, "ano": 2026}, {"igreja": "BR 22-2637 - PARQUE IOLANDA", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": null, "anexoEletrica": null, "mes": "Novembro", "mesNum": 11, "ano": 2026}, {"igreja": "BR 22-4343 - RESIDENCIAL VIDA NOVA I", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": null, "anexoEletrica": null, "mes": "Novembro", "mesNum": 11, "ano": 2026}, {"igreja": "BR 22-4558 - CAIXA D'AGUA - LÍRIO DOS CAMPOS", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": null, "anexoEletrica": null, "mes": "Novembro", "mesNum": 11, "ano": 2026}, {"igreja": "BR 22-1535 - NOVA VINHEDO", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Outubro", "mesNum": 10, "ano": 2026}, {"igreja": "BR 22-1536 - JARDIM BELA VISTA", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Outubro", "mesNum": 10, "ano": 2026}, {"igreja": "BR 22-2182 - VILA PLANALTO", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Outubro", "mesNum": 10, "ano": 2026}, {"igreja": "BR 22-2637 - PARQUE IOLANDA", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Outubro", "mesNum": 10, "ano": 2026}, {"igreja": "BR 22-4343 - RESIDENCIAL VIDA NOVA I", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Outubro", "mesNum": 10, "ano": 2026}, {"igreja": "BR 22-4558 - CAIXA D'AGUA - LÍRIO DOS CAMPOS", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Outubro", "mesNum": 10, "ano": 2026}, {"igreja": "BR 22-1535 - NOVA VINHEDO", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Setembro", "mesNum": 9, "ano": 2026}, {"igreja": "BR 22-1536 - JARDIM BELA VISTA", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Setembro", "mesNum": 9, "ano": 2026}, {"igreja": "BR 22-2182 - VILA PLANALTO", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Setembro", "mesNum": 9, "ano": 2026}, {"igreja": "BR 22-2637 - PARQUE IOLANDA", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Setembro", "mesNum": 9, "ano": 2026}, {"igreja": "BR 22-4343 - RESIDENCIAL VIDA NOVA I", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Setembro", "mesNum": 9, "ano": 2026}, {"igreja": "BR 22-4558 - CAIXA D'AGUA - LÍRIO DOS CAMPOS", "previsto": null, "realizado": null, "perc": null, "anexoInsp": null, "anexoAta": "Não Aplicavel", "anexoPredial": "Não Aplicavel", "anexoEletrica": "Não Aplicavel", "mes": "Setembro", "mesNum": 9, "ano": 2026}];
+</script>
+<script>
+// ---------- Fechamento mensal (planilha de checagens/atas/anexos) ----------
+// Data comes from FECHAMENTO_DATA (embedded JSON, one row per igreja + competência).
+// Status is NOT taken from the spreadsheet's own Status column — it is computed
+// here from the rule the team gave us: Realizado/Previsto == 100% -> Encerrado,
+// otherwise Aberto. Ata is quarterly and predial/elétrica inspection is annual
+// (due by November); those are informational, shown as given in the sheet.
+
+function fechamentoCompetenciaKey(row) {
+  return row.ano * 100 + row.mesNum;
+}
+function fechamentoCompetenciaLabel(row) {
+  return `${String(row.mesNum).padStart(2, "0")}/${row.ano}`;
+}
+function fechamentoVerif(row) {
+  const p = row.previsto, r = row.realizado;
+  if (p == null || r == null) return "00/00";
+  return `${String(r).padStart(2, "0")}/${String(p).padStart(2, "0")}`;
+}
+function fechamentoStatus(row) {
+  return row.perc != null && row.perc >= 1 ? "Encerrado" : "Aberto";
+}
+function anexoPillClass(v) {
+  if (!v || v === "Não Aplicavel" || v === "Não Aplicável") return "na";
+  return v === "Sim" ? "sim" : "nao";
+}
+function anexoLabel(v) {
+  if (!v) return "Não";
+  if (v === "Não Aplicavel") return "Não Aplicável";
+  return v;
+}
+
+function fechamentoBuildSelector() {
+  const sel = document.getElementById("fechamento-competencia");
+  const seen = new Map();
+  for (const row of FECHAMENTO_DATA) {
+    const key = fechamentoCompetenciaKey(row);
+    if (!seen.has(key)) seen.set(key, row);
+  }
+  const keys = [...seen.keys()].sort((a, b) => a - b);
+  sel.innerHTML = "";
+  for (const key of keys) {
+    const row = seen.get(key);
+    const opt = document.createElement("option");
+    opt.value = String(key);
+    opt.textContent = `${row.mes}/${row.ano}`;
+    sel.appendChild(opt);
+  }
+  // default: most recent competência that actually has realizado/previsto data
+  const withData = FECHAMENTO_DATA.filter(r => r.previsto != null);
+  const defaultKey = withData.length
+    ? Math.max(...withData.map(fechamentoCompetenciaKey))
+    : Math.max(...keys);
+  sel.value = String(defaultKey);
+  sel.addEventListener("change", () => renderFechamento(Number(sel.value)));
+}
+
+function renderFechamento(competenciaKey) {
+  const rows = FECHAMENTO_DATA.filter(r => fechamentoCompetenciaKey(r) === competenciaKey);
+  const tbody = document.getElementById("fechamento-tbody");
+  tbody.innerHTML = "";
+
+  let encerradas = 0, abertas = 0, totalRealizado = 0, totalPrevisto = 0;
+
+  for (const row of rows) {
+    const status = fechamentoStatus(row);
+    if (status === "Encerrado") encerradas++; else abertas++;
+    if (row.previsto != null) totalPrevisto += row.previsto;
+    if (row.realizado != null) totalRealizado += row.realizado;
+
+    tbody.appendChild(el(`
+      <tr>
+        <td>${fechamentoCompetenciaLabel(row)}</td>
+        <td>${row.igreja}</td>
+        <td class="num">${fechamentoVerif(row)}</td>
+        <td><span class="status-pill ${status === "Encerrado" ? "encerrado" : "aberto"}">${status}</span></td>
+        <td><span class="anexo-pill ${anexoPillClass(row.anexoAta)}">${anexoLabel(row.anexoAta)}</span></td>
+        <td><span class="anexo-pill ${anexoPillClass(row.anexoInsp)}">${anexoLabel(row.anexoInsp)}</span></td>
+      </tr>`));
+  }
+
+  document.getElementById("fech-kpi-encerrado").textContent = encerradas;
+  document.getElementById("fech-kpi-aberto").textContent = abertas;
+  document.getElementById("fech-kpi-verif").textContent =
+    `${String(totalRealizado).padStart(2, "0")}/${String(totalPrevisto).padStart(2, "0")}`;
+}
+
+// ---------- top nav (Painel / Fechamento) ----------
+function fechamentoInitNav() {
+  const tabs = document.querySelectorAll(".topnav-tab");
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      tabs.forEach(t => t.classList.toggle("active", t === tab));
+      const view = tab.dataset.view;
+      document.getElementById("view-painel").hidden = view !== "painel";
+      document.getElementById("view-fechamento").hidden = view !== "fechamento";
+      window.scrollTo(0, 0);
+    });
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  fechamentoInitNav();
+  fechamentoBuildSelector();
+  renderFechamento(Number(document.getElementById("fechamento-competencia").value));
+});
+</script>
+</body>
+</html>
