@@ -412,6 +412,62 @@
     border-color: var(--gold);
   }
   .fechamento-table td { vertical-align: middle; }
+
+  /* ── Modal O que mudou ── */
+  #diff-modal-overlay {
+    display:none; position:fixed; inset:0; z-index:9999;
+    background:rgba(0,0,0,.55); align-items:center; justify-content:center;
+  }
+  #diff-modal-overlay.open { display:flex; }
+  #diff-modal {
+    background:var(--surface); border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-md); width:min(680px,95vw);
+    max-height:80vh; display:flex; flex-direction:column;
+    overflow:hidden;
+  }
+  #diff-modal-header {
+    padding:20px 24px 14px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  #diff-modal-header h3 { margin:0; font-size:1.1rem; color:var(--heading); }
+  #diff-modal-close {
+    background:none; border:none; font-size:1.4rem; cursor:pointer;
+    color:var(--muted); padding:2px 6px; border-radius:6px;
+  }
+  #diff-modal-close:hover { background:var(--surface-3); }
+  #diff-modal-body { overflow-y:auto; padding:16px 24px 24px; }
+  .diff-section { margin-bottom:18px; }
+  .diff-section-title {
+    font-size:.78rem; font-weight:700; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--muted); margin-bottom:8px;
+  }
+  .diff-row {
+    display:flex; gap:10px; align-items:flex-start;
+    padding:8px 12px; border-radius:10px; margin-bottom:6px;
+    font-size:.84rem; line-height:1.4;
+  }
+  .diff-row.new    { background:#d4f5e3; color:#1a5c37; }
+  .diff-row.closed { background:#ddeeff; color:#1a3a5c; }
+  .diff-row.changed{ background:#fff3d4; color:#5c3a00; }
+  @media (prefers-color-scheme:dark) {
+    .diff-row.new    { background:#0d3322; color:#6ee7aa; }
+    .diff-row.closed { background:#0d2233; color:#7ab8f5; }
+    .diff-row.changed{ background:#332200; color:#f5c97a; }
+  }
+  .diff-icon { font-size:1rem; flex-shrink:0; margin-top:1px; }
+  .diff-text { flex:1; }
+  .diff-sub  { font-size:.76rem; opacity:.75; }
+  .diff-empty { color:var(--muted); font-size:.88rem; text-align:center; padding:20px 0; }
+  #diff-modal-footer {
+    padding:12px 24px; border-top:1px solid var(--border);
+    display:flex; justify-content:flex-end; gap:10px;
+  }
+  .diff-btn {
+    padding:8px 20px; border-radius:10px; font-size:.85rem;
+    font-weight:600; cursor:pointer; border:none;
+  }
+  .diff-btn-primary { background:var(--gold); color:#fff; }
+  .diff-btn-secondary { background:var(--surface-3); color:var(--ink); }
 </style>
 </head>
 <body>
@@ -1457,6 +1513,7 @@ async function handlePdfUpload(file) {
     const items = raw.map(normalizeRecord);
     const data = computeDataset(items, new Date());
     const updatedAt = fmtTodayBR();
+    const prevItems = currentItems ? [...currentItems] : [...INITIAL_ITEMS];
     currentItems = items;
     currentMeta = { updatedAt, sourceFileName: file.name };
     render(data, currentMeta);
@@ -1466,6 +1523,7 @@ async function handlePdfUpload(file) {
       r: items[idx].risco, rf: items[idx].reforma_mentioned,
     }));
     saveToStorage(slim, updatedAt, file.name);
+    showDiffModal(prevItems, currentItems);
     let msg = `Painel atualizado com ${raw.length} registros de "${file.name}".`;
     if (issues.length > 0) msg += ` (${issues.length} linha(s) do PDF não puderam ser associadas a um registro — vale conferir manualmente.)`;
     setStatus(msg, "ok");
@@ -1475,6 +1533,98 @@ async function handlePdfUpload(file) {
   } finally {
     btn.disabled = false;
   }
+}
+
+
+// ---------- diff: O que mudou ----------
+function buildDiffMap(items) {
+  const m = {};
+  items.forEach(it => { m[it.n] = it; });
+  return m;
+}
+
+function showDiffModal(oldItems, newItems) {
+  const oldMap = buildDiffMap(oldItems);
+  const newMap = buildDiffMap(newItems);
+
+  const added   = []; // avarias novas (n não existia antes)
+  const closed  = []; // finalizadas (status mudou para Finalizado/Encerrado)
+  const changed = []; // status diferente (não finalizado)
+
+  // Novas
+  newItems.forEach(it => {
+    if (!oldMap[it.n]) {
+      added.push(it);
+    } else {
+      const old = oldMap[it.n];
+      const oldS = (old.s||"").toLowerCase();
+      const newS = (it.s||"").toLowerCase();
+      if (oldS !== newS) {
+        const isClosed = newS.includes("finaliz") || newS.includes("encerr");
+        if (isClosed) closed.push({ old, it });
+        else changed.push({ old, it });
+      }
+    }
+  });
+
+  // Removidas do PDF (finalizadas fora do ciclo atual)
+  oldItems.forEach(it => {
+    if (!newMap[it.n]) {
+      const s = (it.s||"").toLowerCase();
+      if (!s.includes("finaliz") && !s.includes("encerr")) {
+        // sumiu sem estar finalizado — incomum, mas mostra
+        changed.push({ old: it, it: { ...it, s: "(removida do relatório)" } });
+      }
+    }
+  });
+
+  const body = document.getElementById("diff-modal-body");
+  body.innerHTML = "";
+
+  if (added.length === 0 && closed.length === 0 && changed.length === 0) {
+    body.innerHTML = '<p class="diff-empty">Nenhuma alteração detectada em relação ao painel anterior.</p>';
+  } else {
+    if (added.length > 0) {
+      const sec = document.createElement("div");
+      sec.className = "diff-section";
+      sec.innerHTML = `<div class="diff-section-title">🆕 Novas avarias (${added.length})</div>`;
+      added.forEach(it => {
+        const d = document.createElement("div");
+        d.className = "diff-row new";
+        d.innerHTML = `<span class="diff-icon">➕</span><div class="diff-text"><b>${it.c}</b> — ${it.i||it.a}<div class="diff-sub">Nº ${it.n} · ${it.s||"—"}</div></div>`;
+        sec.appendChild(d);
+      });
+      body.appendChild(sec);
+    }
+
+    if (closed.length > 0) {
+      const sec = document.createElement("div");
+      sec.className = "diff-section";
+      sec.innerHTML = `<div class="diff-section-title">✅ Finalizadas (${closed.length})</div>`;
+      closed.forEach(({old, it}) => {
+        const d = document.createElement("div");
+        d.className = "diff-row closed";
+        d.innerHTML = `<span class="diff-icon">✔</span><div class="diff-text"><b>${it.c}</b> — ${it.i||it.a}<div class="diff-sub">Nº ${it.n} · ${old.s} → ${it.s}</div></div>`;
+        sec.appendChild(d);
+      });
+      body.appendChild(sec);
+    }
+
+    if (changed.length > 0) {
+      const sec = document.createElement("div");
+      sec.className = "diff-section";
+      sec.innerHTML = `<div class="diff-section-title">🔄 Status alterado (${changed.length})</div>`;
+      changed.forEach(({old, it}) => {
+        const d = document.createElement("div");
+        d.className = "diff-row changed";
+        d.innerHTML = `<span class="diff-icon">↺</span><div class="diff-text"><b>${it.c}</b> — ${it.i||it.a}<div class="diff-sub">Nº ${it.n} · ${old.s} → ${it.s}</div></div>`;
+        sec.appendChild(d);
+      });
+      body.appendChild(sec);
+    }
+  }
+
+  document.getElementById("diff-modal-overlay").classList.add("open");
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1844,5 +1994,19 @@ document.addEventListener("DOMContentLoaded", () => {
   renderFechamento(Number(document.getElementById("fechamento-competencia").value));
 });
 </script>
+
+<!-- ══ MODAL O QUE MUDOU ══ -->
+<div id="diff-modal-overlay">
+  <div id="diff-modal">
+    <div id="diff-modal-header">
+      <h3>🔄 O que mudou nessa atualização</h3>
+      <button id="diff-modal-close" onclick="document.getElementById('diff-modal-overlay').classList.remove('open')">✕</button>
+    </div>
+    <div id="diff-modal-body"></div>
+    <div id="diff-modal-footer">
+      <button class="diff-btn diff-btn-secondary" onclick="document.getElementById('diff-modal-overlay').classList.remove('open')">Fechar</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
