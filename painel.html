@@ -373,6 +373,45 @@
     .chart-card{ padding:16px 16px 14px; }
     footer{ flex-direction:column; gap:4px; }
   }
+
+  /* ── Fechamento editável ── */
+  .fech-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: var(--surface-2);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 28px 5px 10px;
+    font-size: .82rem;
+    font-family: inherit;
+    color: var(--ink);
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%237C9296' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    width: 100%;
+    min-width: 110px;
+  }
+  .fech-select:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
+  .fech-input {
+    background: var(--surface-2);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: .82rem;
+    font-family: inherit;
+    color: var(--ink);
+    width: 80px;
+    text-align: center;
+  }
+  .fech-input:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
+  .fechamento-table td { vertical-align: middle; }
 </style>
 </head>
 <body>
@@ -1677,7 +1716,65 @@ function fechamentoBuildSelector() {
   sel.addEventListener("change", () => renderFechamento(Number(sel.value)));
 }
 
+// ---------- edição inline do fechamento ----------
+const LS_KEY = "fechamento_overrides_v1";
+function loadOverrides() { try { return JSON.parse(localStorage.getItem(LS_KEY)||"{}"); } catch(e){ return {}; } }
+function saveOverrides(obj) { try { localStorage.setItem(LS_KEY, JSON.stringify(obj)); } catch(e){} }
+function rowKey(row) { return fechamentoCompetenciaKey(row) + "|" + row.igreja; }
+
+const VERIF_OPTS   = ["Sim","Não","Pendente","N/A"];
+const STATUS_OPTS  = ["Encerrado","Aberto","Pendente"];
+const ANEXO_OPTS   = ["Sim","Não","Pendente","Não Aplicavel"];
+
+function makeSelect(opts, value, onChange) {
+  const sel = document.createElement("select");
+  sel.className = "fech-select";
+  opts.forEach(o => {
+    const op = document.createElement("option");
+    op.value = o; op.textContent = o;
+    if (o === value) op.selected = true;
+    sel.appendChild(op);
+  });
+  sel.addEventListener("change", () => onChange(sel.value));
+  return sel;
+}
+
+function renderVerifCell(row, overrides, key) {
+  const base = fechamentoVerif(row);
+  const over = overrides[key]?.verif;
+  const cur  = over !== undefined ? over : base;
+  const td = document.createElement("td");
+  td.className = "num";
+  const inp = document.createElement("input");
+  inp.type = "text"; inp.className = "fech-input"; inp.value = cur;
+  inp.addEventListener("change", () => {
+    const ov = loadOverrides();
+    if (!ov[key]) ov[key] = {};
+    ov[key].verif = inp.value;
+    saveOverrides(ov);
+  });
+  td.appendChild(inp);
+  return td;
+}
+
+function renderSelectCell(row, overrides, key, field, opts, baseVal) {
+  const over = overrides[key]?.[field];
+  const cur  = over !== undefined ? over : baseVal;
+  const td = document.createElement("td");
+  const sel = makeSelect(opts, cur, val => {
+    const ov = loadOverrides();
+    if (!ov[key]) ov[key] = {};
+    ov[key][field] = val;
+    saveOverrides(ov);
+    // re-render para atualizar KPIs
+    renderFechamento(Number(document.getElementById("fechamento-competencia").value));
+  });
+  td.appendChild(sel);
+  return td;
+}
+
 function renderFechamento(competenciaKey) {
+  const overrides = loadOverrides();
   const rows = FECHAMENTO_DATA.filter(r => fechamentoCompetenciaKey(r) === competenciaKey);
   const tbody = document.getElementById("fechamento-tbody");
   tbody.innerHTML = "";
@@ -1685,20 +1782,40 @@ function renderFechamento(competenciaKey) {
   let encerradas = 0, abertas = 0, totalRealizado = 0, totalPrevisto = 0;
 
   for (const row of rows) {
-    const status = fechamentoStatus(row);
+    const key = rowKey(row);
+    const ov  = overrides[key] || {};
+
+    const baseStatus = fechamentoStatus(row);
+    const status = ov.status !== undefined ? ov.status : baseStatus;
     if (status === "Encerrado") encerradas++; else abertas++;
     if (row.previsto != null) totalPrevisto += row.previsto;
     if (row.realizado != null) totalRealizado += row.realizado;
 
-    tbody.appendChild(el(`
-      <tr>
-        <td>${fechamentoCompetenciaLabel(row)}</td>
-        <td>${row.igreja}</td>
-        <td class="num">${fechamentoVerif(row)}</td>
-        <td><span class="status-pill ${status === "Encerrado" ? "encerrado" : "aberto"}">${status}</span></td>
-        <td><span class="anexo-pill ${anexoPillClass(row.anexoAta)}">${anexoLabel(row.anexoAta)}</span></td>
-        <td><span class="anexo-pill ${anexoPillClass(row.anexoInsp)}">${anexoLabel(row.anexoInsp)}</span></td>
-      </tr>`));
+    const tr = document.createElement("tr");
+
+    // Competência
+    const td0 = document.createElement("td");
+    td0.textContent = fechamentoCompetenciaLabel(row);
+    tr.appendChild(td0);
+
+    // Localidade
+    const td1 = document.createElement("td");
+    td1.textContent = row.igreja;
+    tr.appendChild(td1);
+
+    // Verificações (editável)
+    tr.appendChild(renderVerifCell(row, overrides, key));
+
+    // Status (select)
+    tr.appendChild(renderSelectCell(row, overrides, key, "status", STATUS_OPTS, baseStatus));
+
+    // Anexo Ata (select)
+    tr.appendChild(renderSelectCell(row, overrides, key, "anexoAta", ANEXO_OPTS, row.anexoAta || "Não"));
+
+    // Anexo Relatório (select)
+    tr.appendChild(renderSelectCell(row, overrides, key, "anexoInsp", ANEXO_OPTS, row.anexoInsp || "Não"));
+
+    tbody.appendChild(tr);
   }
 
   document.getElementById("fech-kpi-encerrado").textContent = encerradas;
