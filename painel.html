@@ -468,6 +468,102 @@
   }
   .diff-btn-primary { background:var(--gold); color:#fff; }
   .diff-btn-secondary { background:var(--surface-3); color:var(--ink); }
+
+  /* ── Análise Reunião ── */
+  .reuniao-wrap { padding-bottom: 40px; }
+  .reuniao-controls { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:20px; }
+  .reuniao-controls label { font-size:.82rem; font-weight:600; color:var(--muted); }
+  .reuniao-controls select { 
+    background:var(--surface-2); border:1.5px solid var(--border);
+    border-radius:10px; padding:7px 14px; font-size:.85rem; color:var(--ink);
+    cursor:pointer;
+  }
+  .reuniao-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+  @media(max-width:600px){ .reuniao-grid { grid-template-columns:1fr; } }
+  .reuniao-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius-lg); padding:20px;
+    box-shadow:var(--shadow);
+  }
+  .reuniao-card-title { font-size:.75rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-bottom:16px; }
+  .insp-row { display:flex; flex-direction:column; gap:4px; margin-bottom:14px; }
+  .insp-row:last-child { margin-bottom:0; }
+  .insp-header { display:flex; justify-content:space-between; align-items:center; }
+  .insp-name { font-size:.88rem; font-weight:600; color:var(--heading); }
+  .insp-nums { font-size:.82rem; color:var(--muted); }
+  .insp-bar-bg { height:10px; background:var(--border); border-radius:99px; overflow:hidden; }
+  .insp-bar-fill { height:100%; border-radius:99px; transition:width .4s ease; }
+  .bar-verde  { background:#22c55e; }
+  .bar-amarelo{ background:#f59e0b; }
+  .bar-vermelho{ background:#ef4444; }
+  .insp-pct-badge {
+    display:inline-block; font-size:.72rem; font-weight:700;
+    border-radius:6px; padding:2px 8px; color:#fff;
+  }
+  .badge-verde  { background:#22c55e; }
+  .badge-amarelo{ background:#f59e0b; }
+  .badge-vermelho{ background:#ef4444; }
+  .reuniao-ranking { list-style:none; padding:0; margin:0; }
+  .reuniao-ranking li {
+    display:flex; align-items:center; gap:12px;
+    padding:10px 0; border-bottom:1px solid var(--border);
+    font-size:.88rem;
+  }
+  .reuniao-ranking li:last-child { border-bottom:none; }
+  .rank-pos { font-size:1.1rem; width:28px; text-align:center; flex-shrink:0; }
+  .rank-info { flex:1; }
+  .rank-name { font-weight:600; color:var(--heading); }
+  .rank-sub  { font-size:.76rem; color:var(--muted); }
+  .rank-pct  { font-size:1rem; font-weight:800; }
+  .rank-pct.verde   { color:#22c55e; }
+  .rank-pct.amarelo { color:#f59e0b; }
+  .rank-pct.vermelho{ color:#ef4444; }
+  .alerta-box {
+    background:#fff3d4; border:1.5px solid #f59e0b;
+    border-radius:12px; padding:14px 18px; margin-bottom:20px;
+    font-size:.86rem; color:#5c3a00;
+  }
+  @media(prefers-color-scheme:dark){
+    .alerta-box { background:#332200; border-color:#b45309; color:#fcd34d; }
+  }
+  .alerta-box b { color:#d97706; }
+  .part-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); font-size:.86rem; }
+  .part-row:last-child { border-bottom:none; }
+  .part-name { font-weight:500; color:var(--heading); }
+  .part-pct-bar { display:flex; align-items:center; gap:10px; }
+  .part-bar-bg { width:100px; height:8px; background:var(--border); border-radius:99px; overflow:hidden; }
+  .part-bar-fill { height:100%; border-radius:99px; background:var(--gold); }
+  .part-num { font-size:.78rem; color:var(--muted); min-width:90px; text-align:right; }
+
+  /* ── Avarias por igreja (Reunião) ── */
+  .av-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; box-shadow:var(--shadow); margin-bottom:16px; }
+  .av-row { padding:12px 0; border-bottom:1px solid var(--border); }
+  .av-row:last-child { border-bottom:none; }
+  .av-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .av-name   { font-size:.9rem; font-weight:700; color:var(--heading); }
+  .av-total  { font-size:.82rem; color:var(--muted); }
+  .av-pills  { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px; }
+  .av-pill   { font-size:.72rem; font-weight:700; padding:3px 10px; border-radius:99px; }
+  .av-pill.fin { background:#d4f5e3; color:#1a5c37; }
+  .av-pill.and { background:#fff3d4; color:#5c3a00; }
+  .av-pill.pend{ background:#fde8e8; color:#7f1d1d; }
+  @media(prefers-color-scheme:dark){
+    .av-pill.fin { background:#0d3322; color:#6ee7aa; }
+    .av-pill.and { background:#332200; color:#fcd34d; }
+    .av-pill.pend{ background:#3b0a0a; color:#fca5a5; }
+  }
+  .av-cats   { display:flex; gap:8px; flex-wrap:wrap; }
+  .av-cat    { font-size:.72rem; color:var(--muted); background:var(--surface-2); border-radius:6px; padding:2px 8px; }
+  .av-part-bar { display:flex; align-items:center; gap:8px; margin-top:4px; }
+  .av-bar-bg  { flex:1; height:7px; background:var(--border); border-radius:99px; overflow:hidden; }
+  .av-bar-fill{ height:100%; border-radius:99px; }
+  .av-bar-gold{ background:var(--gold); }
+  .av-bar-red { background:#ef4444; }
+  .av-pct-lbl { font-size:.76rem; font-weight:700; color:var(--muted); min-width:38px; text-align:right; }
+  .taxa-res   { font-size:.75rem; color:var(--muted); }
+  .reuniao-divider { border:none; border-top:2px solid var(--border); margin:28px 0 20px; }
+  .reuniao-sub-title { font-size:1rem; font-weight:800; color:var(--heading); margin-bottom:4px; }
+  .reuniao-sub-note  { font-size:.8rem; color:var(--muted); margin-bottom:16px; }
 </style>
 </head>
 <body>
@@ -477,6 +573,7 @@
     <div class="topnav-tabs">
       <button type="button" class="topnav-tab active" data-view="painel">Painel</button>
       <button type="button" class="topnav-tab" data-view="fechamento">Fechamento</button>
+      <button type="button" class="topnav-tab" data-view="reuniao">Reunião</button>
     </div>
   </div>
 </nav>
@@ -1627,6 +1724,192 @@ function showDiffModal(oldItems, newItems) {
   document.getElementById("diff-modal-overlay").classList.add("open");
 }
 
+
+
+// ---------- Avarias por igreja (Reunião) ----------
+function renderAvariasReuniao() {
+  // currentItems usa campos expandidos; INITIAL_ITEMS usa campos curtos
+  // Normalizar para um formato único
+  let src;
+  if (typeof currentItems !== "undefined" && currentItems && currentItems.length) {
+    src = currentItems.map(it => ({
+      ig:  it.church   || it.c || "—",
+      s:   it.status   || it.s || "",
+      cat: it.categoria || it.cat || "Outros"
+    }));
+  } else {
+    src = INITIAL_ITEMS.map(it => ({
+      ig:  it.c   || "—",
+      s:   it.s   || "",
+      cat: it.cat || "Outros"
+    }));
+  }
+
+  const map = {};
+  src.forEach(it => {
+    const ig = it.ig;
+    if (!map[ig]) map[ig] = { total:0, fin:0, and:0, pend:0, cats:{} };
+    map[ig].total++;
+    const s = (it.s||"").toLowerCase();
+    if (s.includes("finaliz"))      map[ig].fin++;
+    else if (s.includes("andamento")) map[ig].and++;
+    else                              map[ig].pend++;
+    const cat = it.cat || "Outros";
+    map[ig].cats[cat] = (map[ig].cats[cat]||0) + 1;
+  });
+
+  const total = src.length;
+  const igrejas = Object.entries(map).sort((a,b) => b[1].total - a[1].total);
+
+  const div = document.getElementById("reuniao-avarias");
+  div.innerHTML = "";
+
+  igrejas.forEach(([ig, v]) => {
+    const igLabel = ig.replace(/^BR \d+-\d+ - /,'').replace("CAIXA D\'AGUA - ","").trim();
+    const pctPart = total ? Math.round(v.total/total*100) : 0;
+    const pctRes  = v.total ? Math.round(v.fin/v.total*100) : 0;
+    const barRes  = pctRes >= 80 ? "av-bar-gold" : "av-bar-red";
+    const cats = Object.entries(v.cats).sort((a,b)=>b[1]-a[1])
+      .map(([k,n])=>`<span class="av-cat">${k}: ${n}</span>`).join("");
+
+    div.innerHTML += `
+      <div class="av-row">
+        <div class="av-header">
+          <span class="av-name">${igLabel}</span>
+          <span class="av-total">${v.total}/${total} avarias · <b>${pctPart}%</b> do total</span>
+        </div>
+        <div class="av-pills">
+          <span class="av-pill fin">✔ ${v.fin} resolvida${v.fin>1?"s":""}</span>
+          ${v.and>0?`<span class="av-pill and">↺ ${v.and} em andamento</span>`:""}
+          ${v.pend>0?`<span class="av-pill pend">⏳ ${v.pend} pendente${v.pend>1?"s":""}</span>`:""}
+        </div>
+        <div class="av-part-bar">
+          <span class="taxa-res">Taxa resolução</span>
+          <div class="av-bar-bg"><div class="av-bar-fill ${barRes}" style="width:${pctRes}%"></div></div>
+          <span class="av-pct-lbl">${pctRes}%</span>
+        </div>
+        <div class="av-cats">${cats}</div>
+      </div>`;
+  });
+}
+
+// ---------- Análise Reunião ----------
+const TRIM = {
+  ciclo: [1,2,3,4,5,6,7,8,9,10,11,12],
+  trim1: [1,2,3], trim2: [4,5,6], trim3: [7,8,9], trim4: [10,11,12]
+};
+
+function shortName(ig) {
+  return ig.replace(/^BR \d+-\d+ - /,'').replace("CAIXA D'AGUA - ","").trim();
+}
+
+function barClass(pct) {
+  if (pct >= 90) return 'bar-verde';
+  if (pct >= 70) return 'bar-amarelo';
+  return 'bar-vermelho';
+}
+function badgeClass(pct) {
+  if (pct >= 90) return 'badge-verde';
+  if (pct >= 70) return 'badge-amarelo';
+  return 'badge-vermelho';
+}
+function rankClass(pct) {
+  if (pct >= 90) return 'verde';
+  if (pct >= 70) return 'amarelo';
+  return 'vermelho';
+}
+function rankEmoji(i) {
+  return ['🥇','🥈','🥉'][i] || `${i+1}º`;
+}
+
+function renderReuniao() {
+  const periodo = document.getElementById('reuniao-periodo').value;
+  const mesesAlvo = TRIM[periodo] || TRIM.ciclo;
+
+  // Filtrar FECHAMENTO_DATA pelo período
+  const rows = FECHAMENTO_DATA.filter(r => mesesAlvo.includes(r.mesNum));
+
+  // Agregar por igreja
+  const map = {};
+  rows.forEach(r => {
+    const ig = r.igreja;
+    if (!map[ig]) map[ig] = { previsto:0, realizado:0, nome: shortName(ig) };
+    map[ig].previsto  += (r.previsto  || 0);
+    map[ig].realizado += (r.realizado || 0);
+  });
+
+  const igrejas = Object.values(map).sort((a,b) => {
+    const pa = a.previsto ? a.realizado/a.previsto : 0;
+    const pb = b.previsto ? b.realizado/b.previsto : 0;
+    return pb - pa;
+  });
+
+  const totalReal = igrejas.reduce((s,i) => s + i.realizado, 0);
+
+  // --- Cumprimento ---
+  const cumpr = document.getElementById('reuniao-cumprimento');
+  cumpr.innerHTML = '';
+  igrejas.forEach(ig => {
+    const pct = ig.previsto ? Math.round(ig.realizado/ig.previsto*100) : 0;
+    const bCls = barClass(pct);
+    const bdCls = badgeClass(pct);
+    cumpr.innerHTML += `
+      <div class="insp-row">
+        <div class="insp-header">
+          <span class="insp-name">${ig.nome}</span>
+          <span class="insp-nums">${ig.realizado}/${ig.previsto} <span class="insp-pct-badge ${bdCls}">${pct}%</span></span>
+        </div>
+        <div class="insp-bar-bg"><div class="insp-bar-fill ${bCls}" style="width:${pct}%"></div></div>
+      </div>`;
+  });
+
+  // --- Ranking ---
+  const ranking = document.getElementById('reuniao-ranking');
+  ranking.innerHTML = '';
+  igrejas.forEach((ig, i) => {
+    const pct = ig.previsto ? Math.round(ig.realizado/ig.previsto*100) : 0;
+    const rCls = rankClass(pct);
+    ranking.innerHTML += `
+      <li>
+        <span class="rank-pos">${rankEmoji(i)}</span>
+        <div class="rank-info">
+          <div class="rank-name">${ig.nome}</div>
+          <div class="rank-sub">${ig.realizado} de ${ig.previsto} previstas</div>
+        </div>
+        <span class="rank-pct ${rCls}">${pct}%</span>
+      </li>`;
+  });
+
+  // --- Participação no total ---
+  const part = document.getElementById('reuniao-participacao');
+  part.innerHTML = '';
+  const igPart = [...igrejas].sort((a,b) => b.realizado - a.realizado);
+  igPart.forEach(ig => {
+    const pct = totalReal ? Math.round(ig.realizado/totalReal*100) : 0;
+    part.innerHTML += `
+      <div class="part-row">
+        <span class="part-name">${ig.nome}</span>
+        <div class="part-pct-bar">
+          <div class="part-bar-bg"><div class="part-bar-fill" style="width:${pct}%"></div></div>
+          <span class="part-num">${ig.realizado} insp. · <b>${pct}%</b> do total</span>
+        </div>
+      </div>`;
+  });
+
+  // --- Alerta igrejas abaixo de 80% ---
+  const alertaDiv = document.getElementById('reuniao-alerta');
+  const abaixo = igrejas.filter(ig => ig.previsto && ig.realizado/ig.previsto < 0.8);
+  if (abaixo.length > 0) {
+    const nomes = abaixo.map(ig => `<b>${ig.nome}</b> (${Math.round(ig.realizado/ig.previsto*100)}%)`).join(', ');
+    alertaDiv.innerHTML = `<div class="alerta-box">⚠️ Abaixo de 80% no período: ${nomes}. Atenção especial na reunião trimestral.</div>`;
+  } else {
+    alertaDiv.innerHTML = '';
+  }
+
+  // --- Avarias ---
+  renderAvariasReuniao();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("uploadBtn").addEventListener("click", () => document.getElementById("pdfInput").click());
   document.getElementById("pdfInput").addEventListener("change", (e) => {
@@ -1634,6 +1917,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (file) handlePdfUpload(file);
     e.target.value = "";
   });
+
+  // Select de período da reunião
+  const selPeriodo = document.getElementById("reuniao-periodo");
+  if (selPeriodo) selPeriodo.addEventListener("change", renderReuniao);
 
   // delegated click/keyboard handler for the year-filter bars (attached once — render() rebuilds the bars each time)
   document.getElementById("year-trend").addEventListener("click", (e) => {
@@ -1983,6 +2270,8 @@ function fechamentoInitNav() {
       const view = tab.dataset.view;
       document.getElementById("view-painel").hidden = view !== "painel";
       document.getElementById("view-fechamento").hidden = view !== "fechamento";
+      document.getElementById("view-reuniao").hidden = view !== "reuniao";
+      if (view === "reuniao") renderReuniao();
       window.scrollTo(0, 0);
     });
   });
@@ -1994,6 +2283,63 @@ document.addEventListener("DOMContentLoaded", () => {
   renderFechamento(Number(document.getElementById("fechamento-competencia").value));
 });
 </script>
+
+
+<!-- ══ REUNIÃO ══ -->
+<div id="view-reuniao" hidden>
+  <div class="wrap reuniao-wrap">
+    <div class="section-head" style="margin-top:22px;">
+      <h2>Análise para Reunião Trimestral</h2>
+      <div class="section-note">Cumprimento de inspeções e participação de cada casa de oração</div>
+    </div>
+
+    <div class="reuniao-controls">
+      <label for="reuniao-periodo">Período</label>
+      <select id="reuniao-periodo">
+        <option value="ciclo">Ciclo 2026 (completo)</option>
+        <option value="trim1">1º Trimestre (Jan–Mar)</option>
+        <option value="trim2">2º Trimestre (Abr–Jun)</option>
+        <option value="trim3">3º Trimestre (Jul–Set)</option>
+        <option value="trim4">4º Trimestre (Out–Dez)</option>
+      </select>
+    </div>
+
+    <div id="reuniao-alerta"></div>
+
+    <div class="reuniao-grid">
+      <!-- Cumprimento por igreja -->
+      <div class="reuniao-card">
+        <div class="reuniao-card-title">📊 Cumprimento de inspeções por igreja</div>
+        <div id="reuniao-cumprimento"></div>
+      </div>
+
+      <!-- Ranking -->
+      <div class="reuniao-card">
+        <div class="reuniao-card-title">🏆 Ranking de cumprimento</div>
+        <ul class="reuniao-ranking" id="reuniao-ranking"></ul>
+      </div>
+    </div>
+
+    <!-- Participação no total -->
+    <div class="reuniao-card">
+      <div class="reuniao-card-title">🔢 Participação no total de inspeções realizadas</div>
+      <div id="reuniao-participacao"></div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <hr class="reuniao-divider">
+    <div class="section-head">
+      <h2>Avarias desde 2024</h2>
+      <div class="section-note">Total registrado, taxa de resolução e categorias por casa de oração</div>
+    </div>
+    <div id="reuniao-avarias"></div>
+    <footer>
+      <span>Congregação Cristã no Brasil · Vinhedo/SP · Equipe de Manutenção</span>
+      <span>Fonte: FECHAMENTO_DATA · INITIAL_ITEMS</span>
+    </footer>
+  </div>
+</div>
 
 <!-- ══ MODAL O QUE MUDOU ══ -->
 <div id="diff-modal-overlay">
