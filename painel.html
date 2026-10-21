@@ -564,6 +564,239 @@
   .reuniao-divider { border:none; border-top:2px solid var(--border); margin:28px 0 20px; }
   .reuniao-sub-title { font-size:1rem; font-weight:800; color:var(--heading); margin-bottom:4px; }
   .reuniao-sub-note  { font-size:.8rem; color:var(--muted); margin-bottom:16px; }
+
+  /* ═══════════════════════════════════════════════════
+     ABA APRESENTAÇÃO — slides + falas
+  ════════════════════════════════════════════════════ */
+  #view-apresentacao {
+    background: #111820;
+    color: #f0f4f8;
+    font-family: 'Rubik', 'IBM Plex Sans', sans-serif;
+  }
+  /* sub-tabs internos */
+  .apres-subtabs {
+    display: flex;
+    gap: 0;
+    background: #0D2137;
+    border-bottom: 1px solid rgba(91,196,245,0.2);
+    padding: 0 24px;
+    position: sticky;
+    top: 52px; /* altura do topnav principal */
+    z-index: 10;
+  }
+  .apres-tab {
+    background: none;
+    border: none;
+    color: rgba(240,244,248,0.55);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0 20px;
+    height: 44px;
+    border-bottom: 3px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+  }
+  .apres-tab:hover { color: #f0f4f8; }
+  .apres-tab.active { color: #5BC4F5; border-bottom-color: #5BC4F5; }
+
+  /* ── SLIDES ── */
+  .apres-slides-view {
+    display: none;
+    flex-direction: column;
+    height: calc(100vh - 52px - 44px); /* tira topnav + subtabs */
+    overflow: hidden;
+  }
+  .apres-slides-view.active { display: flex; }
+  .apres-deck { flex: 1; position: relative; overflow: hidden; }
+  .apres-slide {
+    position: absolute; width: 100%; height: 100%;
+    display: none; overflow: hidden;
+  }
+  .apres-slide.active { display: flex; flex-direction: column; }
+  /* nav bar dos slides */
+  .apres-nav {
+    position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 14px;
+    background: rgba(13,33,55,0.85); backdrop-filter: blur(12px);
+    border: 1px solid rgba(91,196,245,0.2); border-radius: 40px;
+    padding: 8px 18px; z-index: 100;
+  }
+  .apres-nav button {
+    background: none; border: none; color: rgba(240,244,248,0.7);
+    cursor: pointer; font-size: 20px; padding: 4px 10px;
+    border-radius: 20px; transition: background 0.2s;
+  }
+  .apres-nav button:hover { background: rgba(255,255,255,0.12); }
+  .apres-nav .a-counter { font-size: 13px; color: rgba(240,244,248,0.5); min-width: 52px; text-align: center; }
+  .apres-dots { display: flex; gap: 5px; align-items: center; }
+  .apres-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.25); cursor: pointer; transition: all 0.2s; }
+  .apres-dot.active { background: #5BC4F5; width: 18px; border-radius: 3px; }
+  .apres-nav .a-key { font-size: 12px; color: rgba(255,255,255,0.3); }
+
+  /* ── FALAS ── */
+  .apres-falas-view {
+    display: none;
+    overflow-y: auto;
+    padding: 32px 24px 48px;
+    flex-direction: column;
+    background: #0f1923;
+  }
+  .apres-falas-view.active { display: flex; }
+  .apres-fala-list { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; width: 100%; }
+  .apres-fala-header {
+    font-family: 'Rubik', sans-serif; font-size: 22px; font-weight: 700; color: #f0f4f8;
+    margin-bottom: 8px; padding-bottom: 16px; border-bottom: 1px solid rgba(91,196,245,0.2);
+  }
+  .apres-fala-card {
+    background: #162233; border: 1px solid rgba(91,196,245,0.15);
+    border-radius: 14px; overflow: hidden; transition: border-color 0.2s;
+  }
+  .apres-fala-card:hover { border-color: rgba(91,196,245,0.35); }
+  .apres-fala-head {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 20px; cursor: pointer; user-select: none;
+  }
+  .apres-fala-num {
+    font-family: 'Rubik', sans-serif; font-size: 13px; font-weight: 700; color: #5BC4F5;
+    background: rgba(91,196,245,0.12); border-radius: 20px; padding: 3px 12px; white-space: nowrap;
+  }
+  .apres-fala-title { font-family: 'Rubik', sans-serif; font-size: 16px; font-weight: 600; color: #d0e4f4; flex: 1; }
+  .apres-fala-arrow { font-size: 18px; color: rgba(91,196,245,0.5); transition: transform 0.25s; }
+  .apres-fala-card.open .apres-fala-arrow { transform: rotate(180deg); }
+  .apres-fala-body { display: none; padding: 0 20px 20px; border-top: 1px solid rgba(91,196,245,0.1); }
+  .apres-fala-card.open .apres-fala-body { display: block; }
+  .apres-fala-text {
+    margin-top: 14px; font-size: 16px; line-height: 1.7; color: #b8cfe0;
+    font-style: italic; border-left: 3px solid #5BC4F5; padding-left: 16px;
+  }
+  .apres-fala-tip {
+    margin-top: 10px; font-size: 13px; color: rgba(91,196,245,0.6);
+    display: flex; align-items: flex-start; gap: 6px;
+  }
+  .apres-fala-tip::before { content: "💡"; flex-shrink: 0; }
+
+  /* ── SLIDES INDIVIDUAIS ── */
+  /* slide 1 */
+  .as1 { background: linear-gradient(135deg,#0D2137 0%,#1A3A5C 60%,#0D6E9A 100%); color:#F0F8FF; padding:72px 96px; justify-content:space-between; }
+  .as1 .eyebrow { font-size:16px; font-weight:500; color:#5BC4F5; letter-spacing:3px; text-transform:uppercase; margin-bottom:20px; font-family:'Rubik',sans-serif; }
+  .as1 h1 { font-size:80px; font-weight:700; line-height:1.05; color:#F0F8FF; font-family:'Rubik',sans-serif; }
+  .as1 .sub { font-size:26px; font-weight:300; color:#B8D9F0; margin-top:16px; }
+  .as1 .bottom { display:flex; justify-content:space-between; align-items:flex-end; }
+  .as1 .date { font-size:18px; color:#7AADCC; }
+  .as1 .badge { background:rgba(91,196,245,0.15); border:1.5px solid rgba(91,196,245,0.5); border-radius:16px; padding:20px 36px; text-align:center; }
+  .as1 .badge .num { font-size:52px; font-weight:700; color:#5BC4F5; line-height:1; font-family:'Rubik',sans-serif; }
+  .as1 .badge .lbl { font-size:16px; color:#B8D9F0; margin-top:4px; }
+  /* slide 2 */
+  .as2 { background:#F7F9FC; color:#1A2B3C; padding:60px 80px; justify-content:center; gap:40px; }
+  .as2 h2 { font-family:'Rubik',sans-serif; font-size:44px; font-weight:700; color:#0D2137; }
+  .as2 .cards { display:flex; gap:20px; }
+  .as2 .card { flex:1; background:#fff; border:1px solid #DDE5EE; border-radius:16px; padding:28px; display:flex; flex-direction:column; gap:10px; }
+  .as2 .card .icon { font-size:30px; }
+  .as2 .card h3 { font-family:'Rubik',sans-serif; font-size:18px; font-weight:600; color:#0D2137; }
+  .as2 .card p { font-size:14px; color:#4A6080; line-height:1.5; }
+  .as2 .card.highlight { border-color:#0D6E9A; background:linear-gradient(135deg,#E8F4FB,#F0F8FF); }
+  /* slide 3 */
+  .as3 { background:#0D2137; color:#F0F8FF; padding:60px 80px; justify-content:center; gap:36px; }
+  .as3 h2 { font-family:'Rubik',sans-serif; font-size:44px; font-weight:700; color:#F0F8FF; }
+  .as3 .grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; }
+  .as3 .item { background:rgba(255,255,255,0.07); border:1px solid rgba(91,196,245,0.25); border-radius:14px; padding:24px; display:flex; flex-direction:column; gap:10px; }
+  .as3 .item .num { font-family:'Rubik',sans-serif; font-size:40px; font-weight:700; color:#5BC4F5; }
+  .as3 .item h3 { font-family:'Rubik',sans-serif; font-size:16px; font-weight:600; }
+  .as3 .item p { font-size:13px; color:#B8D9F0; line-height:1.5; }
+  /* slide 4 */
+  .as4 { background:#fff; color:#1A2B3C; padding:60px 80px; justify-content:center; gap:32px; }
+  .as4 h2 { font-family:'Rubik',sans-serif; font-size:44px; font-weight:700; color:#0D2137; }
+  .as4 .kpi-row { display:flex; gap:16px; }
+  .as4 .kpi { flex:1; border-radius:18px; padding:28px 20px; display:flex; flex-direction:column; gap:6px; text-align:center; }
+  .as4 .kpi .big { font-family:'Rubik',sans-serif; font-size:56px; font-weight:700; line-height:1; }
+  .as4 .kpi .lbl { font-size:15px; font-weight:500; }
+  .as4 .kpi .sub { font-size:12px; opacity:0.7; }
+  .as4 .kpi.blue { background:#E8F4FB; } .as4 .kpi.blue .big { color:#0D6E9A; }
+  .as4 .kpi.green { background:#E8F7EE; } .as4 .kpi.green .big { color:#1A7A42; }
+  .as4 .kpi.orange { background:#FEF3E8; } .as4 .kpi.orange .big { color:#C4620D; }
+  .as4 .kpi.purple { background:#EEE8F7; } .as4 .kpi.purple .big { color:#5A2DC4; }
+  .as4 .row2 { display:flex; gap:16px; }
+  .as4 .stat { flex:1; background:#F7F9FC; border:1px solid #DDE5EE; border-radius:12px; padding:18px 22px; display:flex; align-items:center; gap:16px; }
+  .as4 .stat .n { font-family:'Rubik',sans-serif; font-size:30px; font-weight:700; color:#0D6E9A; }
+  .as4 .stat .info { display:flex; flex-direction:column; gap:2px; }
+  .as4 .stat .info strong { font-size:14px; font-weight:600; color:#0D2137; }
+  .as4 .stat .info span { font-size:12px; color:#5A7A99; }
+  /* slide 5 */
+  .as5 { background:#0D2137; color:#F0F8FF; padding:60px 80px; justify-content:center; gap:28px; }
+  .as5 h2 { font-family:'Rubik',sans-serif; font-size:44px; font-weight:700; }
+  .as5 .subtitle { font-size:17px; color:#7AADCC; margin-top:-16px; }
+  .as5 .table-wrap { display:flex; flex-direction:column; gap:0; border-radius:14px; overflow:hidden; border:1px solid rgba(255,255,255,0.1); }
+  .as5 .row-h { display:flex; background:rgba(91,196,245,0.2); padding:12px 20px; font-size:12px; font-weight:600; color:#5BC4F5; letter-spacing:1px; text-transform:uppercase; gap:12px; }
+  .as5 .row { display:flex; padding:14px 20px; font-size:16px; align-items:center; gap:12px; border-top:1px solid rgba(255,255,255,0.07); }
+  .as5 .row:nth-child(even) { background:rgba(255,255,255,0.04); }
+  .as5 .col-ig { flex:3; font-weight:500; } .as5 .col-av { flex:1.5; text-align:right; color:#B8D9F0; font-variant-numeric:tabular-nums; }
+  .as5 .col-res { flex:1.5; text-align:right; } .as5 .col-bar { flex:4; }
+  .as5 .bar-bg { height:9px; background:rgba(255,255,255,0.1); border-radius:5px; overflow:hidden; }
+  .as5 .bar-fill { height:100%; border-radius:5px; background:linear-gradient(90deg,#5BC4F5,#2A8DBF); }
+  .as5 .badge-pct { display:inline-block; padding:2px 9px; border-radius:20px; font-size:13px; font-weight:600; }
+  .as5 .good { background:rgba(26,122,66,0.3); color:#5AE895; }
+  .as5 .warn { background:rgba(196,98,13,0.3); color:#F5A05B; }
+  .as5 .bad { background:rgba(180,30,30,0.3); color:#F58080; }
+  /* slide 6 */
+  .as6 { background:#F7F9FC; color:#1A2B3C; padding:60px 80px; justify-content:center; gap:32px; }
+  .as6 h2 { font-family:'Rubik',sans-serif; font-size:44px; font-weight:700; color:#0D2137; }
+  .as6 .subtitle { font-size:17px; color:#5A7A99; margin-top:-16px; }
+  .as6 .cats { display:flex; gap:20px; }
+  .as6 .cat { flex:1; background:#fff; border:1px solid #DDE5EE; border-radius:18px; padding:28px; display:flex; flex-direction:column; gap:14px; }
+  .as6 .cat h3 { font-family:'Rubik',sans-serif; font-size:20px; font-weight:600; color:#0D2137; }
+  .as6 .cat .big { font-family:'Rubik',sans-serif; font-size:48px; font-weight:700; line-height:1; }
+  .as6 .cat .detail { font-size:13px; color:#5A7A99; }
+  .as6 .cat .bar-row { display:flex; flex-direction:column; gap:5px; }
+  .as6 .cat .bar-label { display:flex; justify-content:space-between; font-size:12px; color:#3A5A7A; }
+  .as6 .cat .bar-outer { height:7px; background:#EEF2F7; border-radius:4px; overflow:hidden; }
+  .as6 .cat .bar-inner { height:100%; border-radius:4px; }
+  .as6 .cat.el .big { color:#0D6E9A; } .as6 .cat.el .bar-inner { background:#0D6E9A; }
+  .as6 .cat.ig .big { color:#1A7A42; } .as6 .cat.ig .bar-inner { background:#1A7A42; }
+  .as6 .cat.pr .big { color:#C4620D; } .as6 .cat.pr .bar-inner { background:#C4620D; }
+  /* slide 7 */
+  .as7 { background:#1A3A5C; color:#F0F8FF; padding:60px 80px; justify-content:center; gap:32px; }
+  .as7 h2 { font-family:'Rubik',sans-serif; font-size:44px; font-weight:700; }
+  .as7 .subtitle { font-size:17px; color:#7AADCC; margin-top:-16px; }
+  .as7 .grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+  .as7 .icard { background:rgba(255,255,255,0.08); border:1px solid rgba(91,196,245,0.2); border-radius:14px; padding:22px; display:flex; flex-direction:column; gap:10px; }
+  .as7 .icard h3 { font-family:'Rubik',sans-serif; font-size:16px; font-weight:600; color:#F0F8FF; }
+  .as7 .icard .pct { font-family:'Rubik',sans-serif; font-size:38px; font-weight:700; line-height:1; }
+  .as7 .pct.ok { color:#5AE895; } .as7 .pct.alert { color:#F5C55B; }
+  .as7 .icard .bar-bg2 { height:7px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden; }
+  .as7 .icard .bar-fill2 { height:100%; border-radius:4px; }
+  .as7 .fill-ok { background:linear-gradient(90deg,#1A7A42,#5AE895); }
+  .as7 .fill-alert { background:linear-gradient(90deg,#B07A10,#F5C55B); }
+  .as7 .icard .note { font-size:12px; color:#7AADCC; }
+  /* slide 8 */
+  .as8 { background:#fff; color:#1A2B3C; padding:60px 80px; justify-content:center; gap:32px; }
+  .as8 h2 { font-family:'Rubik',sans-serif; font-size:40px; font-weight:700; color:#0D2137; }
+  .as8 .subtitle { font-size:16px; color:#5A7A99; margin-top:-16px; }
+  .as8 .features { display:flex; gap:20px; }
+  .as8 .feat { flex:1; border-radius:18px; padding:28px; display:flex; flex-direction:column; gap:12px; }
+  .as8 .feat .icon { font-size:34px; }
+  .as8 .feat h3 { font-family:'Rubik',sans-serif; font-size:19px; font-weight:600; }
+  .as8 .feat ul { list-style:none; display:flex; flex-direction:column; gap:7px; }
+  .as8 .feat ul li { font-size:14px; line-height:1.4; display:flex; gap:7px; align-items:flex-start; }
+  .as8 .feat ul li::before { content:"→"; font-weight:600; margin-top:1px; flex-shrink:0; }
+  .as8 .feat.a { background:#E8F4FB; border:1px solid #B8D9F0; }
+  .as8 .feat.a h3 { color:#0D4E72; } .as8 .feat.a ul li { color:#1A4A6A; } .as8 .feat.a ul li::before { color:#0D6E9A; }
+  .as8 .feat.b { background:#E8F7EE; border:1px solid #B8E8CC; }
+  .as8 .feat.b h3 { color:#0D5228; } .as8 .feat.b ul li { color:#1A4A30; } .as8 .feat.b ul li::before { color:#1A7A42; }
+  .as8 .feat.c { background:#FEF3E8; border:1px solid #F5D4B8; }
+  .as8 .feat.c h3 { color:#5A2800; } .as8 .feat.c ul li { color:#4A2A10; } .as8 .feat.c ul li::before { color:#C4620D; }
+  /* slide 9 */
+  .as9 { background:linear-gradient(135deg,#0D2137 0%,#1A3A5C 100%); color:#F0F8FF; padding:60px 80px; justify-content:center; gap:36px; }
+  .as9 h2 { font-family:'Rubik',sans-serif; font-size:48px; font-weight:700; }
+  .as9 .steps { display:flex; flex-direction:column; gap:16px; }
+  .as9 .step { display:flex; align-items:center; gap:24px; background:rgba(255,255,255,0.07); border:1px solid rgba(91,196,245,0.2); border-radius:14px; padding:20px 28px; }
+  .as9 .step .n { font-family:'Rubik',sans-serif; font-size:32px; font-weight:700; color:#5BC4F5; min-width:44px; }
+  .as9 .step .txt { display:flex; flex-direction:column; gap:3px; }
+  .as9 .step .txt strong { font-size:19px; font-weight:600; }
+  .as9 .step .txt span { font-size:14px; color:#B8D9F0; }
+  .as9 .step .atag { margin-left:auto; background:rgba(91,196,245,0.15); border:1px solid rgba(91,196,245,0.3); color:#5BC4F5; border-radius:20px; padding:5px 16px; font-size:13px; font-weight:500; white-space:nowrap; }
+  .as9 .atag.done { background:rgba(26,122,66,0.2); border-color:rgba(90,232,149,0.3); color:#5AE895; }
 </style>
 </head>
 <body>
@@ -574,6 +807,7 @@
       <button type="button" class="topnav-tab active" data-view="painel">Painel</button>
       <button type="button" class="topnav-tab" data-view="fechamento">Fechamento</button>
       <button type="button" class="topnav-tab" data-view="reuniao">Reunião</button>
+      <button type="button" class="topnav-tab" data-view="apresentacao">Apresentação</button>
     </div>
   </div>
 </nav>
@@ -2271,6 +2505,7 @@ function fechamentoInitNav() {
       document.getElementById("view-painel").hidden = view !== "painel";
       document.getElementById("view-fechamento").hidden = view !== "fechamento";
       document.getElementById("view-reuniao").hidden = view !== "reuniao";
+      document.getElementById("view-apresentacao").hidden = view !== "apresentacao";
       if (view === "reuniao") renderReuniao();
       window.scrollTo(0, 0);
     });
@@ -2340,6 +2575,304 @@ document.addEventListener("DOMContentLoaded", () => {
     </footer>
   </div>
 </div>
+
+<!-- ══ APRESENTAÇÃO ══ -->
+<div id="view-apresentacao" hidden>
+
+  <!-- Sub-tabs: Slides / Falas -->
+  <div class="apres-subtabs">
+    <button class="apres-tab active" data-apres="slides">▶ Slides</button>
+    <button class="apres-tab" data-apres="falas">🎤 Falas por Slide</button>
+  </div>
+
+  <!-- SLIDES VIEW -->
+  <div class="apres-slides-view active" id="apres-view-slides">
+    <div class="apres-deck" id="apres-deck">
+
+      <!-- SLIDE 1 -->
+      <div class="apres-slide active as1">
+        <p class="eyebrow">Congregação Cristã no Brasil · Jardim Bela Vista</p>
+        <h1>Painel de<br>Manutenção<br>Preventiva</h1>
+        <p class="sub">Reunião do grupo de manutenção · Outubro 2026</p>
+        <div class="bottom">
+          <p class="date">Resultados desde 2024 — Jardim Bela Vista</p>
+          <div class="badge"><div class="num">93%</div><div class="lbl">avarias resolvidas — JBV</div></div>
+        </div>
+      </div>
+
+      <!-- SLIDE 2 -->
+      <div class="apres-slide as2">
+        <h2>JBV — o que o painel revelou</h2>
+        <div class="cards">
+          <div class="card"><div class="icon">📋</div><h3>Maior volume do grupo</h3><p>Jardim Bela Vista tem 118 avarias registradas — 68% de tudo que o grupo registrou desde 2024. Mais casa, mais trabalho.</p></div>
+          <div class="card"><div class="icon">🏆</div><h3>2º melhor desempenho</h3><p>Com tantas avarias, JBV ainda mantém 93% de resolução — 2ª posição no grupo. Um resultado impressionante.</p></div>
+          <div class="card"><div class="icon">🏠</div><h3>96% de inspeções</h3><p>No ciclo 2026, quase todas as casas de JBV já foram inspecionadas. Próximo à perfeição.</p></div>
+          <div class="card highlight"><div class="icon">✅</div><h3>+110 avarias encerradas</h3><p>Desde 2024, mais de 110 avarias foram resolvidas pelos irmãos de JBV. Um trabalho concreto e real.</p></div>
+        </div>
+      </div>
+
+      <!-- SLIDE 3 -->
+      <div class="apres-slide as3">
+        <h2>Como o painel ajuda o trabalho de JBV</h2>
+        <div class="grid">
+          <div class="item"><div class="num">01</div><h3>Upload do PDF mensal</h3><p>Carrega o SIGA e atualiza tudo automaticamente — sem planilha, sem digitação manual.</p></div>
+          <div class="item"><div class="num">02</div><h3>Painel de JBV em destaque</h3><p>Os KPIs de JBV aparecem diretamente: total, % resolvidas, tempo médio e ciclo atual.</p></div>
+          <div class="item"><div class="num">03</div><h3>O que mudou no mês</h3><p>Após o upload, mostra quais avarias de JBV foram abertas, encerradas ou mudaram de status.</p></div>
+          <div class="item"><div class="num">04</div><h3>Posição no grupo</h3><p>Ranking de inspeções e avarias por congregação — JBV sempre em evidência.</p></div>
+          <div class="item"><div class="num">05</div><h3>Fechamento editável</h3><p>Tabela de verificações de JBV por competência, editável diretamente no navegador.</p></div>
+          <div class="item"><div class="num">06</div><h3>Aba Reunião</h3><p>Análise completa para os encontros trimestrais — comparativo de todas as igrejas.</p></div>
+        </div>
+      </div>
+
+      <!-- SLIDE 4 -->
+      <div class="apres-slide as4">
+        <h2>Jardim Bela Vista — resultados desde 2024</h2>
+        <div class="kpi-row">
+          <div class="kpi blue"><div class="big">118</div><div class="lbl">Avarias registradas</div><div class="sub">68% de todas as avarias do grupo</div></div>
+          <div class="kpi green"><div class="big">93%</div><div class="lbl">Resolvidas</div><div class="sub">110 de 118 avarias — excelente</div></div>
+          <div class="kpi orange"><div class="big">96%</div><div class="lbl">Inspeções</div><div class="sub">casas inspecionadas no ciclo 2026</div></div>
+          <div class="kpi purple"><div class="big">2º</div><div class="lbl">Melhor do grupo</div><div class="sub">em % de avarias resolvidas</div></div>
+        </div>
+        <div class="row2">
+          <div class="stat"><div class="n">87,8%</div><div class="info"><strong>Taxa geral do grupo</strong><span>JBV puxa esse número com folga</span></div></div>
+          <div class="stat"><div class="n">68%</div><div class="info"><strong>Do volume total</strong><span>maior concentração de avarias — e maior resolução</span></div></div>
+          <div class="stat"><div class="n">+110</div><div class="info"><strong>Avarias encerradas</strong><span>trabalho realizado desde 2024</span></div></div>
+        </div>
+      </div>
+
+      <!-- SLIDE 5 -->
+      <div class="apres-slide as5">
+        <h2>JBV no grupo — maior volume, ótimo resultado</h2>
+        <p class="subtitle">Avarias acumuladas desde 2024 · JBV em destaque</p>
+        <div class="table-wrap">
+          <div class="row-h"><div class="col-ig">Igreja</div><div class="col-av">Avarias</div><div class="col-res">Resolvidas</div><div class="col-bar">Progresso</div></div>
+          <div class="row" style="background:rgba(91,196,245,0.08);border-left:4px solid #5BC4F5"><div class="col-ig" style="font-weight:700;color:#5BC4F5">⭐ Jardim Bela Vista</div><div class="col-av">118 / 172</div><div class="col-res"><span class="badge-pct good">93%</span></div><div class="col-bar"><div class="bar-bg"><div class="bar-fill" style="width:93%"></div></div></div></div>
+          <div class="row"><div class="col-ig">Residencial Vida Nova I</div><div class="col-av">31 / 172</div><div class="col-res"><span class="badge-pct good">97%</span></div><div class="col-bar"><div class="bar-bg"><div class="bar-fill" style="width:97%"></div></div></div></div>
+          <div class="row"><div class="col-ig">Vila Planalto</div><div class="col-av">17 / 172</div><div class="col-res"><span class="badge-pct warn">53%</span></div><div class="col-bar"><div class="bar-bg"><div class="bar-fill" style="width:53%"></div></div></div></div>
+          <div class="row"><div class="col-ig">Nova Vinhedo</div><div class="col-av">3 / 172</div><div class="col-res"><span class="badge-pct good">100%</span></div><div class="col-bar"><div class="bar-bg"><div class="bar-fill" style="width:100%"></div></div></div></div>
+          <div class="row"><div class="col-ig">Parque Iolanda</div><div class="col-av">3 / 172</div><div class="col-res"><span class="badge-pct bad">0%</span></div><div class="col-bar"><div class="bar-bg"><div class="bar-fill" style="width:2%"></div></div></div></div>
+        </div>
+      </div>
+
+      <!-- SLIDE 6 -->
+      <div class="apres-slide as6">
+        <h2>JBV — avarias por categoria (ciclo 2026)</h2>
+        <p class="subtitle">Onde estamos bem e onde podemos avançar ainda mais</p>
+        <div class="cats">
+          <div class="cat el"><h3>⚡ Elétrica</h3><div class="big">75%</div><div class="detail">12 de 16 itens concluídos — JBV</div><div class="bar-row"><div class="bar-label"><span>Concluídos</span><span>75%</span></div><div class="bar-outer"><div class="bar-inner" style="width:75%"></div></div></div><p style="font-size:13px;color:#3A5A7A;margin-top:8px">Maior volume de avarias. Bom ritmo de resolução — falta pouco para fechar.</p></div>
+          <div class="cat ig"><h3>🏠 Instalações Gerais</h3><div class="big">62%</div><div class="detail">8 de 13 itens concluídos — JBV</div><div class="bar-row"><div class="bar-label"><span>Concluídos</span><span>62%</span></div><div class="bar-outer"><div class="bar-inner" style="width:62%"></div></div></div><p style="font-size:13px;color:#3A5A7A;margin-top:8px">Ótimo avanço. Com mais 5 itens encerrados, chegamos aos 100%.</p></div>
+          <div class="cat pr"><h3>🏗️ Predial</h3><div class="big">30%</div><div class="detail">3 de 9 itens concluídos — JBV</div><div class="bar-row"><div class="bar-label"><span>Concluídos</span><span>30%</span></div><div class="bar-outer"><div class="bar-inner" style="width:30%"></div></div></div><p style="font-size:13px;color:#6A4A2A;margin-top:8px">Oportunidade de melhoria: 6 itens prediais em aberto. O time de JBV tem potencial para fechar.</p></div>
+        </div>
+      </div>
+
+      <!-- SLIDE 7 -->
+      <div class="apres-slide as7">
+        <h2>Inspeções 2026 — JBV no topo do grupo</h2>
+        <p class="subtitle">Percentual de casas inspecionadas no ciclo 2026 · JBV em destaque</p>
+        <div class="grid">
+          <div class="icard"><h3>Vila Planalto</h3><div class="pct ok">100%</div><div class="bar-bg2"><div class="bar-fill2 fill-ok" style="width:100%"></div></div><div class="note">Todas as casas inspecionadas ✓</div></div>
+          <div class="icard" style="border:2px solid #5BC4F5"><h3 style="color:#5BC4F5">⭐ Jardim Bela Vista</h3><div class="pct ok">96%</div><div class="bar-bg2"><div class="bar-fill2 fill-ok" style="width:96%"></div></div><div class="note" style="color:#5BC4F5;font-weight:600">Maior volume de casas — e 96% inspecionadas!</div></div>
+          <div class="icard"><h3>Nova Vinhedo</h3><div class="pct ok">86%</div><div class="bar-bg2"><div class="bar-fill2 fill-ok" style="width:86%"></div></div><div class="note">Bom desempenho geral</div></div>
+          <div class="icard"><h3>Parque Iolanda</h3><div class="pct alert">85%</div><div class="bar-bg2"><div class="bar-fill2 fill-alert" style="width:85%"></div></div><div class="note">Avarias sem resolução — atenção</div></div>
+          <div class="icard"><h3>Residencial Vida Nova I</h3><div class="pct alert">85%</div><div class="bar-bg2"><div class="bar-fill2 fill-alert" style="width:85%"></div></div><div class="note">97% de avarias resolvidas</div></div>
+          <div class="icard"><h3>Lírio dos Campos</h3><div class="pct alert">70%</div><div class="bar-bg2"><div class="bar-fill2 fill-alert" style="width:70%"></div></div><div class="note">Menor índice de inspeção — priorizar</div></div>
+        </div>
+      </div>
+
+      <!-- SLIDE 8 -->
+      <div class="apres-slide as8">
+        <h2>O painel nas reuniões de JBV</h2>
+        <p class="subtitle">Como usar nas reuniões trimestrais do grupo de manutenção</p>
+        <div class="features">
+          <div class="feat a"><div class="icon">📊</div><h3>Inspeções de JBV</h3><ul><li>96% das casas inspecionadas no ciclo 2026</li><li>Comparativo direto com as outras igrejas do grupo</li><li>Evolução mês a mês disponível no painel</li></ul></div>
+          <div class="feat b"><div class="icon">🔧</div><h3>Avarias de JBV</h3><ul><li>118 avarias registradas · 93% resolvidas</li><li>Posição no ranking: 2º melhor do grupo</li><li>O volume maior não impediu a alta resolução</li></ul></div>
+          <div class="feat c"><div class="icon">📝</div><h3>Fechamento Editável</h3><ul><li>Tabela de verificações de JBV por mês</li><li>Status, ata e relatório editáveis direto no painel</li><li>Dados salvos automaticamente no navegador</li></ul></div>
+        </div>
+      </div>
+
+      <!-- SLIDE 9 -->
+      <div class="apres-slide as9">
+        <h2>Parabéns, JBV — e o que vem a seguir</h2>
+        <div class="steps">
+          <div class="step"><div class="n">🏆</div><div class="txt"><strong>93% de resolução — resultado excelente!</strong><span>JBV tem o maior volume de avarias do grupo e ainda assim mantém 93% resolvidas. Isso é dedicação.</span></div><div class="atag done">✓ Conquista</div></div>
+          <div class="step"><div class="n">🏠</div><div class="txt"><strong>96% de inspeções — quase perfeito</strong><span>Manter esse ritmo de inspeções e fechar o ciclo com 100% é o próximo passo natural para JBV.</span></div><div class="atag done">✓ Em ótimo andamento</div></div>
+          <div class="step"><div class="n">🏗️</div><div class="txt"><strong>Predial: 6 itens em aberto</strong><span>É a maior oportunidade de JBV neste ciclo. Com o empenho que já demonstramos, fechar esses 6 itens está no nosso alcance.</span></div><div class="atag">Meta do ciclo</div></div>
+          <div class="step"><div class="n">📲</div><div class="txt"><strong>Manter o painel atualizado</strong><span>Upload do PDF mensal do SIGA — é o que mantém esses números visíveis e o trabalho de JBV reconhecido.</span></div><div class="atag done">✓ Já em uso</div></div>
+        </div>
+      </div>
+
+    </div><!-- /apres-deck -->
+
+    <!-- NAV DOS SLIDES -->
+    <nav class="apres-nav">
+      <button onclick="aPresSlide.prev()">‹</button>
+      <div class="apres-dots" id="apres-dots"></div>
+      <span class="a-counter" id="apres-counter">1 / 9</span>
+      <button onclick="aPresSlide.next()">›</button>
+      <span class="a-key">← →</span>
+    </nav>
+  </div><!-- /apres-slides-view -->
+
+  <!-- FALAS VIEW -->
+  <div class="apres-falas-view" id="apres-view-falas">
+    <div class="apres-fala-list">
+      <div class="apres-fala-header">🎤 Falas por Slide — Treinamento</div>
+
+      <div class="apres-fala-card open">
+        <div class="apres-fala-head" onclick="this.closest('.apres-fala-card').classList.toggle('open')">
+          <span class="apres-fala-num">Slide 1</span><span class="apres-fala-title">Capa — Abertura</span><span class="apres-fala-arrow">▾</span>
+        </div>
+        <div class="apres-fala-body">
+          <p class="apres-fala-text">"Boa noite a todos. Antes de qualquer coisa, quero dizer que tenho muito orgulho do trabalho que o grupo de manutenção do Jardim Bela Vista tem feito. E os números confirmam isso. Desde 2024, registramos 118 avarias aqui em JBV — e resolvemos 93% delas. Isso não é coincidência. É dedicação e compromisso de vocês."</p>
+          <p class="apres-fala-tip">Faça uma pausa após o 93% — olhe para os irmãos e reconheça o trabalho deles antes de continuar.</p>
+        </div>
+      </div>
+
+      <div class="apres-fala-card">
+        <div class="apres-fala-head" onclick="this.closest('.apres-fala-card').classList.toggle('open')">
+          <span class="apres-fala-num">Slide 2</span><span class="apres-fala-title">JBV — o que o painel revelou</span><span class="apres-fala-arrow">▾</span>
+        </div>
+        <div class="apres-fala-body">
+          <p class="apres-fala-text">"Aqui está o que o painel revelou sobre JBV, e olha que dado impressionante: das 172 avarias registradas no grupo todo, 118 são de Jardim Bela Vista. Ou seja, 68% de todo o volume caiu nos ombros de vocês. Mas o mais incrível é que mesmo com esse volume enorme, JBV mantém 93% de resolução. Isso coloca JBV como 2º melhor do grupo. Com um volume 4 vezes maior que as outras igrejas."</p>
+          <p class="apres-fala-tip">Enfatize o contraste: "maior volume... e ainda assim 93%". Deixe isso impactar.</p>
+        </div>
+      </div>
+
+      <div class="apres-fala-card">
+        <div class="apres-fala-head" onclick="this.closest('.apres-fala-card').classList.toggle('open')">
+          <span class="apres-fala-num">Slide 3</span><span class="apres-fala-title">Como o painel ajuda o trabalho de JBV</span><span class="apres-fala-arrow">▾</span>
+        </div>
+        <div class="apres-fala-body">
+          <p class="apres-fala-text">"O painel foi feito para facilitar o trabalho de vocês. Cada mês, basta fazer o upload do relatório SIGA — e o painel atualiza tudo automaticamente, sem digitação. Ele mostra quais avarias de JBV abriram, quais fecharam e quais mudaram de status. Tem a tabela de fechamento editável direto no navegador. E a aba Reunião foi criada especialmente para os encontros trimestrais do grupo."</p>
+          <p class="apres-fala-tip">Destaque que isso economiza tempo do grupo — o painel faz o trabalho de organização pra vocês.</p>
+        </div>
+      </div>
+
+      <div class="apres-fala-card">
+        <div class="apres-fala-head" onclick="this.closest('.apres-fala-card').classList.toggle('open')">
+          <span class="apres-fala-num">Slide 4</span><span class="apres-fala-title">Resultados de JBV desde 2024</span><span class="apres-fala-arrow">▾</span>
+        </div>
+        <div class="apres-fala-body">
+          <p class="apres-fala-text">"Vamos olhar os números de JBV de perto. Desde 2024: 118 avarias registradas. Dessas, 110 já foram resolvidas — 93%. JBV é responsável por 68% de todas as avarias do grupo, mas mesmo assim está em 2º lugar na taxa de resolução. E no ciclo de 2026, 96% das casas já foram inspecionadas. Irmãos, esses números falam por si."</p>
+          <p class="apres-fala-tip">Leia os números com calma. "110 avarias resolvidas" — deixe o peso desse trabalho ser percebido.</p>
+        </div>
+      </div>
+
+      <div class="apres-fala-card">
+        <div class="apres-fala-head" onclick="this.closest('.apres-fala-card').classList.toggle('open')">
+          <span class="apres-fala-num">Slide 5</span><span class="apres-fala-title">JBV no grupo — maior volume, ótimo resultado</span><span class="apres-fala-arrow">▾</span>
+        </div>
+        <div class="apres-fala-body">
+          <p class="apres-fala-text">"Olhando o grupo todo, fica ainda mais claro o que JBV representa. A star da tabela está aqui: 118 avarias, 93% resolvidas. Compare com Vila Planalto, que tem apenas 17 avarias e está em 53%. Com muito menos trabalho, o resultado é pior. E Parque Iolanda tem 0% — zero — de resolução. JBV tem 7 vezes mais avarias e um desempenho incomparavelmente melhor."</p>
+          <p class="apres-fala-tip">O contraste é o ponto forte deste slide — JBV com mais volume e melhor resultado. Use isso para motivar.</p>
+        </div>
+      </div>
+
+      <div class="apres-fala-card">
+        <div class="apres-fala-head" onclick="this.closest('.apres-fala-card').classList.toggle('open')">
+          <span class="apres-fala-num">Slide 6</span><span class="apres-fala-title">JBV por categoria — onde brilhamos e onde podemos avançar</span><span class="apres-fala-arrow">▾</span>
+        </div>
+        <div class="apres-fala-body">
+          <p class="apres-fala-text">"Quando olhamos por categoria em JBV: Elétrica está bem, 75% concluído com 12 de 16 itens. Instalações Gerais em 62% — já são 8 de 13. Ambas estão em bom caminho. O desafio que ainda temos é Predial, com 30% — 6 itens ainda em aberto. Mas sabendo que JBV resolveu mais de 110 avarias, resolver 6 itens prediais está totalmente ao alcance do grupo. É nossa meta para fechar o ciclo com chave de ouro."</p>
+          <p class="apres-fala-tip">Tom positivo: "está ao alcance do grupo" — não critique, mobilize. Termine com entusiasmo.</p>
+        </div>
+      </div>
+
+      <div class="apres-fala-card">
+        <div class="apres-fala-head" onclick="this.closest('.apres-fala-card').classList.toggle('open')">
+          <span class="apres-fala-num">Slide 7</span><span class="apres-fala-title">Inspeções 2026 — JBV no topo</span><span class="apres-fala-arrow">▾</span>
+        </div>
+        <div class="apres-fala-body">
+          <p class="apres-fala-text">"Nas inspeções, JBV está em 2º lugar com 96%. E lembrem: JBV tem o maior número de casas do grupo. Fazer 96% de inspeção com esse volume é um resultado excelente. Vila Planalto chegou a 100% — uma referência que JBV pode alcançar no próximo ciclo. As outras igrejas estão abaixo: Nova Vinhedo em 86%, Parque Iolanda e Residencial em 85%, e Lírio dos Campos em apenas 70%. O trabalho de inspeção de JBV é um dos destaques do grupo."</p>
+          <p class="apres-fala-tip">Mencione o volume de casas de JBV — o 96% fica ainda mais valioso quando o contexto é claro.</p>
+        </div>
+      </div>
+
+      <div class="apres-fala-card">
+        <div class="apres-fala-head" onclick="this.closest('.apres-fala-card').classList.toggle('open')">
+          <span class="apres-fala-num">Slide 8</span><span class="apres-fala-title">O painel nas reuniões de JBV</span><span class="apres-fala-arrow">▾</span>
+        </div>
+        <div class="apres-fala-body">
+          <p class="apres-fala-text">"A aba Reunião foi pensada para momentos como este — encontros do grupo de manutenção. Ela mostra as inspeções de JBV, 96% das casas, visualmente. Mostra as 118 avarias, os 93% resolvidos. E tem a tabela de fechamento editável, onde podemos registrar o status de cada competência, a ata e o relatório. Tudo isso direto no painel, sem precisar de planilha separada."</p>
+          <p class="apres-fala-tip">Se possível, abra o painel ao vivo e mostre a aba Reunião com os dados reais de JBV.</p>
+        </div>
+      </div>
+
+      <div class="apres-fala-card">
+        <div class="apres-fala-head" onclick="this.closest('.apres-fala-card').classList.toggle('open')">
+          <span class="apres-fala-num">Slide 9</span><span class="apres-fala-title">Parabéns JBV — e o que vem a seguir</span><span class="apres-fala-arrow">▾</span>
+        </div>
+        <div class="apres-fala-body">
+          <p class="apres-fala-text">"Antes de encerrar, quero falar o que está escrito aqui: parabéns, JBV. 93% de resolução com o maior volume de avarias do grupo. 96% de inspeções. Mais de 110 avarias encerradas desde 2024. Isso representa o trabalho real e concreto de cada irmão que foi até uma casa, avaliou um problema, resolveu e registrou. Agora, nossa próxima missão é fechar os 6 itens prediais em aberto e chegarmos a 100% de inspeções no ciclo. Sei que vocês são capazes. Muito obrigado."</p>
+          <p class="apres-fala-tip">Encerre com emoção e reconhecimento genuíno. Abra para perguntas e ouça o que os irmãos têm a dizer.</p>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /apres-falas-view -->
+
+</div><!-- /view-apresentacao -->
+
+<script>
+// ═══ SUB-TABS DA ABA APRESENTAÇÃO ═══
+(function() {
+  function initApresSubtabs() {
+    const tabs = document.querySelectorAll('.apres-tab');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.toggle('active', t === tab));
+        const which = tab.dataset.apres;
+        document.getElementById('apres-view-slides').classList.toggle('active', which === 'slides');
+        document.getElementById('apres-view-falas').classList.toggle('active', which === 'falas');
+      });
+    });
+  }
+
+  // ═══ NAVEGAÇÃO DOS SLIDES ═══
+  const aPresSlide = (function() {
+    let cur = 0;
+    const slides = document.querySelectorAll('.apres-slide');
+    const dotsEl = document.getElementById('apres-dots');
+    const counter = document.getElementById('apres-counter');
+
+    slides.forEach((_, i) => {
+      const d = document.createElement('div');
+      d.className = 'apres-dot' + (i === 0 ? ' active' : '');
+      d.onclick = () => go(i);
+      dotsEl.appendChild(d);
+    });
+
+    function go(n) {
+      slides[cur].classList.remove('active');
+      dotsEl.children[cur].classList.remove('active');
+      cur = Math.max(0, Math.min(n, slides.length - 1));
+      slides[cur].classList.add('active');
+      dotsEl.children[cur].classList.add('active');
+      counter.textContent = (cur + 1) + ' / ' + slides.length;
+    }
+    function next() { go(cur + 1); }
+    function prev() { go(cur - 1); }
+
+    document.addEventListener('keydown', e => {
+      const apresView = document.getElementById('view-apresentacao');
+      if (apresView && apresView.hidden) return;
+      const slidesView = document.getElementById('apres-view-slides');
+      if (!slidesView.classList.contains('active')) return;
+      if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+      if (e.key === 'Home') go(0);
+      if (e.key === 'End') go(slides.length - 1);
+    });
+
+    return { go, next, prev };
+  })();
+
+  // expor para os botões inline
+  window.aPresSlide = aPresSlide;
+
+  document.addEventListener('DOMContentLoaded', initApresSubtabs);
+})();
+</script>
 
 <!-- ══ MODAL O QUE MUDOU ══ -->
 <div id="diff-modal-overlay">
