@@ -670,7 +670,7 @@
   .mel-btns .mel-primary { background: #5BC4F5; color: #08202f; font-weight: 600; border-color: #5BC4F5; }
   .mel-sum { font-size: 14px; color: #5BC4F5; margin-bottom: 10px; font-weight: 600; }
   .mel-empty { color: rgba(223,233,241,.5); font-size: 14px; }
-  .mel-row { display: grid; grid-template-columns: 92px 170px 1fr 100px 150px; gap: 12px; align-items: center; padding: 11px 12px; border-bottom: 1px solid rgba(255,255,255,.08); font-size: 14px; }
+  .mel-row { display: grid; grid-template-columns: 100px 150px 1fr 90px 190px; gap: 12px; align-items: center; padding: 11px 12px; border-bottom: 1px solid rgba(255,255,255,.08); font-size: 14px; }
   .mel-row:nth-child(odd) { background: rgba(255,255,255,.03); }
   .mel-t small { color: rgba(223,233,241,.55); }
   .mel-c { text-align: right; }
@@ -679,6 +679,13 @@
   .mel-io { display: flex; gap: 10px; margin-top: 18px; }
   @media (max-width: 720px) { .mel-form { grid-template-columns: 1fr; } .mel-row { grid-template-columns: 1fr; gap: 4px; } .mel-c, .mel-a { text-align: left; justify-content: flex-start; } }
 
+    .mel-tag { display: inline-block; margin-top: 4px; font-size: 10px; padding: 1px 7px; border-radius: 10px; letter-spacing: .4px; text-transform: uppercase; }
+  .mel-tag.Melhoria { background: rgba(46,158,109,.25); color: #6fe3b0; }
+  .mel-tag.Comunicado { background: rgba(217,154,46,.25); color: #f2c36b; }
+  .mel-done { opacity: .5; } .mel-done .mel-t b { text-decoration: line-through; }
+  .mel-t a { color: #5BC4F5; }
+  .mel-d { display: flex; flex-direction: column; align-items: flex-start; }
+  .mel-form .mel-prazo { display: none; }
   /* ── SLIDES ── */
   .apres-slides-view {
     display: none;
@@ -2666,7 +2673,7 @@ document.addEventListener("DOMContentLoaded", () => {
   <div class="apres-subtabs">
     <button class="apres-tab active" data-apres="slides">▶ Slides</button>
     <button class="apres-tab" data-apres="falas">🎤 Falas por Slide</button>
-    <button class="apres-tab" data-apres="melhorias">✍️ Melhorias</button>
+    <button class="apres-tab" data-apres="melhorias">✍️ Melhorias e Comunicados</button>
     <button type="button" class="apres-printbtn" style="align-self:center;margin-left:14px" onclick="apresPrint()" title="Imprimir: slide em cima e fala embaixo, A4 paisagem">🖨️ Imprimir</button>
     <div class="apres-decksel">
       <span class="lbl">Apresentação</span>
@@ -3147,16 +3154,20 @@ document.addEventListener("DOMContentLoaded", () => {
   <!-- MELHORIAS (registro manual) -->
   <div class="apres-falas-view" id="apres-view-melhorias">
     <div class="mel-wrap">
-      <div class="apres-fala-header">✍️ Melhorias registradas manualmente</div>
-      <p class="mel-help">Registre aqui melhorias que não aparecem no PDF do SIGA (obras, trocas, compras, ações de voluntários). Elas entram sozinhas nas apresentações, nas falas e na impressão. Ficam salvas neste navegador — use <b>Exportar</b> para guardar uma cópia e <b>Importar</b> para levar a outro computador.</p>
+      <div class="apres-fala-header">✍️ Melhorias e comunicados registrados manualmente</div>
+      <p class="mel-help">Registre aqui o que não vem no PDF do SIGA. <b>Melhoria</b>: obras, trocas, compras, ações de voluntários. <b>Comunicado</b>: tarefas e avisos para o grupo — ex.: coletar as assinaturas dos relatórios (com o link do artefato), fazer a inspeção elétrica e predial e tirar as fotos. Tudo entra sozinho nas apresentações, nas falas e na impressão; comunicados marcados como <b>Concluído</b> saem dos slides. Os dados ficam neste navegador — use <b>Exportar</b> para guardar uma cópia.</p>
       <form id="mel-form" class="mel-form" autocomplete="off">
         <input type="hidden" name="id">
-        <label>Data<input type="date" name="data" required></label>
+        <label>Tipo<select name="tipo"><option>Melhoria</option><option>Comunicado</option></select></label>
+        <label>Data do registro<input type="date" name="data" required></label>
         <label>Localidade<select name="local"></select></label>
-        <label class="mel-wide">Descrição da melhoria<input type="text" name="desc" maxlength="200" placeholder="Ex.: Troca das lâmpadas de emergência" required></label>
-        <label>Custo (R$) — opcional<input type="number" name="custo" min="0" step="0.01" placeholder="0,00"></label>
+        <label class="mel-prazo">Prazo — opcional<input type="date" name="prazo"></label>
+        <label class="mel-wide">Assunto<input type="text" name="desc" maxlength="160" placeholder="Ex.: Coletar assinaturas dos relatórios do mês" required></label>
+        <label class="mel-wide">Detalhes — opcional<input type="text" name="det" maxlength="300" placeholder="Ex.: Usar o artefato de assinatura remota e enviar o link pelo WhatsApp"></label>
+        <label class="mel-wide">Link — opcional (ex.: artefato de assinatura)<input type="text" name="link" maxlength="300" placeholder="https://..."></label>
+        <label class="mel-custo">Custo (R$) — opcional<input type="number" name="custo" min="0" step="0.01" placeholder="0,00"></label>
         <label>Responsável — opcional<input type="text" name="resp" maxlength="80"></label>
-        <div class="mel-btns"><button type="submit" id="mel-save" class="mel-primary">Registrar melhoria</button><button type="button" id="mel-cancel" hidden>Cancelar edição</button></div>
+        <div class="mel-btns"><button type="submit" id="mel-save" class="mel-primary">Registrar</button><button type="button" id="mel-cancel" hidden>Cancelar edição</button></div>
       </form>
       <div id="mel-list"></div>
       <div class="mel-io"><button type="button" id="mel-export">⬇ Exportar (.json)</button><label class="mel-importlbl">⬆ Importar<input type="file" id="mel-import" accept="application/json,.json" hidden></label></div>
@@ -3306,19 +3317,23 @@ document.addEventListener("DOMContentLoaded", () => {
   function melLoad() { try { const a = JSON.parse(localStorage.getItem(MEL_KEY) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; } }
   function melSave(a) { try { localStorage.setItem(MEL_KEY, JSON.stringify(a)); } catch (e) {} }
   const fmtDate = d => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d || ''); return m ? `${m[3]}/${m[2]}/${m[1]}` : (d || ''); };
-  const melLocais = () => [...new Set([...Object.values(CHURCH_MAP), 'Lírio dos Campos', 'Vinhedo (geral)'])];
+  const melLocais = () => ['Todas as igrejas', ...new Set([...Object.values(CHURCH_MAP), 'Lírio dos Campos', 'Vinhedo (geral)'])];
+  const tipoOf = m => m.tipo === 'Comunicado' ? 'Comunicado' : 'Melhoria';
+  const shortLink = u => String(u || '').replace(/^https?:\/\//, '').replace(/\/$/, '').slice(0, 42);
+  const safeUrl = u => /^https?:\/\//i.test(u || '') ? u : (u ? 'https://' + u : '');
 
   function melRenderList() {
     const el = document.getElementById('mel-list'); if (!el) return;
-    const l = melLoad().sort((a, b) => (b.data || '').localeCompare(a.data || ''));
-    const total = l.reduce((a, m) => a + (+m.custo || 0), 0);
-    if (!l.length) { el.innerHTML = '<p class="mel-empty">Nenhuma melhoria registrada ainda.</p>'; return; }
-    el.innerHTML = `<div class="mel-sum">${l.length} ${pl(l.length, 'melhoria registrada', 'melhorias registradas')}${total ? ' · ' + brl(total) + ' investidos' : ''}</div>
-      <div class="mel-table">${l.map(m => `<div class="mel-row" data-id="${esc(m.id)}">
-        <div class="mel-d">${esc(fmtDate(m.data))}</div><div class="mel-l">${esc(m.local)}</div>
-        <div class="mel-t">${esc(m.desc)}${m.resp ? `<small> · ${esc(m.resp)}</small>` : ''}</div>
+    const l = melLoad().sort((a, b) => (a.feito ? 1 : 0) - (b.feito ? 1 : 0) || (b.data || '').localeCompare(a.data || ''));
+    if (!l.length) { el.innerHTML = '<p class="mel-empty">Nada registrado ainda.</p>'; return; }
+    const nm = l.filter(m => tipoOf(m) === 'Melhoria').length, nc = l.filter(m => tipoOf(m) === 'Comunicado' && !m.feito).length;
+    const total = l.filter(m => tipoOf(m) === 'Melhoria').reduce((a, m) => a + (+m.custo || 0), 0);
+    el.innerHTML = `<div class="mel-sum">${nm} ${pl(nm, 'melhoria', 'melhorias')}${total ? ' (' + brl(total) + ')' : ''} · ${nc} ${pl(nc, 'comunicado em aberto', 'comunicados em aberto')}</div>
+      <div class="mel-table">${l.map(m => { const t = tipoOf(m); return `<div class="mel-row${m.feito ? ' mel-done' : ''}" data-id="${esc(m.id)}">
+        <div class="mel-d">${esc(fmtDate(m.data))}<span class="mel-tag ${t}">${t}</span></div><div class="mel-l">${esc(m.local)}</div>
+        <div class="mel-t"><b>${esc(m.desc)}</b>${m.det ? `<div>${esc(m.det)}</div>` : ''}<small>${m.prazo ? 'Prazo: ' + esc(fmtDate(m.prazo)) : ''}${m.resp ? (m.prazo ? ' · ' : '') + esc(m.resp) : ''}${m.link ? ` · <a href="${esc(safeUrl(m.link))}" target="_blank" rel="noopener">${esc(shortLink(m.link))}</a>` : ''}</small></div>
         <div class="mel-c">${m.custo ? brl(+m.custo) : '—'}</div>
-        <div class="mel-a"><button type="button" data-act="edit">Editar</button><button type="button" data-act="del">Excluir</button></div></div>`).join('')}</div>`;
+        <div class="mel-a">${t === 'Comunicado' ? `<button type="button" data-act="done">${m.feito ? 'Reabrir' : 'Concluir'}</button>` : ''}<button type="button" data-act="edit">Editar</button><button type="button" data-act="del">Excluir</button></div></div>`; }).join('')}</div>`;
   }
   function melChanged() { melRenderList(); if (window.apresDynRender) window.apresDynRender(); }
 
@@ -3326,12 +3341,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById('mel-form'); if (!form) return;
     const f = n => form.elements[n];
     f('local').innerHTML = melLocais().map(n => `<option>${esc(n)}</option>`).join('');
-    const reset = () => { form.reset(); f('id').value = ''; { const d = new Date(); f('data').value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); } document.getElementById('mel-cancel').hidden = true; document.getElementById('mel-save').textContent = 'Registrar melhoria'; };
+    const reset = () => { form.reset(); f('id').value = ''; f('tipo').dispatchEvent(new Event('change')); { const d = new Date(); f('data').value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); } document.getElementById('mel-cancel').hidden = true; document.getElementById('mel-save').textContent = 'Registrar'; };
+    f('tipo').addEventListener('change', () => { const c = f('tipo').value === 'Comunicado'; form.querySelector('.mel-prazo').style.display = c ? 'flex' : 'none'; form.querySelector('.mel-custo').style.display = c ? 'none' : 'flex'; });
     reset();
     form.addEventListener('submit', e => {
       e.preventDefault();
       const a = melLoad();
-      const rec = { id: f('id').value || Date.now().toString(36), data: f('data').value, local: f('local').value, desc: f('desc').value.trim(), custo: f('custo').value ? +f('custo').value : 0, resp: f('resp').value.trim() };
+      const old = melLoad().find(x => x.id === f('id').value) || {};
+      const rec = { id: f('id').value || Date.now().toString(36), tipo: f('tipo').value, data: f('data').value, local: f('local').value, desc: f('desc').value.trim(), det: f('det').value.trim(), prazo: f('prazo').value, link: f('link').value.trim(), custo: f('custo').value ? +f('custo').value : 0, resp: f('resp').value.trim(), feito: !!old.feito };
       if (!rec.desc) return;
       const i = a.findIndex(x => x.id === rec.id);
       if (i >= 0) a[i] = rec; else a.push(rec);
@@ -3342,8 +3359,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const b = e.target.closest('button[data-act]'); if (!b) return;
       const id = b.closest('.mel-row').dataset.id;
       const a = melLoad(); const m = a.find(x => x.id === id); if (!m) return;
+      if (b.dataset.act === 'done') { m.feito = !m.feito; melSave(a); melChanged(); return; }
       if (b.dataset.act === 'del') { if (confirm('Excluir esta melhoria?')) { melSave(a.filter(x => x.id !== id)); melChanged(); } return; }
-      f('id').value = m.id; f('data').value = m.data; f('desc').value = m.desc; f('custo').value = m.custo || ''; f('resp').value = m.resp || '';
+      f('id').value = m.id; f('tipo').value = tipoOf(m); f('data').value = m.data; f('desc').value = m.desc; f('det').value = m.det || ''; f('prazo').value = m.prazo || ''; f('link').value = m.link || ''; f('custo').value = m.custo || ''; f('resp').value = m.resp || '';
+      f('tipo').dispatchEvent(new Event('change'));
       if (![...f('local').options].some(o => o.value === m.local)) f('local').insertAdjacentHTML('beforeend', `<option>${esc(m.local)}</option>`);
       f('local').value = m.local;
       document.getElementById('mel-cancel').hidden = false; document.getElementById('mel-save').textContent = 'Salvar alterações';
@@ -3358,7 +3377,7 @@ document.addEventListener("DOMContentLoaded", () => {
       file.text().then(t => {
         const inc = JSON.parse(t); if (!Array.isArray(inc)) throw 0;
         const cur = melLoad(); const ids = new Set(cur.map(x => x.id));
-        inc.forEach(x => { if (x && x.desc && !ids.has(x.id)) cur.push({ id: x.id || Date.now().toString(36) + Math.random().toString(36).slice(2, 5), data: x.data || '', local: x.local || '', desc: x.desc, custo: +x.custo || 0, resp: x.resp || '' }); });
+        inc.forEach(x => { if (x && x.desc && !ids.has(x.id)) cur.push(Object.assign({}, x, { id: x.id || Date.now().toString(36) + Math.random().toString(36).slice(2, 5) })); });
         melSave(cur); melChanged();
       }).catch(() => alert('Arquivo inválido.')).finally(() => { e.target.value = ''; });
     });
@@ -3553,7 +3572,28 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ───────── slide de melhorias registradas ─────────
-  function melList(S, local) { return S.mel.filter(m => !local || m.local === local); }
+  function melList(S, local, tipo) {
+    tipo = tipo || 'Melhoria';
+    return S.mel.filter(m => tipoOf(m) === tipo && (tipo === 'Comunicado' ? !m.feito : true) &&
+      (!local || m.local === local || (tipo === 'Comunicado' && m.local === 'Todas as igrejas')));
+  }
+  function comSlide(S, local) {
+    const l = melList(S, local, 'Comunicado').sort((a, b) => (a.prazo || '9999').localeCompare(b.prazo || '9999') || (b.data || '').localeCompare(a.data || ''));
+    if (!l.length) return null;
+    const shown = l.slice(0, 5), extra = l.length - shown.length;
+    const cards = shown.map(m => `<div class="item"><div class="num" style="font-size:${m.prazo ? 26 : 30}px">${m.prazo ? esc(fmtDate(m.prazo).slice(0, 5)) : '📢'}${m.prazo ? '<span style="font-size:13px;opacity:.7"> prazo</span>' : ''}</div><h3>${esc(m.desc)}</h3><p>${esc(m.det || '')}${m.det ? ' · ' : ''}${esc(m.local)}${m.resp ? ' · ' + esc(m.resp) : ''}${m.link ? ` · <a href="${esc(safeUrl(m.link))}" target="_blank" rel="noopener" style="color:#5BC4F5">${esc(shortLink(m.link))}</a>` : ''}</p></div>`);
+    cards.push(`<div class="item"><div class="num">${P2(l.length)}</div><h3>${pl(l.length, 'Comunicado em aberto', 'Comunicados em aberto')}</h3><p>${extra > 0 ? `+${extra} ${pl(extra, 'comunicado', 'comunicados')} na aba Melhorias. ` : ''}Registrados na aba Melhorias e comunicados do painel.</p></div>`);
+    return `<div class="apres-slide as3">
+        <h2>Comunicados${local ? ' — ' + esc(local) : ''} — o que precisa ser feito</h2>
+        <div class="grid">${cards.join('')}</div></div>`;
+  }
+  function comFala(S, local) {
+    const l = melList(S, local, 'Comunicado').sort((a, b) => (a.prazo || '9999').localeCompare(b.prazo || '9999'));
+    if (!l.length) return null;
+    return ['Comunicados',
+      `"Alguns comunicados e pontos de ação: ${l.slice(0, 6).map(m => `${m.desc}${m.det ? ' — ' + lowerFirst(m.det) : ''}${m.prazo ? ', até ' + fmtDate(m.prazo) : ''}${m.local && m.local !== 'Todas as igrejas' && !local ? ' (' + m.local + ')' : ''}`).join('. ')}."`,
+      'Confirme com o grupo quem fica responsável por cada comunicado e o prazo de retorno.'];
+  }
   function melSlide(S, local) {
     const l = melList(S, local); if (!l.length) return null;
     const total = l.reduce((a, m) => a + (+m.custo || 0), 0);
@@ -3702,6 +3742,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const melS = melSlide(S, null);
     if (melS) sl.push(melS);
+    const comS = comSlide(S, null);
+    if (comS) sl.push(comS);
 
     const pt = pontos(S);
     sl.push(`<div class="apres-slide as9">
@@ -3760,6 +3802,7 @@ document.addEventListener("DOMContentLoaded", () => {
       `"O plano de reforma soma ${brl(S.planTotal)} em ${S.planN} ações${S.planDone ? `, sendo ${S.planDone} já concluídas` : ''}. ${bl ? `${bl.name} concentra ${brl(bl.cost)}` : ''}${b2 ? `, seguida de ${b2.name}, com ${brl(b2.cost)}` : ''}. Há ainda ${brl(S.waitTotal)} em ${S.waitN} pendências que aguardam a reforma."`,
       'Destaque os itens de maior valor que ainda estão com a forma de execução "a definir".']);
     const melF = melFala(S, null); if (melF) f.push(melF);
+    const comF = comFala(S, null); if (comF) f.push(comF);
     const pt = pontos(S);
     f.push(['Pontos de atenção',
       `"Para fechar, ${pt.length} pontos de atenção. ${pt.map((p, i) => `${['Primeiro', 'Segundo', 'Terceiro', 'Quarto'][i] || 'Também'}: ${p.title}. ${p.desc}`).join(' ')} O que o grupo precisa decidir hoje?"`,
@@ -3858,6 +3901,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="feat c"><div class="icon">📝</div><h3>Fechamento Editável</h3><ul><li>Tabela de verificações de JBV por mês</li><li>Status, ata e relatório editáveis direto no painel</li><li>Dados salvos automaticamente no navegador</li></ul></div>
         </div></div>`);
     const melJ = melSlide(S, JBV); if (melJ) sl.push(melJ);
+    const comJ = comSlide(S, JBV); if (comJ) sl.push(comJ);
     sl.push(`<div class="apres-slide as9">
         <h2>Parabéns, JBV — e o que vem a seguir</h2>
         <div class="steps">
@@ -3902,6 +3946,7 @@ document.addEventListener("DOMContentLoaded", () => {
       `"A aba Reunião foi pensada para momentos como este — encontros do grupo de manutenção. Ela mostra as inspeções de JBV${jInsp != null ? `, ${jInsp}%` : ''}, visualmente. Mostra as ${J.total} avarias, os ${J.pct}% resolvidos. E tem a tabela de fechamento editável, onde podemos registrar o status de cada competência, a ata e o relatório. Tudo isso direto no painel, sem precisar de planilha separada."`,
       'Se possível, abra o painel ao vivo e mostre a aba Reunião com os dados reais de JBV.']);
     const melFJ = melFala(S, JBV); if (melFJ) f.push(melFJ);
+    const comFJ = comFala(S, JBV); if (comFJ) f.push(comFJ);
     f.push(['Parabéns JBV — e o que vem a seguir',
       `"Antes de encerrar: parabéns, JBV. ${J.pct}% de resolução com ${J.total} avarias registradas.${jInsp != null ? ` ${jInsp}% das inspeções do ciclo.` : ''} ${J.fin} avarias encerradas desde 2024. Isso representa o trabalho real de cada irmão que foi até uma casa, avaliou um problema, resolveu e registrou. Agora, nossa próxima missão é fechar as ${J.open} avarias em aberto e chegarmos a 100% de inspeções no ciclo. Muito obrigado."`,
       'Encerre com reconhecimento genuíno. Abra para perguntas e ouça o que os irmãos têm a dizer.']);
