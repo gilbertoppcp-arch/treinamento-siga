@@ -2094,7 +2094,11 @@ function renderReuniao() {
   const mesesAlvo = TRIM[periodo] || TRIM.ciclo;
 
   // Filtrar FECHAMENTO_DATA pelo período
-  const rows = FECHAMENTO_DATA.filter(r => mesesAlvo.includes(r.mesNum));
+  let _ovR = {}; try { _ovR = loadOverrides(); } catch (e) {}
+  const rows = FECHAMENTO_DATA.map(r => {
+    const o = _ovR[rowKey(r)] || {}; const m = o.verif !== undefined ? /^\s*(\d+)\s*\/\s*(\d+)\s*$/.exec(o.verif) : null;
+    return m ? Object.assign({}, r, { realizado: +m[1], previsto: +m[2] }) : r;
+  }).filter(r => mesesAlvo.includes(r.mesNum));
 
   // Agregar por igreja
   const map = {};
@@ -2619,7 +2623,7 @@ document.addEventListener("DOMContentLoaded", () => {
     <div class="apres-decksel">
       <span class="lbl">Apresentação</span>
       <button type="button" class="apres-deckbtn active" data-deck="jbv">Jardim Bela Vista</button>
-      <button type="button" class="apres-deckbtn" data-deck="geral">Geral · todas as igrejas</button>
+      <button type="button" class="apres-deckbtn" data-deck="geral">Geral · todas as igrejas</button><span class="lbl" id="apres-dyn-note" style="margin-left:8px;text-transform:none;letter-spacing:0"></span>
     </div>
   </div>
 
@@ -3200,5 +3204,560 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>
   </div>
 </div>
+<script>
+// ═══ APRESENTAÇÕES DINÂMICAS ═══
+// Os slides e as falas são montados a partir dos mesmos dados do painel:
+// avarias (currentItems, inclusive após "Atualizar PDF"), fechamento (FECHAMENTO_DATA + edições
+// salvas no navegador) e plano de reforma (REFORMA_PLAN_DATA + itens marcados como concluídos).
+// Rebuilda toda vez que a aba Apresentação é aberta.
+(function () {
+  const MES_C = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const MES_L = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const PLAN_NAMES = { 'Jd. Bela Vista':'Jardim Bela Vista', 'Lírio Campos':'Lírio dos Campos', 'Pq. Iolanda':'Parque Iolanda', 'Vida Nova I':'Residencial Vida Nova I', 'Vila Planalto':'Vila Planalto', 'Vinhedo':'Vinhedo' };
+  const WAIT_NAMES = { 'Bela Vista':'Jardim Bela Vista', 'Planalto':'Vila Planalto', 'Iolanda':'Parque Iolanda', 'Vida Nova':'Residencial Vida Nova I', 'Vida Nova I':'Residencial Vida Nova I', 'Lírio':'Lírio dos Campos', 'Nova Vinhedo':'Nova Vinhedo' };
+  const JBV = 'Jardim Bela Vista';
+
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+  const pc = (a, b) => b ? Math.round(a / b * 100) : 0;
+  const P2 = n => String(n).padStart(2, '0');
+  const join = a => a.length <= 1 ? a.join('') : a.slice(0, -1).join(', ') + ' e ' + a[a.length - 1];
+  const pl = (n, s, p) => n === 1 ? s : p;
+  const brl = n => 'R$ ' + Math.round(n).toLocaleString('pt-BR');
+  const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+  const lowerFirst = s => s ? s.charAt(0).toLowerCase() + s.slice(1) : s;
+
+  function topItems(list, n) {
+    const m = {};
+    list.forEach(i => { m[i.item_inspecao] = (m[i.item_inspecao] || 0) + 1; });
+    const arr = Object.entries(m).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, n || 4);
+    return arr.map(([k, v]) => v > 1 ? `${k} (${v})` : k);
+  }
+
+  // ───────── dados ─────────
+  function fechRows(cy) {
+    let ov = {};
+    try { ov = loadOverrides(); } catch (e) {}
+    const out = [];
+    FECHAMENTO_DATA.forEach(row => {
+      if (row.ano !== cy) return;
+      const o = ov[rowKey(row)] || {};
+      let r = row.realizado, p = row.previsto;
+      if (o.verif !== undefined) {
+        const m = /^\s*(\d+)\s*\/\s*(\d+)\s*$/.exec(o.verif);
+        if (m) { r = +m[1]; p = +m[2]; }
+      }
+      if (p == null || r == null || p === 0) return;
+      out.push({
+        church: CHURCH_MAP[row.igreja] || row.igreja, mes: row.mesNum, r, p,
+        ata: o.anexoAta !== undefined ? o.anexoAta : row.anexoAta,
+        insp: o.anexoInsp !== undefined ? o.anexoInsp : row.anexoInsp,
+      });
+    });
+    return out;
+  }
+
+  function stats() {
+    const items = (typeof currentItems !== 'undefined' && currentItems) ? currentItems : [];
+    const S = { items };
+    S.total = items.length;
+    S.fin = items.filter(i => i.status === 'Finalizado').length;
+    S.pct = pc(S.fin, S.total);
+    S.open = items.filter(i => i.status !== 'Finalizado');
+    S.openRisk = S.open.filter(i => i.risco);
+    const mean = list => {
+      const d = [];
+      list.forEach(it => {
+        if (it.status !== 'Finalizado' || !it.data_dt) return;
+        const dc = parseBRDate(it.data_correcao); if (!dc) return;
+        const x = daysBetween(it.data_dt, dc); if (x >= 0) d.push(x);
+      });
+      return d.length ? Math.round(d.reduce((a, b) => a + b, 0) / d.length) : 0;
+    };
+    S.mean = mean(items);
+    const fy = FECHAMENTO_DATA.filter(r => r.previsto != null).map(r => r.ano);
+    const iy = items.map(i => i.data_dt ? i.data_dt.getUTCFullYear() : 0);
+    S.cy = fy.length ? Math.max(...fy) : (iy.length ? Math.max(...iy) : new Date().getFullYear());
+    S.cycleItems = items.filter(i => i.data_dt && i.data_dt.getUTCFullYear() === S.cy);
+
+    // fechamento
+    S.fech = fechRows(S.cy);
+    const byMes = {};
+    S.fech.forEach(f => { (byMes[f.mes] = byMes[f.mes] || { mes: f.mes, r: 0, p: 0 }); byMes[f.mes].r += f.r; byMes[f.mes].p += f.p; });
+    S.meses = Object.values(byMes).sort((a, b) => a.mes - b.mes);
+    S.lastMes = S.meses.length ? S.meses[S.meses.length - 1].mes : 0;
+    const lastM = S.meses[S.meses.length - 1];
+    S.partial = !!(lastM && lastM.r < lastM.p);
+    S.prevMes = S.partial ? (S.meses.length > 1 ? S.meses[S.meses.length - 2].mes : 0) : S.lastMes;
+    const sum = (rows) => rows.reduce((a, f) => ({ r: a.r + f.r, p: a.p + f.p }), { r: 0, p: 0 });
+    S.fAll = sum(S.fech);
+    S.fPrev = sum(S.fech.filter(f => !S.partial || f.mes !== S.lastMes));
+
+    // igrejas
+    const names = new Set(items.map(i => i.church));
+    S.fech.forEach(f => names.add(f.church));
+    S.churches = [...names].map(name => {
+      const li = items.filter(i => i.church === name);
+      const fin = li.filter(i => i.status === 'Finalizado').length;
+      const open = li.filter(i => i.status !== 'Finalizado');
+      const fr = S.fech.filter(f => f.church === name);
+      const fa = sum(fr), fp = sum(fr.filter(f => !S.partial || f.mes !== S.lastMes));
+      return { name, total: li.length, fin, pct: pc(fin, li.length), openList: open, open: open.length,
+        riscoOpen: open.filter(i => i.risco).length, mean: mean(li), fa, fp, fpct: pc(fa.r, fa.p), fppct: pc(fp.r, fp.p), hasF: fa.p > 0 };
+    }).sort((a, b) => b.total - a.total || a.name.localeCompare(b.name));
+    S.withItems = S.churches.filter(c => c.total > 0);
+    S.noItems = S.churches.filter(c => c.total === 0);
+    S.jbv = S.churches.find(c => c.name === JBV);
+
+    // categorias
+    const cats = (list) => (typeof CATEGORIES_ORDER !== 'undefined' ? CATEGORIES_ORDER : ['Elétrica', 'Instalações Gerais', 'Predial']).map(cat => {
+      const l = list.filter(i => i.categoria === cat);
+      const f = l.filter(i => i.status === 'Finalizado').length;
+      const o = l.filter(i => i.status !== 'Finalizado');
+      return { cat, total: l.length, fin: f, pct: pc(f, l.length), open: o.length, openList: o };
+    });
+    S.cats = cats(items);
+    S.catsJbv = cats(S.cycleItems.filter(i => i.church === JBV));
+
+    // plano
+    const plan = (typeof REFORMA_PLAN_DATA !== 'undefined') ? REFORMA_PLAN_DATA : { items: [], waiting: [] };
+    let done = new Set();
+    try { done = loadDoneIds(); } catch (e) {}
+    const byLoc = {};
+    plan.items.forEach(it => {
+      const k = PLAN_NAMES[it.where] || it.where;
+      const o = byLoc[k] = byLoc[k] || { name: k, n: 0, done: 0, cost: 0 };
+      o.n++; o.cost += it.cost || 0;
+      if (done.has(planItemId(it))) o.done++;
+    });
+    S.planLocs = Object.values(byLoc).sort((a, b) => b.cost - a.cost);
+    S.planTotal = S.planLocs.reduce((a, l) => a + l.cost, 0);
+    S.planN = plan.items.length;
+    S.planDone = S.planLocs.reduce((a, l) => a + l.done, 0);
+    S.waitTotal = (plan.waiting || []).reduce((a, w) => a + (w.custo || 0), 0);
+    S.waitN = (plan.waiting || []).length;
+    S.paint = plan.items.filter(i => /pintura/i.test(i.what));
+    return S;
+  }
+
+  const mesNome = m => MES_L[m - 1] || '';
+  const upToText = S => S.partial && S.prevMes ? mesNome(S.prevMes) : null;
+
+  // ───────── anexos ─────────
+  function anexos(S) {
+    const lines = { ata: [], insp: [] };
+    const quarters = [3, 6, 9, 12];
+    quarters.forEach((m, qi) => {
+      if (m > S.lastMes) return;
+      const rows = S.fech.filter(f => f.mes === m && ['Sim', 'Não', 'Pendente'].includes(f.ata));
+      if (!rows.length) return;
+      const ok = rows.filter(f => f.ata === 'Sim'), no = rows.filter(f => f.ata !== 'Sim');
+      let t = `${qi + 1}º trimestre (${mesNome(m)}): `;
+      t += no.length === 0 ? `anexada nas ${rows.length} localidades` : `anexada em ${ok.length} de ${rows.length} · pendente em ${join(no.map(f => f.church))}`;
+      lines.ata.push(t);
+    });
+    for (let m = Math.max(1, S.lastMes - 2); m <= S.lastMes && S.lastMes; m++) {
+      const rows = S.fech.filter(f => f.mes === m);
+      if (!rows.length) continue;
+      const no = rows.filter(f => f.insp !== 'Sim' && f.insp !== 'Não Aplicavel');
+      const tail = (S.partial && m === S.lastMes) ? ' (em andamento)' : '';
+      const nm = cap(mesNome(m));
+      if (no.length === 0) lines.insp.push(`${nm}${tail}: relatório anexado nas ${rows.length} localidades`);
+      else lines.insp.push(`${nm}${tail}: sem relatório em ${no.length} ${pl(no.length, 'localidade', 'localidades')}${no.length <= 3 ? ' (' + join(no.map(f => f.church)) + ')' : ''}`);
+    }
+    return lines;
+  }
+
+  // ───────── pontos de atenção ─────────
+  function pontos(S) {
+    const out = [];
+    const worst = [...S.withItems].sort((a, b) => b.riscoOpen - a.riscoOpen || b.open - a.open)[0];
+    if (worst && worst.open > 0) {
+      out.push({ icon: '🏗️', title: `${worst.name}: ${worst.open} de ${worst.total} avarias em aberto`,
+        desc: `${worst.riscoOpen} ${pl(worst.riscoOpen, 'item com risco registrado', 'itens com risco registrado')} em aberto e ${worst.mean} dias de tempo médio de resolução.`, tag: 'Prioridade' });
+    }
+    const openByItem = {};
+    S.open.forEach(i => { (openByItem[i.item_inspecao] = openByItem[i.item_inspecao] || []).push(i); });
+    const rec = Object.entries(openByItem).sort((a, b) => b[1].length - a[1].length)[0];
+    if (rec && rec[1].length >= 2) {
+      const yrs = rec[1].map(i => i.data_dt ? i.data_dt.getUTCFullYear() : 9999);
+      const locs = [...new Set(rec[1].map(i => i.church))];
+      const plan = /pintura/i.test(rec[0]) && S.paint.length ? ` O plano de reforma prevê ${brl(S.paint[0].cost)} por localidade.` : '';
+      out.push({ icon: /pintura/i.test(rec[0]) ? '🎨' : '🔁', title: `${rec[0]} em aberto${Math.min(...yrs) < 9999 ? ' desde ' + Math.min(...yrs) : ''}`,
+        desc: `${rec[1].length} avarias em ${join(locs)}.${plan}`, tag: 'Recorrente' });
+    }
+    if (S.meses.length) {
+      const lm = S.meses[S.meses.length - 1];
+      if (S.partial) {
+        const low = [...S.churches].filter(c => c.fp.p > 0).sort((a, b) => a.fppct - b.fppct)[0];
+        out.push({ icon: '📅', title: `Fechamento de ${mesNome(lm.mes)}: ${lm.r} de ${lm.p} inspeções`,
+          desc: low && low.fppct < 100 ? `${low.name} soma ${low.fp.r} de ${low.fp.p} até ${mesNome(S.prevMes)} (${low.fppct}%), o menor índice.` : `Todas as localidades estão em 100% até ${mesNome(S.prevMes)}.`, tag: 'Em andamento' });
+      } else {
+        const low = [...S.churches].filter(c => c.hasF).sort((a, b) => a.fpct - b.fpct)[0];
+        out.push({ icon: '📅', title: `Inspeções do ciclo: ${S.fAll.r} de ${S.fAll.p} (${pc(S.fAll.r, S.fAll.p)}%)`,
+          desc: low ? `${low.name} tem o menor índice: ${low.fa.r} de ${low.fa.p} (${low.fpct}%).` : '', tag: 'Acompanhar' });
+      }
+    }
+    const an = anexos(S);
+    const pend = [...an.insp, ...an.ata].filter(t => /sem relatório|pendente/.test(t));
+    out.push({ icon: '📎', title: pend.length ? 'Anexos pendentes' : 'Anexos em dia',
+      desc: pend.length ? pend.slice(0, 2).join('. ') + '.' : 'Atas e relatórios anexados nas competências registradas.', tag: pend.length ? 'Pendente' : 'Em dia' });
+    return out;
+  }
+
+  // ───────── slides: GERAL ─────────
+  function geralSlides(S) {
+    const sl = [];
+    const upd = (typeof currentMeta !== 'undefined' && currentMeta && currentMeta.updatedAt) ? currentMeta.updatedAt : '';
+    const ateTxt = S.lastMes ? `dados até ${mesNome(S.lastMes)} de ${S.cy}` : 'dados do painel';
+    sl.push(`<div class="apres-slide as1">
+        <p class="eyebrow">Congregação Cristã no Brasil · ADM Vinhedo</p>
+        <h1>Panorama<br>Geral das<br>Igrejas</h1>
+        <p class="sub">Painel de manutenção e fechamento · todas as localidades</p>
+        <div class="bottom"><p class="date">Resultados desde 2024 — ${esc(ateTxt)}${upd ? ' · painel atualizado em ' + esc(upd) : ''}</p>
+        <div class="badge"><div class="num">${S.pct}%</div><div class="lbl">avarias resolvidas — grupo</div></div></div></div>`);
+
+    const tops = [...S.withItems].sort((a, b) => b.open - a.open).filter(c => c.open > 0).slice(0, 2);
+    const sumTop = tops.reduce((a, c) => a + c.open, 0);
+    const insp = S.fAll.p ? `${pc(S.fAll.r, S.fAll.p)}%` : '—';
+    const inspSub = S.fAll.p ? `ciclo ${S.cy} até ${mesNome(S.lastMes)}: ${S.fAll.r} de ${S.fAll.p}` : 'sem dados de fechamento';
+    const statInsp = (S.partial && S.fPrev.p)
+      ? `<div class="stat"><div class="n">${pc(S.fPrev.r, S.fPrev.p)}%</div><div class="info"><strong>Inspeções até ${mesNome(S.prevMes)}</strong><span>${S.fPrev.r} de ${S.fPrev.p} — ${mesNome(S.lastMes)} ainda em andamento</span></div></div>`
+      : `<div class="stat"><div class="n">${S.meses.length}</div><div class="info"><strong>Competências no ciclo</strong><span>meses com fechamento registrado em ${S.cy}</span></div></div>`;
+    sl.push(`<div class="apres-slide as4">
+        <h2>Resumo do grupo — resultados desde 2024</h2>
+        <div class="kpi-row">
+          <div class="kpi blue"><div class="big">${S.total}</div><div class="lbl">Avarias registradas</div><div class="sub">em ${S.withItems.length} localidades com registro no painel</div></div>
+          <div class="kpi green"><div class="big">${S.pct}%</div><div class="lbl">Resolvidas</div><div class="sub">${S.fin} de ${S.total} avarias</div></div>
+          <div class="kpi orange"><div class="big">${insp}</div><div class="lbl">Inspeções</div><div class="sub">${esc(inspSub)}</div></div>
+          <div class="kpi purple"><div class="big">${S.open.length}</div><div class="lbl">Em aberto</div><div class="sub">${S.openRisk.length} com risco registrado</div></div>
+        </div>
+        <div class="row2">
+          ${statInsp}
+          <div class="stat"><div class="n">${S.open.length ? sumTop + ' de ' + S.open.length : '0'}</div><div class="info"><strong>Avarias em aberto</strong><span>${tops.length ? esc(join(tops.map(c => c.open + ' em ' + c.name))) : 'nenhuma avaria em aberto'}</span></div></div>
+          <div class="stat"><div class="n">${S.mean} dias</div><div class="info"><strong>Tempo médio de resolução</strong><span>média das avarias finalizadas</span></div></div>
+        </div></div>`);
+
+    const cls = p => p >= 90 ? 'good' : p >= 50 ? 'warn' : 'bad';
+    const noIt = S.noItems.length ? ` · ${join(S.noItems.map(c => c.name))} ainda ${pl(S.noItems.length, 'não tem registros', 'não têm registros')} no painel` : '';
+    sl.push(`<div class="apres-slide as5">
+        <h2>Avarias por localidade</h2>
+        <p class="subtitle">Avarias acumuladas desde 2024${esc(noIt)}</p>
+        <div class="table-wrap"><div class="row-h"><div class="col-ig">Igreja</div><div class="col-av">Avarias</div><div class="col-res">Resolvidas</div><div class="col-bar">Progresso</div></div>
+        ${S.withItems.map(c => `<div class="row"><div class="col-ig">${esc(c.name)}</div><div class="col-av">${c.total} / ${S.total}</div><div class="col-res"><span class="badge-pct ${cls(c.pct)}">${c.pct}%</span></div><div class="col-bar"><div class="bar-bg"><div class="bar-fill" style="width:${Math.max(c.pct, 2)}%"></div></div></div></div>`).join('')}
+        </div></div>`);
+
+    const cc = ['el', 'ig', 'pr'], ce = ['⚡', '🏠', '🏗️'];
+    const catNote = c => c.open ? `${c.open} em aberto: ${esc(lowerFirst(join(topItems(c.openList, 4))))}.` : 'Nenhum item em aberto.';
+    sl.push(`<div class="apres-slide as6">
+        <h2>Avarias por categoria — todas as igrejas</h2>
+        <p class="subtitle">Acumulado desde 2024 · onde estamos bem e onde podemos avançar</p>
+        <div class="cats">
+        ${S.cats.map((c, i) => `<div class="cat ${cc[i]}"><h3>${ce[i]} ${esc(c.cat)}</h3><div class="big">${c.pct}%</div><div class="detail">${c.fin} de ${c.total} avarias resolvidas</div><div class="bar-row"><div class="bar-label"><span>Resolvidas</span><span>${c.pct}%</span></div><div class="bar-outer"><div class="bar-inner" style="width:${c.pct}%"></div></div></div><p style="font-size:13px;color:#3A5A7A;margin-top:8px">${catNote(c)}</p></div>`).join('')}
+        </div></div>`);
+
+    const fch = [...S.churches].filter(c => c.hasF).sort((a, b) => b.fpct - a.fpct || a.name.localeCompare(b.name));
+    const lowName = fch.length ? fch[fch.length - 1].name : '';
+    sl.push(`<div class="apres-slide as7">
+        <h2>Inspeções ${S.cy} — realizadas por localidade</h2>
+        <p class="subtitle">Inspeções realizadas ÷ previstas · ciclo ${S.cy}${S.meses.length ? ', de ' + mesNome(S.meses[0].mes) + ' a ' + mesNome(S.lastMes) : ''}${S.partial ? ' (' + mesNome(S.lastMes) + ' em andamento)' : ''}</p>
+        <div class="grid">
+        ${fch.map(c => {
+          const ok = c.fpct >= 90;
+          let note = `${c.fa.r} de ${c.fa.p}`;
+          if (c.fpct === 100) note += ' realizadas ✓';
+          else if (S.partial && S.prevMes) note += ` · ${c.fppct}% até ${mesNome(S.prevMes)}`;
+          if (fch.length > 1 && c.name === lowName && c.fpct < 100) note += ' — menor índice';
+          return `<div class="icard"><h3>${esc(c.name)}</h3><div class="pct ${ok ? 'ok' : 'alert'}">${c.fpct}%</div><div class="bar-bg2"><div class="bar-fill2 ${ok ? 'fill-ok' : 'fill-alert'}" style="width:${c.fpct}%"></div></div><div class="note">${esc(note)}</div></div>`;
+        }).join('')}
+        </div></div>`);
+
+    const lastP = S.meses.length ? S.meses[S.meses.length - 1] : null;
+    const fullM = S.partial ? S.meses.slice(0, -1) : S.meses;
+    const fullSum = fullM.reduce((a, m) => ({ r: a.r + m.r, p: a.p + m.p }), { r: 0, p: 0 });
+    sl.push(`<div class="apres-slide ag-meses">
+        <h2>Inspeções por mês — todas as localidades</h2>
+        <p class="subtitle">Realizado ÷ previsto, somando as ${S.fech.length ? new Set(S.fech.map(f => f.church)).size : 0} localidades</p>
+        <div class="chart">
+        ${S.meses.map(m => { const p = pc(m.r, m.p), part = S.partial && m.mes === S.lastMes;
+          return `<div class="col${part ? ' parcial' : ''}"><div class="pct">${p}%</div><div class="bar" style="height:${Math.round(p * 1.8)}px"></div><div class="mes">${MES_C[m.mes - 1]}</div><div class="frac">${m.r}/${m.p}</div>${part ? '<div class="tag">em andamento</div>' : ''}</div>`; }).join('')}
+        </div>
+        <p class="legend">${S.partial && fullM.length ? `De ${mesNome(fullM[0].mes)} a ${mesNome(fullM[fullM.length - 1].mes)}: ${fullSum.r} de ${fullSum.p} inspeções realizadas (${pc(fullSum.r, fullSum.p)}%). ${cap(mesNome(S.lastMes))}, em laranja, ainda está sendo registrado.` : `No ciclo: ${S.fAll.r} de ${S.fAll.p} inspeções realizadas (${pc(S.fAll.r, S.fAll.p)}%).`}</p></div>`);
+
+    const oc = [...S.withItems].filter(c => c.open > 0).sort((a, b) => b.open - a.open).slice(0, 5);
+    const riskBy = S.withItems.filter(c => c.riscoOpen > 0).sort((a, b) => b.riscoOpen - a.riscoOpen);
+    const cards = oc.map(c => `<div class="item"><div class="num">${P2(c.open)}</div><h3>${esc(c.name)}</h3><p>${esc(cap(join(topItems(c.openList, 4))))}.${c.riscoOpen ? ` ${c.riscoOpen} com risco registrado.` : ' Nenhum com risco registrado.'}</p></div>`);
+    cards.push(`<div class="item"><div class="num">${P2(S.openRisk.length)}</div><h3>Com risco registrado</h3><p>${S.openRisk.length ? `Entre os ${S.open.length} em aberto: ${esc(join(riskBy.map(c => c.riscoOpen + ' em ' + c.name)))}. Pedem decisão primeiro.` : 'Nenhum dos itens em aberto tem risco registrado.'}</p></div>`);
+    sl.push(`<div class="apres-slide as3">
+        <h2>Itens em aberto — ${S.open.length} no grupo</h2>
+        <div class="grid">${cards.join('')}</div></div>`);
+
+    const an = anexos(S);
+    const li = a => a.length ? a.map(t => `<li>${esc(t)}</li>`).join('') : '<li>Sem registros nas competências</li>';
+    sl.push(`<div class="apres-slide as8">
+        <h2>Fechamento — anexos de ata e de relatório</h2>
+        <p class="subtitle">Situação dos anexos nas competências de ${S.cy}</p>
+        <div class="features">
+          <div class="feat a"><div class="icon">📜</div><h3>Atas trimestrais</h3><ul>${li(an.ata)}</ul></div>
+          <div class="feat b"><div class="icon">📋</div><h3>Relatórios de inspeção</h3><ul>${li(an.insp)}</ul></div>
+          <div class="feat c"><div class="icon">📝</div><h3>Onde atualizar</h3><ul><li>Aba Fechamento do painel</li><li>Status, ata e relatório editáveis direto na linha</li><li>Esta apresentação se atualiza com os dados</li></ul></div>
+        </div></div>`);
+
+    const maxC = Math.max(1, ...S.planLocs.map(l => l.cost));
+    sl.push(`<div class="apres-slide as5">
+        <h2>Plano de reforma por localidade</h2>
+        <p class="subtitle">${brl(S.planTotal)} em ${S.planN} ações${S.planDone ? ' · ' + S.planDone + ' concluídas' : ''} · mais ${brl(S.waitTotal)} em pendências que aguardam a reforma</p>
+        <div class="table-wrap"><div class="row-h"><div class="col-ig">Localidade</div><div class="col-av">Ações</div><div class="col-res">Custo previsto</div><div class="col-bar">Proporção</div></div>
+        ${S.planLocs.map(l => `<div class="row"><div class="col-ig">${esc(l.name)}</div><div class="col-av">${l.n}${l.done ? ' (' + l.done + ' concl.)' : ''}</div><div class="col-res" style="font-weight:600;color:#F0F8FF">${brl(l.cost)}</div><div class="col-bar"><div class="bar-bg"><div class="bar-fill" style="width:${Math.max(2, Math.round(l.cost / maxC * 100))}%"></div></div></div></div>`).join('')}
+        </div></div>`);
+
+    const pt = pontos(S);
+    sl.push(`<div class="apres-slide as9">
+        <h2>Pontos de atenção — o que vem a seguir</h2>
+        <div class="steps">${pt.map(p => `<div class="step"><div class="n">${p.icon}</div><div class="txt"><strong>${esc(p.title)}</strong><span>${esc(p.desc)}</span></div><div class="atag">${esc(p.tag)}</div></div>`).join('')}</div></div>`);
+    return sl;
+  }
+
+  // ───────── falas: GERAL ─────────
+  function geralFalas(S) {
+    const f = [];
+    const mn = mesNome(S.lastMes), pn = mesNome(S.prevMes);
+    f.push(['Capa — abertura',
+      `"Boa noite a todos. Este é o panorama geral das igrejas da administração de Vinhedo: o que o painel de manutenção e o fechamento mensal mostram quando olhamos todas as localidades juntas. Desde 2024 foram ${S.total} avarias registradas, e ${S.pct}% delas já estão resolvidas."`,
+      `Comece pelo ${S.pct}% e lembre que esse resultado é do grupo todo, não de uma igreja só.`]);
+    const tops = [...S.withItems].sort((a, b) => b.open - a.open).filter(c => c.open > 0).slice(0, 2);
+    f.push(['Resumo do grupo',
+      `"Os números principais: ${S.total} avarias registradas, ${S.pct}% resolvidas, ${S.open.length} ainda em aberto, sendo ${S.openRisk.length} com risco registrado.${S.fAll.p ? ` Nas inspeções do ciclo ${S.cy}, ${pc(S.fAll.r, S.fAll.p)}% foram realizadas até agora (${S.fAll.r} de ${S.fAll.p}).` : ''}${S.partial && S.fPrev.p ? ` Esse índice inclui ${mn}, que ainda está em andamento. Até ${pn}, o índice é de ${pc(S.fPrev.r, S.fPrev.p)}%: ${S.fPrev.r} de ${S.fPrev.p} inspeções.` : ''} O tempo médio de resolução das avarias finalizadas é de ${S.mean} dias."`,
+      S.partial ? `Explique que o número de ${mn} é parcial, para ninguém entender que o desempenho caiu.` : 'Se houver variação desde a última reunião, comente o que mudou.']);
+    const big = S.withItems[0];
+    const others = S.withItems.slice(1).map(c => `${c.name} ${c.fin} de ${c.total} (${c.pct}%)`);
+    const small = S.withItems.some(c => c.total <= 5 && c.total > 0);
+    f.push(['Avarias por localidade',
+      big ? `"${big.name} concentra ${big.total} das ${S.total} avarias, ${pc(big.total, S.total)}% do total, e resolveu ${big.pct}% delas. Nas demais: ${join(others)}.${S.noItems.length ? ` ${join(S.noItems.map(c => c.name))} ainda ${pl(S.noItems.length, 'não tem registros', 'não têm registros')} de avarias no painel.` : ''}"` : '"Ainda não há avarias registradas no painel."',
+      small ? 'Cuidado ao comparar percentuais de igrejas com poucas avarias: uma única avaria em aberto muda muito o percentual.' : 'Compare o volume de cada igreja antes de comparar os percentuais.']);
+    f.push(['Avarias por categoria',
+      `"${S.cats.map(c => `${c.cat}: ${c.pct}% resolvidas (${c.fin} de ${c.total}), ${c.open} em aberto`).join('. ')}."`,
+      'Conecte os itens que se repetem em aberto com o plano de reforma, no slide de plano.']);
+    const fch = [...S.churches].filter(c => c.hasF).sort((a, b) => b.fpct - a.fpct);
+    f.push(['Inspeções por localidade',
+      fch.length ? `"No ciclo ${S.cy}, ${fch[0].name} está com ${fch[0].fpct}% das inspeções (${fch[0].fa.r} de ${fch[0].fa.p}) e ${fch[fch.length - 1].name} tem o menor índice, ${fch[fch.length - 1].fpct}% (${fch[fch.length - 1].fa.r} de ${fch[fch.length - 1].fa.p}).${S.partial ? ` Esses números incluem ${mn}, que ainda está em andamento; até ${pn}, o índice de ${fch[fch.length - 1].name} é ${fch[fch.length - 1].fppct}%.` : ''} Os demais: ${join(fch.slice(1, -1).map(c => `${c.name} ${c.fpct}%`)) || 'sem outras localidades'}."` : '"Ainda não há inspeções registradas no fechamento."',
+      S.partial ? `Reforce a diferença entre "até ${pn}" e "com ${mn}", para ninguém ler o índice parcial como atraso.` : 'Peça que cada responsável confirme os números da sua igreja.']);
+    const fullM = S.partial ? S.meses.slice(0, -1) : S.meses;
+    const lm = S.meses[S.meses.length - 1];
+    f.push(['Inspeções por mês',
+      S.meses.length ? `"Mês a mês, o índice ${fullM.length ? `ficou entre ${Math.min(...fullM.map(m => pc(m.r, m.p)))}% e ${Math.max(...fullM.map(m => pc(m.r, m.p)))}% de ${mesNome(fullM[0].mes)} a ${mesNome(fullM[fullM.length - 1].mes)}` : 'ainda tem poucos meses'}. ${S.partial ? `${cap(mn)} aparece em laranja porque está em andamento, com ${lm.r} de ${lm.p} inspeções registradas até agora. Esse número sobe conforme o fechamento for atualizado.` : `O último mês, ${mn}, fechou com ${lm.r} de ${lm.p}.`}"` : '"Ainda não há meses registrados."',
+      S.partial ? `Pergunte ao grupo quais inspeções de ${mn} ainda faltam registrar.` : 'Pergunte se algum mês precisa de correção no fechamento.']);
+    f.push(['Itens em aberto',
+      `"São ${S.open.length} itens em aberto. ${join(S.withItems.filter(c => c.open > 0).sort((a, b) => b.open - a.open).map(c => `${c.name} tem ${c.open}`))}. ${S.openRisk.length ? `${S.openRisk.length} ${pl(S.openRisk.length, 'item em aberto tem risco registrado', 'itens em aberto têm risco registrado')}: ${join(S.openRisk.map(i => `${lowerFirst(i.item_inspecao)} em ${i.church}`))}.` : 'Nenhum item em aberto tem risco registrado.'}"`,
+      'Comece pelos itens com risco: são os que precisam de decisão primeiro.']);
+    const an = anexos(S);
+    f.push(['Fechamento — anexos',
+      `"${[...an.ata, ...an.insp].map(t => t.replace(/^(\S+ )/, c => c)).join('. ')}. Tudo isso pode ser atualizado direto na aba Fechamento."`,
+      'Peça que cada responsável confirme se o relatório do mês já existe e só falta anexar.']);
+    const bl = S.planLocs[0], b2 = S.planLocs[1];
+    f.push(['Plano de reforma',
+      `"O plano de reforma soma ${brl(S.planTotal)} em ${S.planN} ações${S.planDone ? `, sendo ${S.planDone} já concluídas` : ''}. ${bl ? `${bl.name} concentra ${brl(bl.cost)}` : ''}${b2 ? `, seguida de ${b2.name}, com ${brl(b2.cost)}` : ''}. Há ainda ${brl(S.waitTotal)} em ${S.waitN} pendências que aguardam a reforma."`,
+      'Destaque os itens de maior valor que ainda estão com a forma de execução "a definir".']);
+    const pt = pontos(S);
+    f.push(['Pontos de atenção',
+      `"Para fechar, ${pt.length} pontos de atenção. ${pt.map((p, i) => `${['Primeiro', 'Segundo', 'Terceiro', 'Quarto'][i] || 'Também'}: ${p.title}. ${p.desc}`).join(' ')} O que o grupo precisa decidir hoje?"`,
+      'Encerre abrindo para perguntas e anote quem fica responsável por cada ponto.']);
+    return f;
+  }
+
+  // ───────── slides: JARDIM BELA VISTA ─────────
+  function jbvPack(S) {
+    const J = S.jbv; if (!J || !J.total) return null;
+    const ranked = [...S.withItems].sort((a, b) => b.pct - a.pct || b.total - a.total);
+    const rank = ranked.findIndex(c => c.name === JBV) + 1;
+    const share = pc(J.total, S.total);
+    const second = S.withItems.filter(c => c.name !== JBV)[0];
+    const vp = S.withItems.find(c => c.name === 'Vila Planalto');
+    const pi = S.withItems.find(c => c.name === 'Parque Iolanda');
+    const fch = [...S.churches].filter(c => c.hasF).sort((a, b) => b.fpct - a.fpct || a.name.localeCompare(b.name));
+    const jf = S.churches.find(c => c.name === JBV);
+    const jInsp = jf && jf.hasF ? jf.fpct : null;
+    const inspRank = jInsp != null ? fch.findIndex(c => c.name === JBV) + 1 : null;
+    const catsJ = S.catsJbv;
+    const predial = catsJ[2] || { open: 0 };
+    return { J, jf, rank, share, second, vp, pi, fch, jInsp, inspRank, catsJ, predial };
+  }
+
+  function jbvSlides(S, origJ3) {
+    const K = jbvPack(S); if (!K) return null;
+    const { J, jf, rank, share, second, fch, jInsp, inspRank, catsJ, predial } = K;
+    const sl = [];
+    const bad = pc2 => pc2 >= 90 ? 'good' : pc2 >= 50 ? 'warn' : 'bad';
+    const inspTxt = jInsp != null ? jInsp + '%' : '—';
+    sl.push(`<div class="apres-slide as1">
+        <p class="eyebrow">Congregação Cristã no Brasil · Jardim Bela Vista</p>
+        <h1>Painel de<br>Manutenção<br>Preventiva</h1>
+        <p class="sub">Reunião do grupo de manutenção · ${cap(MES_L[new Date().getMonth()])} ${new Date().getFullYear()}</p>
+        <div class="bottom"><p class="date">Resultados desde 2024 — Jardim Bela Vista</p>
+        <div class="badge"><div class="num">${J.pct}%</div><div class="lbl">avarias resolvidas — JBV</div></div></div></div>`);
+    sl.push(`<div class="apres-slide as2">
+        <h2>JBV — o que o painel revelou</h2>
+        <div class="cards">
+          <div class="card"><div class="icon">📋</div><h3>${J.total === Math.max(...S.withItems.map(c => c.total)) ? 'Maior volume do grupo' : 'Volume de avarias'}</h3><p>Jardim Bela Vista tem ${J.total} avarias registradas — ${share}% de tudo que o grupo registrou desde 2024.</p></div>
+          <div class="card"><div class="icon">🏆</div><h3>${rank}º lugar em resolução</h3><p>JBV mantém ${J.pct}% de resolução — ${rank}ª posição entre as ${S.withItems.length} localidades com registro.</p></div>
+          <div class="card"><div class="icon">🏠</div><h3>${inspTxt} de inspeções</h3><p>${jInsp != null ? `No ciclo ${S.cy}, ${jf.fa.r} de ${jf.fa.p} inspeções de JBV foram realizadas${S.partial ? ' (' + mesNome(S.lastMes) + ' em andamento)' : ''}.` : 'Sem inspeções registradas no fechamento.'}</p></div>
+          <div class="card highlight"><div class="icon">✅</div><h3>${J.fin} avarias encerradas</h3><p>Desde 2024, ${J.fin} avarias foram resolvidas pelos irmãos de JBV. Um trabalho concreto e real.</p></div>
+        </div></div>`);
+    sl.push(origJ3);
+    sl.push(`<div class="apres-slide as4">
+        <h2>Jardim Bela Vista — resultados desde 2024</h2>
+        <div class="kpi-row">
+          <div class="kpi blue"><div class="big">${J.total}</div><div class="lbl">Avarias registradas</div><div class="sub">${share}% de todas as avarias do grupo</div></div>
+          <div class="kpi green"><div class="big">${J.pct}%</div><div class="lbl">Resolvidas</div><div class="sub">${J.fin} de ${J.total} avarias</div></div>
+          <div class="kpi orange"><div class="big">${inspTxt}</div><div class="lbl">Inspeções</div><div class="sub">${jInsp != null ? `ciclo ${S.cy}: ${jf.fa.r} de ${jf.fa.p} realizadas` : 'sem dados de fechamento'}</div></div>
+          <div class="kpi purple"><div class="big">${rank}º</div><div class="lbl">Posição no grupo</div><div class="sub">em % de avarias resolvidas</div></div>
+        </div>
+        <div class="row2">
+          <div class="stat"><div class="n">${S.pct}%</div><div class="info"><strong>Taxa geral do grupo</strong><span>${J.pct >= S.pct ? 'JBV está acima dessa média' : 'JBV está abaixo dessa média'}</span></div></div>
+          <div class="stat"><div class="n">${share}%</div><div class="info"><strong>Do volume total</strong><span>participação de JBV nas avarias do grupo</span></div></div>
+          <div class="stat"><div class="n">${J.fin}</div><div class="info"><strong>Avarias encerradas</strong><span>trabalho realizado desde 2024</span></div></div>
+        </div></div>`);
+    sl.push(`<div class="apres-slide as5">
+        <h2>JBV no grupo — avarias por localidade</h2>
+        <p class="subtitle">Avarias acumuladas desde 2024 · JBV em destaque</p>
+        <div class="table-wrap"><div class="row-h"><div class="col-ig">Igreja</div><div class="col-av">Avarias</div><div class="col-res">Resolvidas</div><div class="col-bar">Progresso</div></div>
+        ${S.withItems.map(c => { const me = c.name === JBV; return `<div class="row"${me ? ' style="background:rgba(91,196,245,0.08);border-left:4px solid #5BC4F5"' : ''}><div class="col-ig"${me ? ' style="font-weight:700;color:#5BC4F5"' : ''}>${me ? '⭐ ' : ''}${esc(c.name)}</div><div class="col-av">${c.total} / ${S.total}</div><div class="col-res"><span class="badge-pct ${bad(c.pct)}">${c.pct}%</span></div><div class="col-bar"><div class="bar-bg"><div class="bar-fill" style="width:${Math.max(c.pct, 2)}%"></div></div></div></div>`; }).join('')}
+        </div></div>`);
+    const cc = ['el', 'ig', 'pr'], ce = ['⚡', '🏠', '🏗️'];
+    sl.push(`<div class="apres-slide as6">
+        <h2>JBV — avarias por categoria (ciclo ${S.cy})</h2>
+        <p class="subtitle">Avarias de JBV registradas em ${S.cy} · onde estamos bem e onde podemos avançar</p>
+        <div class="cats">
+        ${catsJ.map((c, i) => `<div class="cat ${cc[i]}"><h3>${ce[i]} ${esc(c.cat)}</h3><div class="big">${c.total ? c.pct + '%' : '—'}</div><div class="detail">${c.fin} de ${c.total} itens concluídos — JBV</div><div class="bar-row"><div class="bar-label"><span>Concluídos</span><span>${c.pct}%</span></div><div class="bar-outer"><div class="bar-inner" style="width:${c.pct}%"></div></div></div><p style="font-size:13px;color:${c.pct < 50 && c.total ? '#6A4A2A' : '#3A5A7A'};margin-top:8px">${c.open ? `${c.open} ${pl(c.open, 'item em aberto', 'itens em aberto')}.` : (c.total ? 'Todos os itens concluídos.' : 'Sem avarias neste ciclo.')}</p></div>`).join('')}
+        </div></div>`);
+    sl.push(`<div class="apres-slide as7">
+        <h2>Inspeções ${S.cy} — JBV${inspRank ? ' em ' + inspRank + 'º lugar' : ''}</h2>
+        <p class="subtitle">Percentual de inspeções realizadas no ciclo ${S.cy} · JBV em destaque</p>
+        <div class="grid">
+        ${fch.map(c => { const me = c.name === JBV, ok = c.fpct >= 90;
+          const note = me ? `${c.fa.r} de ${c.fa.p} inspeções realizadas` : (c.fpct === 100 ? 'Todas as inspeções realizadas ✓' : `${c.fa.r} de ${c.fa.p} inspeções`);
+          return `<div class="icard"${me ? ' style="border:2px solid #5BC4F5"' : ''}><h3${me ? ' style="color:#5BC4F5"' : ''}>${me ? '⭐ ' : ''}${esc(c.name)}</h3><div class="pct ${ok ? 'ok' : 'alert'}">${c.fpct}%</div><div class="bar-bg2"><div class="bar-fill2 ${ok ? 'fill-ok' : 'fill-alert'}" style="width:${c.fpct}%"></div></div><div class="note"${me ? ' style="color:#5BC4F5;font-weight:600"' : ''}>${esc(note)}</div></div>`; }).join('')}
+        </div></div>`);
+    sl.push(`<div class="apres-slide as8">
+        <h2>O painel nas reuniões de JBV</h2>
+        <p class="subtitle">Como usar nas reuniões trimestrais do grupo de manutenção</p>
+        <div class="features">
+          <div class="feat a"><div class="icon">📊</div><h3>Inspeções de JBV</h3><ul><li>${jInsp != null ? `${jInsp}% das inspeções realizadas no ciclo ${S.cy}` : 'Sem inspeções registradas no fechamento'}</li><li>Comparativo direto com as outras igrejas do grupo</li><li>Evolução mês a mês disponível no painel</li></ul></div>
+          <div class="feat b"><div class="icon">🔧</div><h3>Avarias de JBV</h3><ul><li>${J.total} avarias registradas · ${J.pct}% resolvidas</li><li>Posição no ranking: ${rank}º do grupo</li><li>${J.open} ${pl(J.open, 'avaria', 'avarias')} em aberto no momento</li></ul></div>
+          <div class="feat c"><div class="icon">📝</div><h3>Fechamento Editável</h3><ul><li>Tabela de verificações de JBV por mês</li><li>Status, ata e relatório editáveis direto no painel</li><li>Dados salvos automaticamente no navegador</li></ul></div>
+        </div></div>`);
+    sl.push(`<div class="apres-slide as9">
+        <h2>Parabéns, JBV — e o que vem a seguir</h2>
+        <div class="steps">
+          <div class="step"><div class="n">🏆</div><div class="txt"><strong>${J.pct}% de resolução${J.pct >= 90 ? ' — resultado excelente!' : ''}</strong><span>JBV tem ${J.total} avarias registradas (${share}% do grupo) e ${J.fin} já resolvidas. Isso é dedicação.</span></div><div class="atag done">✓ Conquista</div></div>
+          <div class="step"><div class="n">🏠</div><div class="txt"><strong>${jInsp != null ? jInsp + '% de inspeções no ciclo' : 'Inspeções do ciclo'}</strong><span>${jInsp != null && jInsp < 100 ? 'Manter esse ritmo e fechar o ciclo com 100% é o próximo passo natural para JBV.' : 'Manter o ritmo e fechar o ciclo com 100% das inspeções.'}</span></div><div class="atag ${jInsp != null && jInsp >= 90 ? 'done' : ''}">${jInsp != null && jInsp >= 90 ? '✓ Em ótimo andamento' : 'Meta do ciclo'}</div></div>
+          <div class="step"><div class="n">🏗️</div><div class="txt"><strong>${J.open} ${pl(J.open, 'avaria em aberto', 'avarias em aberto')} em JBV</strong><span>${J.open ? `Em aberto: ${esc(lowerFirst(join(topItems(J.openList, 5))))}. Fechar esses itens está ao nosso alcance.` : 'Nenhuma avaria em aberto no momento.'}</span></div><div class="atag">Meta do ciclo</div></div>
+          <div class="step"><div class="n">📲</div><div class="txt"><strong>Manter o painel atualizado</strong><span>Upload do PDF mensal do SIGA — é o que mantém esses números visíveis e o trabalho de JBV reconhecido.</span></div><div class="atag done">✓ Já em uso</div></div>
+        </div></div>`);
+    return sl;
+  }
+
+  function jbvFalas(S, origFalas) {
+    const K = jbvPack(S); if (!K) return null;
+    const { J, rank, share, second, vp, pi, jInsp, catsJ } = K;
+    const f = [];
+    f.push(['Capa — Abertura',
+      `"Boa noite a todos. Antes de qualquer coisa, quero dizer que tenho muito orgulho do trabalho que o grupo de manutenção do Jardim Bela Vista tem feito. E os números confirmam isso. Desde 2024, registramos ${J.total} avarias aqui em JBV — e resolvemos ${J.pct}% delas. Isso não é coincidência. É dedicação e compromisso de vocês."`,
+      `Faça uma pausa após o ${J.pct}% — olhe para os irmãos e reconheça o trabalho deles antes de continuar.`]);
+    f.push(['JBV — o que o painel revelou',
+      `"Aqui está o que o painel revelou sobre JBV: das ${S.total} avarias registradas no grupo todo, ${J.total} são de Jardim Bela Vista. Ou seja, ${share}% de todo o volume. ${J.total > (second ? second.total : 0) && second ? `Isso é ${(J.total / second.total).toFixed(1).replace('.', ',')}× o volume da segunda maior igreja. ` : ''}JBV mantém ${J.pct}% de resolução, o que coloca a casa em ${rank}º lugar entre as localidades com registro."`,
+      `Enfatize o contraste entre o volume e o resultado: ${J.total} avarias e ${J.pct}% resolvidas.`]);
+    f.push(origFalas[2] || ['Como o painel ajuda o trabalho de JBV', '', '']);
+    f.push(['Resultados de JBV desde 2024',
+      `"Vamos olhar os números de JBV de perto. Desde 2024: ${J.total} avarias registradas. Dessas, ${J.fin} já foram resolvidas — ${J.pct}%. JBV é responsável por ${share}% de todas as avarias do grupo e está em ${rank}º lugar na taxa de resolução.${jInsp != null ? ` E no ciclo de ${S.cy}, ${jInsp}% das inspeções já foram realizadas.` : ''} Irmãos, esses números falam por si."`,
+      `Leia os números com calma. "${J.fin} avarias resolvidas" — deixe o peso desse trabalho ser percebido.`]);
+    f.push(['JBV no grupo — avarias por localidade',
+      `"Olhando o grupo todo: JBV tem ${J.total} avarias, ${J.pct}% resolvidas.${vp ? ` Vila Planalto tem ${vp.total} avarias e está em ${vp.pct}%.` : ''}${pi ? ` Parque Iolanda tem ${pi.total} avarias e ${pi.pct}% de resolução.` : ''} ${vp && vp.total ? `JBV tem ${(J.total / vp.total).toFixed(1).replace('.', ',')}× as avarias de Vila Planalto.` : ''}"`,
+      'Use o comparativo para motivar, sem apontar culpados: cada igreja tem um volume diferente.']);
+    f.push(['JBV por categoria',
+      `"Quando olhamos por categoria em JBV no ciclo ${S.cy}: ${catsJ.map(c => `${c.cat} — ${c.fin} de ${c.total} concluídos (${c.pct}%)`).join('; ')}. ${catsJ[2] && catsJ[2].open ? `Ainda temos ${catsJ[2].open} ${pl(catsJ[2].open, 'item predial', 'itens prediais')} em aberto.` : ''} Resolver o que falta está totalmente ao alcance do grupo."`,
+      'Tom positivo: "está ao alcance do grupo" — não critique, mobilize.']);
+    const fch = [...S.churches].filter(c => c.hasF).sort((a, b) => b.fpct - a.fpct);
+    f.push(['Inspeções do ciclo',
+      `"${jInsp != null ? `Nas inspeções, JBV está com ${jInsp}% (${S.jbv.fa.r} de ${S.jbv.fa.p}), em ${fch.findIndex(c => c.name === JBV) + 1}º lugar.` : ''} As demais: ${join(fch.filter(c => c.name !== JBV).map(c => `${c.name} ${c.fpct}%`))}."`,
+      'Mencione o volume de casas de JBV — o resultado fica mais valioso quando o contexto é claro.']);
+    f.push(['O painel nas reuniões de JBV',
+      `"A aba Reunião foi pensada para momentos como este — encontros do grupo de manutenção. Ela mostra as inspeções de JBV${jInsp != null ? `, ${jInsp}%` : ''}, visualmente. Mostra as ${J.total} avarias, os ${J.pct}% resolvidos. E tem a tabela de fechamento editável, onde podemos registrar o status de cada competência, a ata e o relatório. Tudo isso direto no painel, sem precisar de planilha separada."`,
+      'Se possível, abra o painel ao vivo e mostre a aba Reunião com os dados reais de JBV.']);
+    f.push(['Parabéns JBV — e o que vem a seguir',
+      `"Antes de encerrar: parabéns, JBV. ${J.pct}% de resolução com ${J.total} avarias registradas.${jInsp != null ? ` ${jInsp}% das inspeções do ciclo.` : ''} ${J.fin} avarias encerradas desde 2024. Isso representa o trabalho real de cada irmão que foi até uma casa, avaliou um problema, resolveu e registrou. Agora, nossa próxima missão é fechar as ${J.open} avarias em aberto e chegarmos a 100% de inspeções no ciclo. Muito obrigado."`,
+      'Encerre com reconhecimento genuíno. Abra para perguntas e ouça o que os irmãos têm a dizer.']);
+    return f;
+  }
+
+  // ───────── montagem ─────────
+  function falaHTML(list, header, openFirst) {
+    return `<div class="apres-fala-header">${esc(header)}</div>` + list.map((x, i) => `
+      <div class="apres-fala-card${i === 0 && openFirst ? ' open' : ''}">
+        <div class="apres-fala-head" onclick="this.closest('.apres-fala-card').classList.toggle('open')">
+          <span class="apres-fala-num">Slide ${i + 1}</span><span class="apres-fala-title">${esc(x[0])}</span><span class="apres-fala-arrow">▾</span>
+        </div>
+        <div class="apres-fala-body"><p class="apres-fala-text">${esc(x[1])}</p><p class="apres-fala-tip">${esc(x[2])}</p></div>
+      </div>`).join('');
+  }
+
+  let origJ3 = null, origFalasJ = null;
+  function captureOriginals() {
+    if (origJ3) return;
+    const s = document.querySelectorAll('#apres-deck > .apres-slide');
+    if (s[2]) origJ3 = s[2].outerHTML.replace(/\bactive\b/, '').replace('class="apres-slide  as3"', 'class="apres-slide as3"');
+    origFalasJ = [...document.querySelectorAll('#apres-falas-jbv .apres-fala-card')].map(c => [
+      (c.querySelector('.apres-fala-title') || {}).textContent || '',
+      (c.querySelector('.apres-fala-text') || {}).textContent || '',
+      (c.querySelector('.apres-fala-tip') || {}).textContent || '']);
+  }
+
+  function activeIndex(id) {
+    const s = [...document.querySelectorAll('#' + id + ' > .apres-slide')];
+    return Math.max(0, s.findIndex(x => x.classList.contains('active')));
+  }
+
+  window.apresDynRender = function () {
+    try {
+      captureOriginals();
+      const S = stats();
+      if (!S.total) return;
+      const gDeck = document.getElementById('apres-deck-geral'), jDeck = document.getElementById('apres-deck');
+      const gIdx = activeIndex('apres-deck-geral'), jIdx = activeIndex('apres-deck');
+
+      gDeck.innerHTML = geralSlides(S).join('\n');
+      const gf = document.getElementById('apres-falas-geral');
+      if (gf) gf.innerHTML = falaHTML(geralFalas(S), 'Falas por Slide — Panorama Geral das Igrejas', true);
+
+      const js = jbvSlides(S, origJ3);
+      if (js) {
+        jDeck.innerHTML = js.join('\n');
+        const jf = document.getElementById('apres-falas-jbv');
+        const jfal = jbvFalas(S, origFalasJ);
+        if (jf && jfal) jf.innerHTML = falaHTML(jfal, 'Falas por Slide — Treinamento', true);
+      }
+
+      if (window.aPresSlide) {
+        // re-aplica o slide ativo de cada apresentação
+        const cur = document.querySelector('.apres-deckbtn.active');
+        const key = cur ? cur.dataset.deck : 'jbv';
+        window.aPresSlide.setDeck(key === 'geral' ? 'jbv' : 'geral');
+        window.aPresSlide.go(key === 'geral' ? jIdx : gIdx);
+        window.aPresSlide.setDeck(key);
+        window.aPresSlide.go(key === 'geral' ? gIdx : jIdx);
+      }
+      const note = document.getElementById('apres-dyn-note');
+      if (note) note.textContent = 'dados do painel · ' + new Date().toLocaleDateString('pt-BR');
+    } catch (e) { console.error('apresDynRender', e); }
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(window.apresDynRender, 0);
+    document.querySelectorAll('.topnav-tab').forEach(t => t.addEventListener('click', () => {
+      if (t.dataset.view === 'apresentacao') window.apresDynRender();
+    }));
+  });
+})();
+
+</script>
 </body>
 </html>
