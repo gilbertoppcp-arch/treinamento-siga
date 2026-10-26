@@ -633,6 +633,30 @@
   .ag-meses .legend { font-size:14px; color:#5A7A99; }
 
   #apres-deck-geral .stat .n { white-space:nowrap; }
+    /* impressão da apresentação */
+  .apres-printbtn { background: rgba(91,196,245,0.18); border: 1px solid #5BC4F5; color: #5BC4F5; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 20px; cursor: pointer; white-space: nowrap; margin-left: 6px; }
+  .apres-printbtn:hover { background: rgba(91,196,245,0.3); }
+  #apres-print { display: none; }
+  @media print {
+    @page { size: A4 landscape; margin: 8mm; }
+    body.printing-apres > *:not(#apres-print) { display: none !important; }
+    body.printing-apres { background: #fff !important; margin: 0; }
+    body.printing-apres #apres-print { display: block; }
+    #apres-print * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .pr-page { height: 193mm; page-break-after: always; break-after: page; display: flex; flex-direction: column; overflow: hidden; }
+    .pr-page:last-child { page-break-after: auto; break-after: auto; }
+    .pr-top { height: 50%; display: flex; align-items: center; justify-content: center; }
+    .pr-slidebox { position: relative; overflow: hidden; border: 1px solid #b8c4cf; }
+    .pr-slideinner { position: absolute; top: 0; left: 0; transform-origin: top left; }
+    .pr-slidebox, .pr-slidebox * { break-inside: avoid; page-break-inside: avoid; }
+    .pr-slideinner .apres-slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; }
+    .pr-bottom { height: 50%; padding: 3mm 6mm 0; font-family: 'IBM Plex Sans', Arial, sans-serif; color: #111; overflow: hidden; }
+    .pr-meta { font-size: 9pt; color: #667; text-transform: uppercase; letter-spacing: .5px; }
+    .pr-bottom h3 { font-size: 15pt; margin: 1mm 0 3mm; color: #0D2137; }
+    .pr-fala { font-size: 13pt; line-height: 1.5; margin: 0 0 3mm; }
+    .pr-tip { font-size: 10pt; color: #345; background: #eef4f8; border-left: 3px solid #5BC4F5; padding: 2mm 3mm; margin: 0; }
+  }
+
   /* ── SLIDES ── */
   .apres-slides-view {
     display: none;
@@ -2623,7 +2647,7 @@ document.addEventListener("DOMContentLoaded", () => {
     <div class="apres-decksel">
       <span class="lbl">Apresentação</span>
       <button type="button" class="apres-deckbtn active" data-deck="jbv">Jardim Bela Vista</button>
-      <button type="button" class="apres-deckbtn" data-deck="geral">Geral · todas as igrejas</button><span class="lbl" id="apres-dyn-note" style="margin-left:8px;text-transform:none;letter-spacing:0"></span>
+      <button type="button" class="apres-deckbtn" data-deck="geral">Geral · todas as igrejas</button><span class="lbl" id="apres-dyn-note" style="margin-left:8px;text-transform:none;letter-spacing:0"></span><button type="button" class="apres-printbtn" onclick="apresPrint()" title="Imprimir: slide em cima e fala embaixo, A4 paisagem">🖨️ Imprimir</button>
     </div>
   </div>
 
@@ -3757,6 +3781,47 @@ document.addEventListener("DOMContentLoaded", () => {
     }));
   });
 })();
+
+</script>
+<script>
+// ═══ IMPRIMIR APRESENTAÇÃO (A4 paisagem: slide na metade de cima, fala na de baixo) ═══
+function apresPrint() {
+  try { if (window.apresDynRender) window.apresDynRender(); } catch (e) {}
+  const btn = document.querySelector('.apres-deckbtn.active');
+  const key = btn ? btn.dataset.deck : 'jbv';
+  const deckId = key === 'geral' ? 'apres-deck-geral' : 'apres-deck';
+  const falasId = key === 'geral' ? 'apres-falas-geral' : 'apres-falas-jbv';
+  const slides = [...document.querySelectorAll('#' + deckId + ' > .apres-slide')];
+  const cards = [...document.querySelectorAll('#' + falasId + ' .apres-fala-card')];
+  const esc = s => String(s == null ? '' : s).replace(/[&<>]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[c]));
+  const title = key === 'geral' ? 'Panorama Geral das Igrejas' : 'Jardim Bela Vista';
+  let host = document.getElementById('apres-print');
+  if (!host) { host = document.createElement('div'); host.id = 'apres-print'; document.body.appendChild(host); }
+  const W = 1280, H = 720, scale = 0.5; // 1280x720 * 0.5 ≈ 169 x 95 mm
+  host.innerHTML = slides.map((s, i) => {
+    const c = cards[i];
+    const t = c ? (c.querySelector('.apres-fala-title') || {}).textContent : '';
+    const tx = c ? (c.querySelector('.apres-fala-text') || {}).textContent : '';
+    const tp = c ? (c.querySelector('.apres-fala-tip') || {}).textContent : '';
+    const clone = s.cloneNode(true);
+    clone.classList.add('active');
+    clone.removeAttribute('style');
+    return `<section class="pr-page">
+      <div class="pr-top"><div class="pr-slidebox" style="width:${Math.round(W * scale)}px;height:${Math.round(H * scale)}px">
+        <div class="pr-slideinner" style="width:${W}px;height:${H}px;zoom:${scale}">${clone.outerHTML}</div></div></div>
+      <div class="pr-bottom">
+        <div class="pr-meta">${esc(title)} · Slide ${i + 1} de ${slides.length}</div>
+        <h3>${esc(t)}</h3>
+        <p class="pr-fala">${esc(tx)}</p>
+        ${tp ? `<p class="pr-tip"><b>Dica:</b> ${esc(tp)}</p>` : ''}
+      </div></section>`;
+  }).join('');
+  document.body.classList.add('printing-apres');
+  const done = () => { document.body.classList.remove('printing-apres'); window.removeEventListener('afterprint', done); };
+  window.addEventListener('afterprint', done);
+  setTimeout(() => window.print(), 150);
+}
+window.apresPrint = apresPrint;
 
 </script>
 </body>
