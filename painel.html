@@ -637,6 +637,7 @@
   .apres-printbtn { background: rgba(91,196,245,0.18); border: 1px solid #5BC4F5; color: #5BC4F5; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 20px; cursor: pointer; white-space: nowrap; margin-left: 6px; }
   .apres-printbtn:hover { background: rgba(91,196,245,0.3); }
   #apres-print { display: none; }
+  @media (max-width: 1300px) { #apres-dyn-note { display: none; } }
   @media print {
     @page { size: A4 landscape; margin: 8mm; }
     body.printing-apres > *:not(#apres-print) { display: none !important; }
@@ -2644,10 +2645,11 @@ document.addEventListener("DOMContentLoaded", () => {
   <div class="apres-subtabs">
     <button class="apres-tab active" data-apres="slides">▶ Slides</button>
     <button class="apres-tab" data-apres="falas">🎤 Falas por Slide</button>
+    <button type="button" class="apres-printbtn" style="align-self:center;margin-left:14px" onclick="apresPrint()" title="Imprimir: slide em cima e fala embaixo, A4 paisagem">🖨️ Imprimir</button>
     <div class="apres-decksel">
       <span class="lbl">Apresentação</span>
       <button type="button" class="apres-deckbtn active" data-deck="jbv">Jardim Bela Vista</button>
-      <button type="button" class="apres-deckbtn" data-deck="geral">Geral · todas as igrejas</button><span class="lbl" id="apres-dyn-note" style="margin-left:8px;text-transform:none;letter-spacing:0"></span><button type="button" class="apres-printbtn" onclick="apresPrint()" title="Imprimir: slide em cima e fala embaixo, A4 paisagem">🖨️ Imprimir</button>
+      <button type="button" class="apres-deckbtn" data-deck="geral">Geral · todas as igrejas</button><span class="lbl" id="apres-dyn-note" style="margin-left:8px;text-transform:none;letter-spacing:0"></span>
     </div>
   </div>
 
