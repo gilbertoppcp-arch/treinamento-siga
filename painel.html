@@ -937,6 +937,11 @@
   .apres-falas-view{ padding:16px 12px 40px; }
   .apres-printbtn{ white-space:nowrap; }
 }
+
+/* hero nunca fixo em telas pequenas / celular (retrato ou paisagem) */
+@media (max-width:1024px), (max-height:700px), (pointer:coarse){
+  .hero{ position:static !important; top:auto !important; }
+}
 </style>
 </head>
 <body>
