@@ -3413,7 +3413,9 @@ document.addEventListener("DOMContentLoaded", () => {
     S.total = items.length;
     S.fin = items.filter(i => i.status === 'Finalizado').length;
     S.pct = pc(S.fin, S.total);
-    S.open = items.filter(i => i.status !== 'Finalizado');
+    // "em aberto" segue o critério do painel: não conta o que aguarda a conclusão da reforma
+    S.open = items.filter(i => i.status !== 'Finalizado' && !i.reforma_mentioned);
+    S.wait = items.filter(i => i.status !== 'Finalizado' && i.reforma_mentioned);
     S.openRisk = S.open.filter(i => i.risco);
     const mean = list => {
       const d = [];
@@ -3449,10 +3451,11 @@ document.addEventListener("DOMContentLoaded", () => {
     S.churches = [...names].map(name => {
       const li = items.filter(i => i.church === name);
       const fin = li.filter(i => i.status === 'Finalizado').length;
-      const open = li.filter(i => i.status !== 'Finalizado');
+      const open = li.filter(i => i.status !== 'Finalizado' && !i.reforma_mentioned);
+      const waitN = li.filter(i => i.status !== 'Finalizado' && i.reforma_mentioned).length;
       const fr = S.fech.filter(f => f.church === name);
       const fa = sum(fr), fp = sum(fr.filter(f => !S.partial || f.mes !== S.lastMes));
-      return { name, total: li.length, fin, pct: pc(fin, li.length), openList: open, open: open.length,
+      return { name, total: li.length, fin, wait: waitN, pct: pc(fin, li.length), openList: open, open: open.length,
         riscoOpen: open.filter(i => i.risco).length, mean: mean(li), fa, fp, fpct: pc(fa.r, fa.p), fppct: pc(fp.r, fp.p), hasF: fa.p > 0 };
     }).sort((a, b) => b.total - a.total || a.name.localeCompare(b.name));
     S.withItems = S.churches.filter(c => c.total > 0);
@@ -3463,7 +3466,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const cats = (list) => (typeof CATEGORIES_ORDER !== 'undefined' ? CATEGORIES_ORDER : ['Elétrica', 'Instalações Gerais', 'Predial']).map(cat => {
       const l = list.filter(i => i.categoria === cat);
       const f = l.filter(i => i.status === 'Finalizado').length;
-      const o = l.filter(i => i.status !== 'Finalizado');
+      const o = l.filter(i => i.status !== 'Finalizado' && !i.reforma_mentioned);
       return { cat, total: l.length, fin: f, pct: pc(f, l.length), open: o.length, openList: o };
     });
     S.cats = cats(items);
@@ -3493,13 +3496,14 @@ document.addEventListener("DOMContentLoaded", () => {
     S.years = yrs.map(y => {
       const l = items.filter(i => i.data_dt && i.data_dt.getUTCFullYear() === y);
       const fin = l.filter(i => i.status === 'Finalizado').length;
+      const openY = l.filter(i => i.status !== 'Finalizado' && !i.reforma_mentioned).length;
       const byChurch = {};
       S.churches.forEach(c => {
         const lc = l.filter(i => i.church === c.name);
         const f = lc.filter(i => i.status === 'Finalizado').length;
-        byChurch[c.name] = { total: lc.length, fin: f, pct: pc(f, lc.length), open: lc.length - f };
+        byChurch[c.name] = { total: lc.length, fin: f, pct: pc(f, lc.length), open: lc.filter(i => i.status !== 'Finalizado' && !i.reforma_mentioned).length };
       });
-      return { y, total: l.length, fin, pct: pc(fin, l.length), open: l.length - fin, mean: mean(l), byChurch,
+      return { y, total: l.length, fin, pct: pc(fin, l.length), open: openY, mean: mean(l), byChurch,
         label: (y === S.cy && S.lastMes && S.lastMes < 12) ? `${y} (até ${MES_C[S.lastMes - 1].toLowerCase()})` : String(y) };
     });
     S.mel = melLoad().sort((a, b) => (b.data || '').localeCompare(a.data || ''));
@@ -3637,7 +3641,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="kpi blue"><div class="big">${S.total}</div><div class="lbl">Avarias registradas</div><div class="sub">em ${S.withItems.length} localidades com registro no painel</div></div>
           <div class="kpi green"><div class="big">${S.pct}%</div><div class="lbl">Resolvidas</div><div class="sub">${S.fin} de ${S.total} avarias</div></div>
           <div class="kpi orange"><div class="big">${insp}</div><div class="lbl">Inspeções</div><div class="sub">${esc(inspSub)}</div></div>
-          <div class="kpi purple"><div class="big">${S.open.length}</div><div class="lbl">Em aberto</div><div class="sub">${S.openRisk.length} com risco registrado</div></div>
+          <div class="kpi purple"><div class="big">${S.open.length}</div><div class="lbl">Em aberto</div><div class="sub">${S.openRisk.length} com risco registrado${S.wait.length ? ' · +' + S.wait.length + ' aguardando a reforma' : ''}</div></div>
         </div>
         <div class="row2">
           ${statInsp}
@@ -3718,7 +3722,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const cards = oc.map(c => `<div class="item"><div class="num">${P2(c.open)}</div><h3>${esc(c.name)}</h3><p>${esc(cap(join(topItems(c.openList, 4))))}.${c.riscoOpen ? ` ${c.riscoOpen} com risco registrado.` : ' Nenhum com risco registrado.'}</p></div>`);
     cards.push(`<div class="item"><div class="num">${P2(S.openRisk.length)}</div><h3>Com risco registrado</h3><p>${S.openRisk.length ? `Entre os ${S.open.length} em aberto: ${esc(join(riskBy.map(c => c.riscoOpen + ' em ' + c.name)))}. Pedem decisão primeiro.` : 'Nenhum dos itens em aberto tem risco registrado.'}</p></div>`);
     sl.push(`<div class="apres-slide as3">
-        <h2>Itens em aberto — ${S.open.length} no grupo</h2>
+        <h2>Itens em aberto — ${S.open.length} no grupo${S.wait.length ? ` <span style="font-size:24px;font-weight:500;color:#7AADCC">(+${S.wait.length} aguardando a reforma)</span>` : ''}</h2>
         <div class="grid">${cards.join('')}</div></div>`);
 
     const an = anexos(S);
@@ -3761,7 +3765,7 @@ document.addEventListener("DOMContentLoaded", () => {
       `Comece pelo ${S.pct}% e lembre que esse resultado é do grupo todo, não de uma igreja só.`]);
     const tops = [...S.withItems].sort((a, b) => b.open - a.open).filter(c => c.open > 0).slice(0, 2);
     f.push(['Resumo do grupo',
-      `"Os números principais: ${S.total} avarias registradas, ${S.pct}% resolvidas, ${S.open.length} ainda em aberto, sendo ${S.openRisk.length} com risco registrado.${S.fAll.p ? ` Nas inspeções do ciclo ${S.cy}, ${pc(S.fAll.r, S.fAll.p)}% foram realizadas até agora (${S.fAll.r} de ${S.fAll.p}).` : ''}${S.partial && S.fPrev.p ? ` Esse índice inclui ${mn}, que ainda está em andamento. Até ${pn}, o índice é de ${pc(S.fPrev.r, S.fPrev.p)}%: ${S.fPrev.r} de ${S.fPrev.p} inspeções.` : ''} O tempo médio de resolução das avarias finalizadas é de ${S.mean} dias."`,
+      `"Os números principais: ${S.total} avarias registradas, ${S.pct}% resolvidas, ${S.open.length} em aberto${S.wait.length ? ` (mais ${S.wait.length} aguardando a reforma)` : ''}, sendo ${S.openRisk.length} com risco registrado.${S.fAll.p ? ` Nas inspeções do ciclo ${S.cy}, ${pc(S.fAll.r, S.fAll.p)}% foram realizadas até agora (${S.fAll.r} de ${S.fAll.p}).` : ''}${S.partial && S.fPrev.p ? ` Esse índice inclui ${mn}, que ainda está em andamento. Até ${pn}, o índice é de ${pc(S.fPrev.r, S.fPrev.p)}%: ${S.fPrev.r} de ${S.fPrev.p} inspeções.` : ''} O tempo médio de resolução das avarias finalizadas é de ${S.mean} dias."`,
       S.partial ? `Explique que o número de ${mn} é parcial, para ninguém entender que o desempenho caiu.` : 'Se houver variação desde a última reunião, comente o que mudou.']);
     if (S.years.length) {
       const first = S.years[0], last = S.years[S.years.length - 1];
@@ -3791,7 +3795,7 @@ document.addEventListener("DOMContentLoaded", () => {
       S.meses.length ? `"Mês a mês, o índice ${fullM.length ? `ficou entre ${Math.min(...fullM.map(m => pc(m.r, m.p)))}% e ${Math.max(...fullM.map(m => pc(m.r, m.p)))}% de ${mesNome(fullM[0].mes)} a ${mesNome(fullM[fullM.length - 1].mes)}` : 'ainda tem poucos meses'}. ${S.partial ? `${cap(mn)} aparece em laranja porque está em andamento, com ${lm.r} de ${lm.p} inspeções registradas até agora. Esse número sobe conforme o fechamento for atualizado.` : `O último mês, ${mn}, fechou com ${lm.r} de ${lm.p}.`}"` : '"Ainda não há meses registrados."',
       S.partial ? `Pergunte ao grupo quais inspeções de ${mn} ainda faltam registrar.` : 'Pergunte se algum mês precisa de correção no fechamento.']);
     f.push(['Itens em aberto',
-      `"São ${S.open.length} itens em aberto. ${join(S.withItems.filter(c => c.open > 0).sort((a, b) => b.open - a.open).map(c => `${c.name} tem ${c.open}`))}. ${S.openRisk.length ? `${S.openRisk.length} ${pl(S.openRisk.length, 'item em aberto tem risco registrado', 'itens em aberto têm risco registrado')}: ${join(S.openRisk.map(i => `${lowerFirst(i.item_inspecao)} em ${i.church}`))}.` : 'Nenhum item em aberto tem risco registrado.'}"`,
+      `"São ${S.open.length} itens em aberto${S.wait.length ? `, fora ${S.wait.length} que aguardam a conclusão da reforma` : ''}. ${join(S.withItems.filter(c => c.open > 0).sort((a, b) => b.open - a.open).map(c => `${c.name} tem ${c.open}`))}. ${S.openRisk.length ? `${S.openRisk.length} ${pl(S.openRisk.length, 'item em aberto tem risco registrado', 'itens em aberto têm risco registrado')}: ${join(S.openRisk.map(i => `${lowerFirst(i.item_inspecao)} em ${i.church}`))}.` : 'Nenhum item em aberto tem risco registrado.'}"`,
       'Comece pelos itens com risco: são os que precisam de decisão primeiro.']);
     const an = anexos(S);
     f.push(['Fechamento — anexos',
