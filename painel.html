@@ -686,6 +686,24 @@
   .mel-t a { color: #5BC4F5; }
   .mel-d { display: flex; flex-direction: column; align-items: flex-start; }
   .mel-form .mel-prazo { display: none; }
+    /* ── celular: tabelas viram cartões empilhados ── */
+  @media (max-width: 720px) {
+    .detail-table, .fechamento-table, .breakdown-table.cost-bar { min-width: 0 !important; width: 100%; }
+    .detail-table thead, .fechamento-table thead { display: none; }
+    .detail-table, .detail-table tbody, .detail-table tr, .detail-table td,
+    .fechamento-table, .fechamento-table tbody, .fechamento-table tr, .fechamento-table td { display: block; width: 100%; box-sizing: border-box; }
+    .detail-table tr:not(.church-group):not(.total-row), .fechamento-table tr { padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .detail-table td, .fechamento-table td { display: flex; justify-content: space-between; align-items: center; gap: 12px; white-space: normal !important; padding: 5px 0 !important; border: none !important; text-align: right; }
+    .detail-table td::before, .fechamento-table td::before { content: attr(data-label); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); text-align: left; flex: 0 0 38%; }
+    .detail-table td[data-label=""]::before, .fechamento-table td[data-label=""]::before { display: none; }
+    .detail-table td:empty, .fechamento-table td:empty { display: none; }
+    .detail-table tr.church-group td { display: block; text-align: left; padding: 14px 0 4px !important; }
+    .detail-table tr.church-group td::before { display: none; }
+    .detail-table tr.total-row td { justify-content: flex-end; text-align: right; }
+    .fechamento-table .fech-input, .fechamento-table .fech-select { max-width: 60%; }
+    .table-scroll, .tbl-scroll { overflow-x: visible; }
+  }
+
   /* ── SLIDES ── */
   .apres-slides-view {
     display: none;
@@ -4067,6 +4085,26 @@ function apresPrint() {
   setTimeout(() => window.print(), 150);
 }
 window.apresPrint = apresPrint;
+
+</script>
+<script>
+// rótulos das colunas para o modo cartão no celular
+(function () {
+  function label(table) {
+    const heads = [...table.querySelectorAll('thead th')].map(th => th.innerHTML.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim());
+    table.querySelectorAll('tbody tr').forEach(tr => {
+      [...tr.children].forEach((td, i) => { if (td.tagName === 'TD' && td.colSpan <= 1) td.setAttribute('data-label', heads[i] || ''); });
+    });
+  }
+  function init() {
+    document.querySelectorAll('table.detail-table, table.fechamento-table').forEach(t => {
+      label(t);
+      const tb = t.querySelector('tbody'); if (!tb) return;
+      new MutationObserver(() => label(t)).observe(tb, { childList: true });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
 
 </script>
 </body>
