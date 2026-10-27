@@ -900,6 +900,43 @@
   .as9 .step .txt span { font-size:14px; color:#B8D9F0; }
   .as9 .step .atag { margin-left:auto; background:rgba(91,196,245,0.15); border:1px solid rgba(91,196,245,0.3); color:#5BC4F5; border-radius:20px; padding:5px 16px; font-size:13px; font-weight:500; white-space:nowrap; }
   .as9 .atag.done { background:rgba(26,122,66,0.2); border-color:rgba(90,232,149,0.3); color:#5AE895; }
+/* ═══ MOBILE: apresentação + hero não-fixo ═══ */
+@media (max-width:720px){
+  .hero{ position:static !important; }
+  .apres-subtabs{ top:38px; }
+  .apres-slides-view{ height:calc(100vh - 38px - 44px); height:calc(100dvh - 38px - 44px); }
+  .apres-slide{ overflow-y:auto !important; overflow-x:hidden; padding:24px 16px 84px !important; justify-content:flex-start !important; gap:14px !important; }
+  .apres-slide h1{ font-size:32px !important; }
+  .apres-slide h2{ font-size:24px !important; line-height:1.15; }
+  .apres-slide .subtitle, .apres-slide .sub{ font-size:14px !important; margin-top:0 !important; }
+  .as1{ justify-content:space-between !important; }
+  .as1 .eyebrow{ font-size:12px; letter-spacing:2px; margin-bottom:10px; }
+  .as1 .bottom{ flex-direction:column; align-items:flex-start; gap:16px; }
+  .as1 .badge{ padding:12px 20px; }
+  .as1 .badge .num{ font-size:36px; }
+  .as1 .date{ font-size:14px; }
+  .as2 .cards, .as6 .cats, .as8 .features, .as4 .row2{ flex-direction:column; gap:12px; }
+  .as2 .card, .as6 .cat, .as8 .feat{ padding:16px; }
+  .as3 .grid, .as7 .grid{ grid-template-columns:1fr; gap:10px; }
+  .as3 .item{ padding:14px; } .as3 .item .num{ font-size:30px; }
+  .as7 .icard{ padding:14px; } .as7 .icard .pct{ font-size:30px; }
+  .as4 .kpi-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .as4 .kpi{ padding:14px 8px; } .as4 .kpi .big{ font-size:34px; }
+  .as4 .stat{ padding:12px 14px; }
+  .as5 .table-wrap{ overflow-x:auto; }
+  .as5 .row, .as5 .row-h{ min-width:520px; padding:10px 12px; font-size:13px; }
+  .as5 .row-h{ font-size:10px; }
+  .as6 .cat .big{ font-size:36px; }
+  .as9 .step{ flex-wrap:wrap; gap:12px; padding:14px; }
+  .as9 .step .n{ font-size:24px; min-width:30px; }
+  .as9 .step .atag{ margin-left:0; }
+  .ag-meses .chart{ height:220px !important; gap:4px !important; padding:14px 8px 10px !important; overflow-x:auto; }
+  .apres-nav{ bottom:10px; gap:6px; padding:5px 10px; max-width:94vw; }
+  .apres-nav .a-key, .apres-dots{ display:none; }
+  .apres-nav button{ font-size:18px; padding:4px 12px; }
+  .apres-falas-view{ padding:16px 12px 40px; }
+  .apres-printbtn{ white-space:nowrap; }
+}
 </style>
 </head>
 <body>
