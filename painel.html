@@ -942,6 +942,70 @@
 @media (max-width:1024px), (max-height:700px), (pointer:coarse){
   .hero{ position:static !important; top:auto !important; }
 }
+
+/* ═══ SLIDES: fundo branco + slide resumo/comparativo unificado ═══ */
+.apres-slide, .apres-slide.as1, .as3, .as5, .as7, .as9, .as1{ background:#fff !important; color:#1A2B3C !important; }
+.apres-slide h1, .apres-slide h2, .as5 h2, .as3 h2, .as7 h2, .as9 h2{ color:#0D2137 !important; }
+.as1 .eyebrow{ color:#0D6E9A !important; } .as1 h1{ color:#0D2137 !important; }
+.as1 .sub{ color:#4A6080 !important; } .as1 .date{ color:#5A7A99 !important; }
+.as1 .badge{ background:#E8F4FB !important; border-color:#9CCBE6 !important; }
+.as1 .badge .num{ color:#0D6E9A !important; } .as1 .badge .lbl{ color:#3A5A7A !important; }
+.as3 .item, .as7 .icard, .as9 .step{ background:#F7F9FC !important; border:1px solid #DDE5EE !important; }
+.as3 .item .num, .as9 .step .n{ color:#0D6E9A !important; }
+.as3 .item h3, .as7 .icard h3, .as9 .step .txt strong{ color:#0D2137 !important; }
+.as3 .item p, .as7 .icard .note, .as9 .step .txt span, .as5 .subtitle, .as7 .subtitle{ color:#5A7A99 !important; }
+.as9 .step .atag{ background:#E8F4FB !important; border-color:#9CCBE6 !important; color:#0D6E9A !important; }
+.as9 .atag.done{ background:#E8F7EE !important; border-color:#B8E8CC !important; color:#1A7A42 !important; }
+.as5 .table-wrap{ border-color:#DDE5EE !important; }
+.as5 .row-h{ background:#E8F4FB !important; color:#0D6E9A !important; }
+.as5 .row{ border-top-color:#E3EAF2 !important; }
+.as5 .row:nth-child(even){ background:#F7F9FC !important; }
+.as5 .col-av{ color:#3A5A7A !important; }
+.as5 .col-ig[style], .as-merge .col-ig[style]{ color:#0D6E9A !important; }
+.as5 .bar-bg{ background:#E3EAF2 !important; }
+.as5 .good, .as-merge .good{ background:#E8F7EE !important; color:#1A7A42 !important; }
+.as5 .warn, .as-merge .warn{ background:#FEF3E8 !important; color:#C4620D !important; }
+.as5 .bad, .as-merge .bad{ background:#FDECEC !important; color:#B41E1E !important; }
+.as7 .pct.ok{ color:#1A7A42 !important; } .as7 .pct.alert{ color:#C4620D !important; }
+.as7 .icard .bar-bg2{ background:#E3EAF2 !important; }
+.apres-slides-view, .apres-deck{ background:#fff; }
+/* resumo + comparativo anual */
+.as-merge{ padding:34px 64px 80px !important; gap:16px !important; }
+.as-merge h2{ font-size:32px !important; }
+.as-merge .kpi{ padding:14px 16px !important; } .as-merge .kpi .big{ font-size:38px !important; }
+.as-merge .stat{ padding:10px 16px !important; } .as-merge .stat .n{ font-size:24px !important; }
+.as-merge .mg-h{ font-family:'Rubik',sans-serif; font-size:20px; font-weight:600; color:#0D2137; margin-top:4px; }
+.as-merge .table-wrap{ display:flex; flex-direction:column; border-radius:12px; overflow:hidden; border:1px solid #DDE5EE; }
+.as-merge .row-h{ display:flex; background:#E8F4FB; padding:8px 18px; font-size:11px; font-weight:600; color:#0D6E9A; letter-spacing:1px; text-transform:uppercase; gap:12px; }
+.as-merge .row{ display:flex; padding:8px 18px; font-size:14px; align-items:center; gap:12px; border-top:1px solid #E3EAF2; color:#1A2B3C; }
+.as-merge .col-ig{ flex:3; font-weight:500; } .as-merge .col-av{ flex:1.5; text-align:right; color:#3A5A7A; } .as-merge .col-res{ flex:1.5; text-align:right; } .as-merge .col-bar{ flex:4; }
+.as-merge .bar-bg{ height:8px; background:#E3EAF2; border-radius:5px; overflow:hidden; }
+.as-merge .bar-fill{ position:static; display:block; height:100%; border-radius:5px; background:linear-gradient(90deg,#5BC4F5,#2A8DBF); }
+.as-merge .badge-pct{ display:inline-block; padding:2px 9px; border-radius:20px; font-size:12px; font-weight:600; }
+@media (max-width:720px){ .as-merge{ padding:24px 16px 84px !important; } .as-merge .row, .as-merge .row-h{ min-width:520px; } .as-merge .table-wrap{ overflow-x:auto; } }
+
+.as-merge{ padding:22px 64px 78px !important; gap:10px !important; overflow-y:auto !important; justify-content:flex-start !important; }
+.as-merge h2{ font-size:28px !important; margin:0 !important; }
+.as-merge .kpi{ padding:10px 14px !important; gap:3px !important; } .as-merge .kpi .big{ font-size:32px !important; }
+.as-merge .stat{ padding:8px 14px !important; }
+.as-merge .mg-h{ margin:2px 0 0 !important; font-size:18px; }
+.as-merge .row, .as-merge .row-h{ padding-top:6px; padding-bottom:6px; }
+@media (max-width:720px){ .as-merge{ padding:24px 16px 84px !important; } }
+
+#ord-overlay{position:fixed;inset:0;background:rgba(10,20,35,.55);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px}
+#ord-overlay[hidden]{display:none}
+.ord-box{background:#fff;color:#1A2B3C;border-radius:14px;max-width:520px;width:100%;max-height:88vh;overflow:auto;padding:18px 20px;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+.ord-h{display:flex;justify-content:space-between;align-items:center;font-size:16px}
+.ord-p{font-size:13px;color:#5A7A99;margin:6px 0 10px}
+.ord-l{list-style:decimal;padding-left:22px;display:flex;flex-direction:column;gap:6px}
+.ord-l li{padding:6px 8px;border:1px solid #DDE5EE;border-radius:8px;background:#F7F9FC}
+.ord-l li{display:list-item}
+.ord-l li .ord-t{display:inline-block;width:calc(100% - 84px);vertical-align:middle;font-size:14px}
+.ord-l li > span:last-child{display:inline-flex;gap:4px;float:right;margin-top:-2px}
+.ord-box button{border:1px solid #9CCBE6;background:#E8F4FB;color:#0D6E9A;border-radius:8px;padding:4px 10px;font-size:14px;cursor:pointer}
+.ord-box button:disabled{opacity:.35;cursor:default}
+.ord-f{display:flex;justify-content:space-between;gap:8px;margin-top:12px}
+@media print{#ord-overlay,#ord-btn{display:none !important}}
 </style>
 </head>
 <body>
@@ -3396,7 +3460,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="mel-d">${esc(fmtDate(m.data))}<span class="mel-tag ${t}">${t}</span></div><div class="mel-l">${esc(m.local)}</div>
         <div class="mel-t"><b>${esc(m.desc)}</b>${m.det ? `<div>${esc(m.det)}</div>` : ''}<small>${m.prazo ? 'Prazo: ' + esc(fmtDate(m.prazo)) : ''}${m.resp ? (m.prazo ? ' · ' : '') + esc(m.resp) : ''}${m.link ? ` · <a href="${esc(safeUrl(m.link))}" target="_blank" rel="noopener">${esc(shortLink(m.link))}</a>` : ''}</small></div>
         <div class="mel-c">${m.custo ? brl(+m.custo) : '—'}</div>
-        <div class="mel-a">${t === 'Comunicado' ? `<button type="button" data-act="done">${m.feito ? 'Reabrir' : 'Concluir'}</button>` : ''}<button type="button" data-act="edit">Editar</button><button type="button" data-act="del">Excluir</button></div></div>`; }).join('')}</div>`;
+        <div class="mel-a">${t === 'Comunicado' ? `<button type="button" data-act="done">${m.feito ? 'Reabrir' : 'Concluir'}</button>` : ''}<button type="button" data-act="del">Excluir</button><button type="button" data-act="edit">Editar</button></div></div>`; }).join('')}</div>`;
   }
   function melChanged() { melRenderList(); if (window.apresDynRender) window.apresDynRender(); }
 
@@ -3816,6 +3880,14 @@ document.addEventListener("DOMContentLoaded", () => {
     sl.push(`<div class="apres-slide as9">
         <h2>Pontos de atenção — o que vem a seguir</h2>
         <div class="steps">${pt.map(p => `<div class="step"><div class="n">${p.icon}</div><div class="txt"><strong>${esc(p.title)}</strong><span>${esc(p.desc)}</span></div><div class="atag">${esc(p.tag)}</div></div>`).join('')}</div></div>`);
+    // junta "Resumo do grupo" + "Comparativo anual" num único slide
+    if (sl.length > 2 && sl[1].includes('as4') && sl[2].includes('as5') && sl[2].includes('Comparativo anual')) {
+      const h = (sl[2].match(/<h2>([\s\S]*?)<\/h2>/) || [, 'Comparativo anual'])[1];
+      const t0 = sl[2].indexOf('<div class="table-wrap">');
+      const tbl = sl[2].slice(t0, sl[2].lastIndexOf('</div>'));
+      sl[1] = sl[1].replace('<div class="apres-slide as4">', '<div class="apres-slide as4 as-merge">').replace(/<\/div>\s*$/, '<h3 class="mg-h">' + h + '</h3>' + tbl + '</div>');
+      sl.splice(2, 1);
+    }
     return sl;
   }
 
@@ -4047,6 +4119,55 @@ document.addEventListener("DOMContentLoaded", () => {
     return Math.max(0, s.findIndex(x => x.classList.contains('active')));
   }
 
+  // ── ordem dos slides (salva neste navegador) ──
+  const ORD_KEY = 'ccb_apres_ordem_v1';
+  const ordTitles = { geral: [], jbv: [] };
+  const ordKey = t => String(t).toLowerCase().replace(/[^a-zà-ú]+/g, ' ').trim().slice(0, 40);
+  function ordLoad() { try { return JSON.parse(localStorage.getItem(ORD_KEY)) || {}; } catch (e) { return {}; } }
+  function ordSave(o) { try { localStorage.setItem(ORD_KEY, JSON.stringify(o)); } catch (e) {} }
+  function ordAplicar(deck, sl, fa) {
+    if (!fa || fa.length !== sl.length) { ordTitles[deck] = []; return [sl, fa]; }
+    const saved = ordLoad()[deck];
+    let idx = sl.map((_, i) => i);
+    if (saved && saved.length) {
+      const pos = k => { const p = saved.indexOf(k); return p < 0 ? 1e6 : p; };
+      idx.sort((a, b) => (pos(ordKey(fa[a][0])) - pos(ordKey(fa[b][0]))) || (a - b));
+    }
+    const sl2 = idx.map(i => sl[i]), fa2 = idx.map(i => fa[i]);
+    ordTitles[deck] = fa2.map(x => x[0]);
+    return [sl2, fa2];
+  }
+  function ordMove(deck, i, d) {
+    const t = ordTitles[deck].slice(); const j = i + d; if (j < 0 || j >= t.length) return;
+    [t[i], t[j]] = [t[j], t[i]];
+    const o = ordLoad(); o[deck] = t.map(ordKey); ordSave(o); window.apresDynRender(); ordPanel(deck);
+  }
+  function ordPanel(deck) {
+    let ov = document.getElementById('ord-overlay');
+    if (!ov) { ov = document.createElement('div'); ov.id = 'ord-overlay'; document.body.appendChild(ov); ov.addEventListener('click', e => { if (e.target === ov) ov.hidden = true; }); }
+    ov.hidden = false;
+    const nome = deck === 'geral' ? 'Apresentação Geral' : 'Jardim Bela Vista';
+    const t = ordTitles[deck];
+    ov.innerHTML = `<div class="ord-box"><div class="ord-h"><strong>Ordem dos slides — ${nome}</strong><button type="button" data-o="close">✕</button></div>
+      <p class="ord-p">Use as setas para mudar a posição. As falas e a impressão acompanham a ordem.</p>
+      <ol class="ord-l">${t.map((x, i) => `<li><span class="ord-t">${esc(x)}</span><span><button type="button" data-o="up" data-i="${i}" ${i === 0 ? 'disabled' : ''}>↑</button><button type="button" data-o="dn" data-i="${i}" ${i === t.length - 1 ? 'disabled' : ''}>↓</button></span></li>`).join('')}</ol>
+      <div class="ord-f"><button type="button" data-o="reset">Restaurar ordem original</button><button type="button" data-o="close">Concluir</button></div></div>`;
+    ov.onclick = e => {
+      if (e.target === ov) { ov.hidden = true; return; }
+      const b = e.target.closest('button[data-o]'); if (!b) return;
+      const a = b.dataset.o;
+      if (a === 'close') ov.hidden = true;
+      else if (a === 'reset') { const o = ordLoad(); delete o[deck]; ordSave(o); window.apresDynRender(); ordPanel(deck); }
+      else ordMove(deck, +b.dataset.i, a === 'up' ? -1 : 1);
+    };
+  }
+  function ordInit() {
+    const pb = document.querySelector('.apres-printbtn'); if (!pb || document.getElementById('ord-btn')) return;
+    const b = document.createElement('button'); b.type = 'button'; b.id = 'ord-btn'; b.className = 'apres-printbtn'; b.style.cssText = 'align-self:center;margin-left:8px'; b.textContent = '↕ Ordenar slides';
+    b.onclick = () => { const a = document.querySelector('.apres-deckbtn.active'); ordPanel(a ? a.dataset.deck : 'jbv'); };
+    pb.insertAdjacentElement('afterend', b);
+  }
+
   window.apresDynRender = function () {
     try {
       captureOriginals();
@@ -4055,16 +4176,22 @@ document.addEventListener("DOMContentLoaded", () => {
       const gDeck = document.getElementById('apres-deck-geral'), jDeck = document.getElementById('apres-deck');
       const gIdx = activeIndex('apres-deck-geral'), jIdx = activeIndex('apres-deck');
 
-      gDeck.innerHTML = geralSlides(S).join('\n');
+      let gSl = geralSlides(S), gFa = geralFalas(S);
+      if (gFa.length === gSl.length + 1 && gSl[1].includes('as-merge')) {   // slide 2 e 3 unidos → fala unida
+        gFa.splice(1, 2, ['Resumo do grupo e comparativo anual', gFa[1][1] + ' ' + gFa[2][1], gFa[1][2] + ' ' + gFa[2][2]]);
+      }
+      [gSl, gFa] = ordAplicar('geral', gSl, gFa);
+      gDeck.innerHTML = gSl.join('\n');
       const gf = document.getElementById('apres-falas-geral');
-      if (gf) gf.innerHTML = falaHTML(geralFalas(S), 'Falas por Slide — Panorama Geral das Igrejas', true);
+      if (gf) gf.innerHTML = falaHTML(gFa, 'Falas por Slide — Panorama Geral das Igrejas', true);
 
       const js = jbvSlides(S, origJ3);
       if (js) {
-        jDeck.innerHTML = js.join('\n');
+        let jSl = js, jFa = jbvFalas(S, origFalasJ);
+        if (jFa) [jSl, jFa] = ordAplicar('jbv', jSl, jFa);
+        jDeck.innerHTML = jSl.join('\n');
         const jf = document.getElementById('apres-falas-jbv');
-        const jfal = jbvFalas(S, origFalasJ);
-        if (jf && jfal) jf.innerHTML = falaHTML(jfal, 'Falas por Slide — Treinamento', true);
+        if (jf && jFa) jf.innerHTML = falaHTML(jFa, 'Falas por Slide — Treinamento', true);
       }
 
       if (window.aPresSlide) {
@@ -4082,14 +4209,13 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   document.addEventListener('DOMContentLoaded', () => {
-    melInit();
+    melInit(); ordInit();
     setTimeout(window.apresDynRender, 0);
     document.querySelectorAll('.topnav-tab').forEach(t => t.addEventListener('click', () => {
       if (t.dataset.view === 'apresentacao') window.apresDynRender();
     }));
   });
 })();
-
 </script>
 <script>
 // ═══ IMPRIMIR APRESENTAÇÃO (A4 paisagem: slide na metade de cima, fala na de baixo) ═══
