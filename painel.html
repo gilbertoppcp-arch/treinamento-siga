@@ -923,6 +923,9 @@
       <button id="uploadBtn" class="btn-upload-mini" type="button" title="Atualizar com novo PDF">
         <span class="ico">📄</span><span class="mini-label">Atualizar PDF</span>
       </button>
+      <button id="exportBtn" class="btn-upload-mini" type="button" title="Baixar os dados atuais (dados.json) para publicar no GitHub e sincronizar os outros aparelhos" style="margin-left:6px">
+        <span class="ico">⬇</span><span class="mini-label">Exportar dados</span>
+      </button>
     </div>
     <input type="file" id="pdfInput" accept="application/pdf" hidden>
     <span class="upload-status" id="uploadStatus" hidden></span>
@@ -4104,6 +4107,54 @@ window.apresPrint = apresPrint;
     });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+
+</script>
+<script>
+// ═══ DADOS PUBLICADOS (dados.json) — mesmos dados no PC e no celular ═══
+// "Exportar dados" baixa o dados.json com o que está salvo neste navegador (avarias do último PDF,
+// edições do Fechamento, melhorias/comunicados e itens do plano concluídos).
+// Ao publicar o dados.json no GitHub, qualquer aparelho que abrir o painel passa a usar esses dados.
+(function () {
+  const APLICADO = 'ccb_dados_aplicado_v1';
+  const KEYS = { avarias: 'ccb_painel_manutencao_v1', fechamento: 'fechamento_overrides_v1', melhorias: 'ccb_melhorias_v1', plano: 'ccb_painel_plano_5w2h_done_v1' };
+  const get = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
+
+  function exportar() {
+    const b = { versao: 1, exportadoEm: new Date().toISOString(), avarias: get(KEYS.avarias), fechamento: get(KEYS.fechamento) || {}, melhorias: get(KEYS.melhorias) || [], plano: get(KEYS.plano) || [] };
+    const blob = new Blob([JSON.stringify(b)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'dados.json';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+    try { localStorage.setItem(APLICADO, b.exportadoEm); } catch (e) {}
+    const s = document.getElementById('uploadStatus');
+    if (s) { s.hidden = false; s.textContent = 'dados.json baixado. Envie esse arquivo para o GitHub (Add file → Upload files) para os outros aparelhos usarem os mesmos dados.'; }
+  }
+
+  function aplicar(b) {
+    if (b.avarias && b.avarias.items && b.avarias.items.length) localStorage.setItem(KEYS.avarias, JSON.stringify(b.avarias));
+    localStorage.setItem(KEYS.fechamento, JSON.stringify(b.fechamento || {}));
+    localStorage.setItem(KEYS.melhorias, JSON.stringify(b.melhorias || []));
+    localStorage.setItem(KEYS.plano, JSON.stringify(b.plano || []));
+    localStorage.setItem(APLICADO, b.exportadoEm);
+  }
+
+  function buscar() {
+    if (location.protocol === 'file:') return;
+    fetch('dados.json?v=' + Date.now(), { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .then(b => {
+        if (!b || !b.exportadoEm || !b.avarias) return;
+        let last = null; try { last = localStorage.getItem(APLICADO); } catch (e) {}
+        if (last === b.exportadoEm) return;
+        aplicar(b);
+        location.reload();
+      }).catch(() => {});
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('exportBtn'); if (btn) btn.addEventListener('click', exportar);
+    setTimeout(buscar, 300);
+  });
 })();
 
 </script>
