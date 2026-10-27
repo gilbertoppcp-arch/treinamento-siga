@@ -3880,14 +3880,6 @@ document.addEventListener("DOMContentLoaded", () => {
     sl.push(`<div class="apres-slide as9">
         <h2>Pontos de atenção — o que vem a seguir</h2>
         <div class="steps">${pt.map(p => `<div class="step"><div class="n">${p.icon}</div><div class="txt"><strong>${esc(p.title)}</strong><span>${esc(p.desc)}</span></div><div class="atag">${esc(p.tag)}</div></div>`).join('')}</div></div>`);
-    // junta "Resumo do grupo" + "Comparativo anual" num único slide
-    if (sl.length > 2 && sl[1].includes('as4') && sl[2].includes('as5') && sl[2].includes('Comparativo anual')) {
-      const h = (sl[2].match(/<h2>([\s\S]*?)<\/h2>/) || [, 'Comparativo anual'])[1];
-      const t0 = sl[2].indexOf('<div class="table-wrap">');
-      const tbl = sl[2].slice(t0, sl[2].lastIndexOf('</div>'));
-      sl[1] = sl[1].replace('<div class="apres-slide as4">', '<div class="apres-slide as4 as-merge">').replace(/<\/div>\s*$/, '<h3 class="mg-h">' + h + '</h3>' + tbl + '</div>');
-      sl.splice(2, 1);
-    }
     return sl;
   }
 
@@ -4177,9 +4169,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const gIdx = activeIndex('apres-deck-geral'), jIdx = activeIndex('apres-deck');
 
       let gSl = geralSlides(S), gFa = geralFalas(S);
-      if (gFa.length === gSl.length + 1 && gSl[1].includes('as-merge')) {   // slide 2 e 3 unidos → fala unida
-        gFa.splice(1, 2, ['Resumo do grupo e comparativo anual', gFa[1][1] + ' ' + gFa[2][1], gFa[1][2] + ' ' + gFa[2][2]]);
-      }
       [gSl, gFa] = ordAplicar('geral', gSl, gFa);
       gDeck.innerHTML = gSl.join('\n');
       const gf = document.getElementById('apres-falas-geral');
