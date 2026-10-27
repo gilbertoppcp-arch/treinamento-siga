@@ -1009,6 +1009,8 @@
 
 .as5{ padding-bottom:90px !important; overflow-y:auto !important; }
 .as5 .row .col-res{ color:#1A2B3C !important; }
+.apres-fala-text{white-space:pre-line}
+.apres-fala-tip:empty{display:none}
 </style>
 </head>
 <body>
@@ -4114,6 +4116,32 @@ document.addEventListener("DOMContentLoaded", () => {
     return Math.max(0, s.findIndex(x => x.classList.contains('active')));
   }
 
+  // ── roteiro (falas do apresentador) e ordem padrão do deck Geral ──
+  const ROTEIRO = {
+ "Capa — abertura": "Meus irmãos, vamos iniciar aqui com um panorama geral das igrejas de Vinhedo.",
+ "Resumo do grupo": "Nosso nível de serviço, ou seja, nosso SLA, está em 90%.\n\nEsse é o panorama geral de todas as igrejas da Administração de Vinhedo, considerando o histórico registrado no SIGA desde 2024, quando foi implantado o módulo de manutenção.\n\nNesse período, foram registradas 185 avarias, das quais 166 foram resolvidas. Portanto, temos um índice geral de atendimento de 90%.\n\nÉ importante destacar que estou falando de uma visão macro, considerando todo o histórico. Algumas avarias acabam passando de um ano para o outro porque dependem da conclusão das reformas para que possam ser resolvidas.",
+ "Itens em aberto": "Atualmente, temos 19 avarias pendentes. Dessas, seis dependem do término das reformas, enquanto as outras 13 estão sob responsabilidade da manutenção e precisam ser tratadas para que possamos avançar até o final do ano.\n\nAlém dessas seis avarias registradas no SIGA que dependem das reformas, temos também um plano de ações pós-reforma.\n\nEsse plano contempla diversas melhorias que não são consideradas avarias e, por isso, não entram no SIGA como ocorrências de manutenção.\n\nPor exemplo, na igreja do Jardim Bela Vista, temos a necessidade de trocar os vitrôs, instalar o ar-condicionado e executar uma cobertura. Essas ações são melhorias, e não avarias propriamente ditas.\n\nPortanto, além das pendências registradas no SIGA, temos esse plano pós-reforma para acompanhar em todas as casas de oração contempladas. Esse planejamento já foi apresentado aos responsáveis.",
+ "Comparativo anual": "Agora, olhando os números ano a ano, temos o seguinte cenário.\n\nEm 2024, foram registradas 82 avarias e resolvidas 79. Encerramos o ano com um índice de atendimento de 96%.\n\nEm 2025, foram registradas 52 avarias e resolvidas 49. Fechamos o ano com 94% de atendimento.\n\nJá em 2026, temos 51 avarias registradas, das quais 38 foram resolvidas. No momento, nosso índice de atendimento está em 75%.\n\nEntretanto, temos 13 avarias que ainda estão sob responsabilidade da manutenção. Portanto, temos a oportunidade de avançar nesse resultado até o final do ano.\n\nNo consolidado de todo o período, desde a implantação do SIGA, temos 185 avarias registradas e 166 resolvidas, o que representa os 90% de atendimento que mencionei no início.\n\nEsse é o nosso cenário atual. O importante agora é trabalharmos nas pendências, acompanharmos as ações que dependem das reformas e buscarmos melhorar o resultado de 2026.",
+ "Inspeções por mês": "Passando agora para as inspeções, graças a Deus, estamos praticamente em dia.\n\nNo momento, temos em aberto apenas a inspeção referente ao mês de outubro.\n\nAs calibrações referentes a setembro já foram realizadas, e todos os relatórios foram anexados ao SIGA.\n\nEstamos avançando bastante nessa parte, e é importante mantermos essa organização para que as inspeções sejam realizadas dentro dos prazos e os respectivos registros permaneçam atualizados.\n\nQuero aproveitar esse assunto para destacar um ponto importante.",
+ "Inspeções por localidade": "Irmãos, dentro do SIGA existe uma funcionalidade que permite excluir inspeções. Futuramente, esse recurso deverá ter o acesso restringido, de modo que nem todos os usuários poderão utilizá-lo.\n\nO motivo é simples: se uma inspeção está programada para ser realizada, ela precisa ser feita. Não devemos excluir uma inspeção apenas porque ela está pendente.\n\nAqui em Vinhedo, aconteceu de algumas inspeções serem excluídas do sistema. Na sequência, a Regional Campinas entrou em contato comigo, informando que havia igrejas excluindo inspeções.\n\nEntrei em contato com a igreja responsável, conversei com o irmão e expliquei que esse procedimento não deveria ser realizado. Depois dessa orientação, não tivemos novas exclusões.\n\nPor isso, peço a atenção de todos: irmãos, não excluam inspeções do SIGA.\n\nA exclusão deve ficar restrita às situações administrativas em que realmente se justifique, conforme a orientação e a autorização dos responsáveis.\n\nHá também situações específicas, como o caso do Miriam, que não possui uma casa de oração vinculada, e a questão do anexo, em que a inspeção já é realizada na própria igreja. Nesses casos, devemos observar a orientação aplicável para evitar registros duplicados ou inspeções desnecessárias.\n\nO objetivo é manter o sistema correto, garantir que todas as inspeções necessárias sejam realizadas e evitar que alguma atividade fique sem execução ou sem registro.",
+ "Fechamento — anexos": "Outro ponto é o fechamento das inspeções mensais.\n\nPara facilitar a coleta das assinaturas do Ministério, desenvolvemos uma melhoria que permite realizar a assinatura remotamente.\n\nFunciona da seguinte maneira: eu envio um link para o irmão, ele acessa esse link, realiza a assinatura e devolve o documento. Depois disso, o arquivo é inserido automaticamente no relatório.\n\nEssa melhoria facilita bastante o processo de coleta das assinaturas das inspeções mensais. Nesses casos, eu mesmo farei o anexo dos documentos no SIGA.\n\nJá em relação à reunião trimestral entre o Ministério e a Manutenção, a orientação é um pouco diferente.\n\nÉ importante que essa reunião aconteça presencialmente, sempre que possível, com a participação dos irmãos da manutenção e do Ministério. Essa integração permite que todos estejam alinhados, compartilhem informações e acompanhem as necessidades das casas de oração.\n\nPor isso, o ideal é que, durante a própria reunião, os participantes realizem as assinaturas necessárias.\n\nDepois, o documento pode ser anexado ao SIGA pelo próprio irmão responsável ou encaminhado para mim, para que eu faça esse procedimento.\n\nO mais importante é que a reunião aconteça e que essa integração entre o Ministério e a Manutenção seja mantida.",
+ "Plano de reforma": "Passando agora para o planejamento das reformas, foi realizado um levantamento inicial para termos uma previsão das necessidades.\n\nNaquele momento, esse levantamento foi bastante superficial, porque ainda não tínhamos dados suficientes para estabelecer um planejamento mais preciso.\n\nPor isso, os irmãos Marcos e Moisés poderão explicar melhor como está o andamento das tratativas e quais são as previsões atuais.\n\nNeste momento, ainda não temos uma definição fechada sobre a ordem das reformas, ou seja, qual igreja será atendida primeiro, qual será a segunda e assim por diante.\n\nA ideia é que os irmãos compartilhem as informações disponíveis para que todos tenham uma visão mais clara do planejamento e das próximas etapas.",
+ "Melhorias realizadas": "Meus irmãos, também quero destacar algumas melhorias realizadas e passar alguns comunicados importantes.\n\nUma das melhorias foi justamente a implantação da assinatura remota, que já expliquei anteriormente.",
+ "Comunicados": "Agora, falando dos comunicados, temos três pontos principais para a atenção de todos.\n\nPrimeiro comunicado: reunião trimestral\n\nPrecisamos concluir a reunião do terceiro trimestre entre o Ministério e a Manutenção nas casas de oração em que ela ainda não foi realizada.\n\nO prazo inicial era até o dia 30 de outubro. Entretanto, considerando a programação dos cultos e o feriado prolongado do próximo fim de semana, entendemos que seria melhor ampliar esse prazo.\n\nComo teremos um feriado prolongado, muitos irmãos poderão viajar. Além disso, em algumas situações, o horário do culto será reduzido, e não faria sentido abreviar o culto para depois realizar uma reunião.\n\nPor isso, vamos estender o prazo até o dia 8 de novembro.\n\nPeço, então, que as igrejas que ainda não realizaram essa reunião aproveitem esse período para concluí-la e providenciar o registro no SIGA.\n\nO objetivo é que todas as casas de oração estejam com essa etapa concluída dentro do novo prazo.\n\nSegundo comunicado: checklist da elétrica predial\n\nOutro ponto importante é o checklist da elétrica predial.\n\nTemos até o final de novembro para realizar esse checklist, portanto, peço aos irmãos que se organizem para cumprir essa atividade dentro do prazo.\n\nNormalmente, essa inspeção deve ser realizada com a participação do irmão Elias.\n\nEntretanto, se ele não estiver disponível, não devemos deixar de realizar a inspeção por esse motivo. Vamos executar a atividade conforme as orientações aplicáveis, registrar o que foi verificado e encaminhar as pendências que eventualmente forem identificadas.\n\nO importante é não deixar o checklist para a última hora e garantir que essa atividade seja concluída dentro do prazo estabelecido.",
+ "Pontos de atenção": "Bom, meus irmãos, esses eram os principais pontos que eu gostaria de apresentar sobre a situação da manutenção das igrejas de Vinhedo.\n\nTemos resultados positivos, como o índice geral de atendimento de 90% e o avanço na regularização das inspeções. Ao mesmo tempo, temos pendências que precisam continuar sendo acompanhadas, especialmente as avarias sob responsabilidade da manutenção, as ações pós-reforma e os prazos dos comunicados.\n\nAgradeço a colaboração de todos e peço que mantenhamos esse alinhamento, para que possamos executar as atividades dentro dos prazos, melhorar nossos resultados e garantir que as necessidades das casas de oração sejam atendidas da melhor maneira possível.\n\nMuito obrigado, meus irmãos."
+};
+  const ROTEIRO_ORDEM = ["Capa — abertura", "Resumo do grupo", "Itens em aberto", "Comparativo anual", "Inspeções por mês", "Inspeções por localidade", "Fechamento — anexos", "Plano de reforma", "Melhorias realizadas", "Comunicados", "Pontos de atenção"];
+  function roteiroAplicar(sl, fa) {
+    if (!fa || fa.length !== sl.length) return [sl, fa];
+    const rk = fa.map(x => x[0]);
+    const idx = fa.map((_, i) => i);
+    const pos = t => { const p = ROTEIRO_ORDEM.indexOf(t); return p < 0 ? 1e6 : p; };
+    idx.sort((a, b) => (pos(rk[a]) - pos(rk[b])) || (a - b));
+    const sl2 = idx.map(i => sl[i]);
+    const fa2 = idx.map(i => ROTEIRO[rk[i]] ? [rk[i], ROTEIRO[rk[i]], ''] : ['Apoio — ' + rk[i], fa[i][1], fa[i][2]]);
+    return [sl2, fa2];
+  }
+
   // ── ordem dos slides (salva neste navegador) ──
   const ORD_KEY = 'ccb_apres_ordem_v1';
   const ordTitles = { geral: [], jbv: [] };
@@ -4172,6 +4200,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const gIdx = activeIndex('apres-deck-geral'), jIdx = activeIndex('apres-deck');
 
       let gSl = geralSlides(S), gFa = geralFalas(S);
+      [gSl, gFa] = roteiroAplicar(gSl, gFa);
       [gSl, gFa] = ordAplicar('geral', gSl, gFa);
       gDeck.innerHTML = gSl.join('\n');
       const gf = document.getElementById('apres-falas-geral');
@@ -4238,7 +4267,7 @@ function apresPrint() {
       <div class="pr-bottom">
         <div class="pr-meta">${esc(title)} · Slide ${i + 1} de ${slides.length}</div>
         <h3>${esc(t)}</h3>
-        <p class="pr-fala">${esc(tx)}</p>
+        <p class="pr-fala" style="white-space:pre-line;font-size:${tx.length > 1500 ? 10 : tx.length > 1100 ? 11 : tx.length > 800 ? 12 : 13}pt;line-height:1.4">${esc(tx)}</p>
         ${tp ? `<p class="pr-tip"><b>Dica:</b> ${esc(tp)}</p>` : ''}
       </div></section>`;
   }).join('');
