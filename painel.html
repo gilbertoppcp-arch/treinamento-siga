@@ -1006,6 +1006,9 @@
 .ord-box button:disabled{opacity:.35;cursor:default}
 .ord-f{display:flex;justify-content:space-between;gap:8px;margin-top:12px}
 @media print{#ord-overlay,#ord-btn{display:none !important}}
+
+.as5{ padding-bottom:90px !important; overflow-y:auto !important; }
+.as5 .row .col-res{ color:#1A2B3C !important; }
 </style>
 </head>
 <body>
@@ -3786,7 +3789,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <p class="subtitle">Avarias por ano de registro · situação atual de cada ano${S.years.some(y => y.label !== String(y.y)) ? ' · ' + last.label + ' é parcial' : ''}</p>
         <div class="table-wrap"><div class="row-h"><div class="col-ig">Ano</div><div class="col-av">Registradas</div><div class="col-av">Resolvidas</div><div class="col-res">% resolvido</div><div class="col-av">Em aberto</div><div class="col-av">Tempo médio</div><div class="col-bar">Volume</div></div>
         ${S.years.map(y => `<div class="row"><div class="col-ig">${esc(y.label)}</div><div class="col-av">${y.total}</div><div class="col-av">${y.fin}</div><div class="col-res"><span class="badge-pct ${y.pct >= 90 ? 'good' : y.pct >= 50 ? 'warn' : 'bad'}">${y.pct}%</span></div><div class="col-av">${y.open}</div><div class="col-av">${y.mean} d</div><div class="col-bar"><div class="bar-bg"><div class="bar-fill" style="width:${Math.max(2, Math.round(y.total / maxY * 100))}%"></div></div></div></div>`).join('')}
-        ${S.years.length > 1 ? `<div class="row" style="background:rgba(91,196,245,0.08)"><div class="col-ig" style="font-weight:700;color:#5BC4F5">${last.y} × ${first.y}</div><div class="col-av">${dv(last.total, first.total)}</div><div class="col-av">${dv(last.fin, first.fin)}</div><div class="col-res">${dv(last.pct, first.pct)} p.p.</div><div class="col-av">${dv(last.open, first.open)}</div><div class="col-av">${dv(last.mean, first.mean)} d</div><div class="col-bar"></div></div>` : ''}
+        ${S.years.length > 1 ? `<div class="row" style="background:rgba(91,196,245,0.08)"><div class="col-ig" style="font-weight:700;color:#5BC4F5">Consolidado</div><div class="col-av" style="font-weight:700">${S.total}</div><div class="col-av" style="font-weight:700">${S.fin}</div><div class="col-res"><span class="badge-pct ${S.pct >= 90 ? 'good' : S.pct >= 50 ? 'warn' : 'bad'}">${S.pct}%</span></div><div class="col-av" style="font-weight:700">${S.years.reduce((a, y) => a + y.open, 0)}</div><div class="col-av" style="font-weight:700">${S.mean} d</div><div class="col-bar"></div></div>` : ''}
         </div></div>`);
       const showCh = S.withItems;
       sl.push(`<div class="apres-slide as5">
